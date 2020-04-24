@@ -6,19 +6,28 @@
  */
 
 #include"utils.h"
+#include <commons/config.h>
 
 void iniciar_servidor()
 {
 	int socket_servidor;
-
+	char* ip_broker;
+	char* puerto_broker;
     struct addrinfo hints, *servinfo, *p;
+	t_config* config;
+
+
+	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config");
+
+	ip_broker = config_get_string_value(config, "IP_BROKER");
+	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(IP, PUERTO, &hints, &servinfo);
+    getaddrinfo(ip_broker, puerto_broker, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
     {
@@ -35,6 +44,8 @@ void iniciar_servidor()
 	listen(socket_servidor, SOMAXCONN);
 
     freeaddrinfo(servinfo);
+
+	config_destroy(config);
 
     while(1)
     	esperar_cliente(socket_servidor);

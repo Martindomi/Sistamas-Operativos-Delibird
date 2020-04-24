@@ -1,19 +1,14 @@
 #include "gameboy.h"
 
 int main(int argc, char *argv[]){
-	char* ip_broker;
-	char* puerto_broker;
-	char* ip_team;
-	char* puerto_team;
-	char* ip_gamecard;
-	char* puerto_gamecard;
+
 	t_log* logger;
 	t_config* config;
 	int conexion;
 	char* mensaje;
 
 	logger = log_create("gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
-	config = config_create("gameboy.config");
+	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.config");
 
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
@@ -35,6 +30,7 @@ int main(int argc, char *argv[]){
 	log_info(logger, "mensaje recibido");
 	log_info(logger, mensaje);
 
+	free(mensaje);
 	log_destroy(logger);
 	config_destroy(config);
 	liberar_conexion(conexion);

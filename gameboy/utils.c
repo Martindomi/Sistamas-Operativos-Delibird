@@ -70,6 +70,8 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(a_enviar);
+	free(paquete->buffer);
+	free(paquete);
 }
 
 //TODO

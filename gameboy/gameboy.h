@@ -10,4 +10,11 @@
 #include<readline/readline.h>
 #include "utils.h"
 
+char* ip_broker;
+char* puerto_broker;
+char* ip_team;
+char* puerto_team;
+char* ip_gamecard;
+char* puerto_gamecard;
+
 #endif /* TP0_H_ */
