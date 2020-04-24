@@ -1,20 +1,9 @@
-#include <commons/config.h>
-#include <commons/log.h>
+#include "broker.h"
 
 int main(int argc, char *argv[]){
-	char* ip;
-	char* puerto;
-	t_log* logger;
-	t_config* config;
 
-	logger = log_create("broker.log", "BROKER", false, LOG_LEVEL_INFO);
-	config = config_create("broker.config");
-	ip = config_get_string_value(config, "IP_BROKER");
-	puerto = config_get_string_value(config, "PUERTO_BROKER");
+	iniciar_servidor();
 
-	log_info(logger, "ESTOY LOGEANDO");
-	log_info(logger, ip);
-	log_info(logger, puerto);
+	return EXIT_SUCCESS;
 
-	log_destroy(logger);
 }
