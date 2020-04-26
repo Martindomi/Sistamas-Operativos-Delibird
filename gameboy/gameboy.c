@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 	int conexion;
 	char* mensaje;
 
-	logger = log_create("gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
+	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
 	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.config");
 
 	ip_broker = config_get_string_value(config, "IP_BROKER");
