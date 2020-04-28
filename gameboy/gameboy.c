@@ -7,8 +7,8 @@ int main(int argc, char *argv[]){
 	int conexion;
 	char* mensaje;
 
-	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
-	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.config");
+	logger = log_create("gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
+	config = config_create("gameboy.config");
 
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 	enviar_mensaje("hola", conexion);
 	//recibir mensaje
 	log_info(logger, "mensaje enviado");
-	mensaje = recibir_mensaje(conexion);
+	mensaje = client_recibir_mensaje(conexion);
 	//loguear mensaje recibido
 	log_info(logger, "mensaje recibido");
 	log_info(logger, mensaje);

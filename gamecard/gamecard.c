@@ -1,5 +1,6 @@
 #include <commons/config.h>
 #include <commons/log.h>
+#include <conexiones.h>
 
 int main(int argc, char *argv[]){
 	char* ip;
@@ -12,9 +13,24 @@ int main(int argc, char *argv[]){
 	ip = config_get_string_value(config, "IP_GAMECARD");
 	puerto = config_get_string_value(config, "PUERTO_GAMECARD");
 
+	char*ip_broker = config_get_string_value(config, "IP_BROKER");
+	char*puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
+
+	int conexion = crear_conexion(ip_broker, puerto_broker);
+
+	enviar_mensaje("hola", conexion);
+	//recibir mensaje
+	log_info(logger, "mensaje enviado");
+	char*mensaje = client_recibir_mensaje(conexion);
+	//loguear mensaje recibido
+	log_info(logger, "mensaje recibido");
+	log_info(logger, mensaje);
+
 	log_info(logger, "ESTOY LOGEANDO");
 	log_info(logger, ip);
 	log_info(logger, puerto);
 
 	log_destroy(logger);
+	liberar_conexion(conexion);
+
 }

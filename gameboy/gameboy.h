@@ -8,7 +8,7 @@
 #include<commons/string.h>
 #include<commons/config.h>
 #include<readline/readline.h>
-#include "utils.h"
+#include<conexiones.h>
 
 char* ip_broker;
 char* puerto_broker;

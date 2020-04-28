@@ -1,8 +1,12 @@
-#include "broker.h"
+#include <conexiones.h>
 
 int main(int argc, char *argv[]){
 
-	iniciar_servidor();
+	char * configPath = "broker.config";
+	char * ipconfig= "IP_BROKER";
+	char * puertocofing= "PUERTO_BROKER";
+
+	iniciar_servidor(configPath, ipconfig,puertocofing);
 
 	return EXIT_SUCCESS;
 
