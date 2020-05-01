@@ -76,7 +76,7 @@ void process_request(int cod_op, int cliente_fd) {
 	int size;
 	void* msg;
 		switch (cod_op) {
-		case MENSAJE:
+		case MESSAGE:
 			msg = server_recibir_mensaje(cliente_fd, &size);
 			devolver_mensaje(msg, size, cliente_fd);
 			free(msg);
@@ -120,7 +120,7 @@ void devolver_mensaje(void* payload, int size, int socket_cliente)
 {
 	t_package* paquete = malloc(sizeof(t_package));
 
-	paquete->header = MENSAJE;
+	paquete->header = MESSAGE;
 	paquete->buffer = malloc(sizeof(t_buffer));
 	paquete->buffer->size = size;
 	paquete->buffer->stream = malloc(paquete->buffer->size);
@@ -128,7 +128,7 @@ void devolver_mensaje(void* payload, int size, int socket_cliente)
 
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 
-	void* a_enviar = serializar_paquete(paquete, &bytes);
+	void* a_enviar = serializar_mensaje(paquete, &bytes);
 
 	send(socket_cliente, a_enviar, bytes, 0);
 
@@ -143,19 +143,26 @@ void devolver_mensaje(void* payload, int size, int socket_cliente)
 // **** CLIENTE ****
 //
 
-void* serializar_paquete(t_package* paquete, int *bytes)
+void* serializar_mensaje(t_package* paquete, int *bytes)
 {
-	int tamanio_ser = sizeof(op_code) + sizeof(int) + paquete->buffer->size;
+	int tamanio_ser = sizeof(op_code) + sizeof(uint32_t)*3 + paquete->buffer->size;
 	void * buffer = malloc(tamanio_ser);
 	int desplazamiento = 0;
 
 	memcpy(buffer + desplazamiento, &(paquete->header), sizeof(paquete->header));
 	desplazamiento+= sizeof(paquete->header);
 
+	memcpy(buffer + desplazamiento, &(paquete->ID), sizeof(paquete->ID));
+	desplazamiento+= sizeof(paquete->ID);
+
+	memcpy(buffer + desplazamiento, &(paquete->correlativeID), sizeof(paquete->correlativeID));
+	desplazamiento+= sizeof(paquete->correlativeID);
+
 	memcpy(buffer + desplazamiento, &(paquete->buffer->size), sizeof(paquete->buffer->size));
 	desplazamiento+= sizeof(paquete->buffer->size);
 
 	memcpy(buffer + desplazamiento, paquete->buffer->stream, paquete->buffer->size);
+	desplazamiento+= sizeof(paquete->buffer->stream);
 
 	(*bytes) = tamanio_ser;
 
@@ -189,14 +196,14 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 {
 	t_package* paquete = malloc(sizeof(t_package));
 
-	paquete->header = MENSAJE;
+	paquete->header = MESSAGE;
 	paquete->buffer = malloc(sizeof(t_buffer));
 	paquete->buffer->stream = mensaje;
 	paquete->buffer->size = strlen(mensaje) + 1;
 
 	int bytes;
 
-	void* a_enviar = serializar_paquete(paquete, &bytes);
+	void* a_enviar = serializar_mensaje(paquete, &bytes);
 
 	send(socket_cliente, a_enviar, bytes, 0);
 
@@ -209,9 +216,15 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 char* client_recibir_mensaje(int socket_cliente)
 {
 	op_code operacion;
+	int buffer_size, ID, correlativeID;
+
+	//recibe codop, id , id correlativo, pero SOLO DEVUELVE BUFFER CON MENSAJE
 	recv(socket_cliente, &operacion, sizeof(operacion), 0);
-	int buffer_size;
+	recv(socket_cliente, &ID, sizeof(ID), 0);
+	recv(socket_cliente, &correlativeID, sizeof(correlativeID), 0);
+
 	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
+
 	char * buffer = malloc(buffer_size);
 	recv(socket_cliente, buffer, buffer_size, 0);
 

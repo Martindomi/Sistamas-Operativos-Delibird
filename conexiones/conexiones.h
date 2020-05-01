@@ -23,7 +23,7 @@
 
 typedef enum
 {
-	MENSAJE=1,
+	MESSAGE=1,
 	NEW_POKEMON = 2,
 	APPEARED_POKEMON = 3,
 	CATCH_POKEMON = 4,
@@ -31,18 +31,23 @@ typedef enum
 	GET_POKEMON = 6,
 	LOCALIZED_POKEMON = 7,
 	SUSCRIBE = 8
+
 }op_code;
 
 typedef struct
 {
-	int size;
+	uint32_t size;
 	void* stream;
+
 } t_buffer;
 
 typedef struct
 {
 	op_code header;
+	uint32_t ID;
+	uint32_t correlativeID;
 	t_buffer* buffer;
+
 } t_package;
 
 
@@ -57,7 +62,7 @@ void* server_recibir_mensaje(int socket_cliente, int* size);
 int recibir_operacion(int);
 void process_request(int cod_op, int cliente_fd);
 void serve_client(int *socket);
-void* serializar_paquete(t_package* paquete, int *bytes);
+void* serializar_mensaje(t_package* paquete, int *bytes);
 void devolver_mensaje(void* payload, int size, int socket_cliente);
 
 // Client
