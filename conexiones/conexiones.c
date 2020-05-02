@@ -78,6 +78,8 @@ void process_request(int cod_op, int cliente_fd) {
 		switch (cod_op) {
 		case MESSAGE:
 			msg = server_recibir_mensaje(cliente_fd, &size);
+			msg = strcat(msg," correcto");
+			size = size + 10;
 			devolver_mensaje(msg, size, cliente_fd);
 			free(msg);
 			break;
@@ -145,18 +147,12 @@ void devolver_mensaje(void* payload, int size, int socket_cliente)
 
 void* serializar_mensaje(t_package* paquete, int *bytes)
 {
-	int tamanio_ser = sizeof(op_code) + sizeof(uint32_t)*3 + paquete->buffer->size;
+	int tamanio_ser = sizeof(op_code) + sizeof(uint32_t) + paquete->buffer->size;
 	void * buffer = malloc(tamanio_ser);
 	int desplazamiento = 0;
 
 	memcpy(buffer + desplazamiento, &(paquete->header), sizeof(paquete->header));
 	desplazamiento+= sizeof(paquete->header);
-
-	memcpy(buffer + desplazamiento, &(paquete->ID), sizeof(paquete->ID));
-	desplazamiento+= sizeof(paquete->ID);
-
-	memcpy(buffer + desplazamiento, &(paquete->correlativeID), sizeof(paquete->correlativeID));
-	desplazamiento+= sizeof(paquete->correlativeID);
 
 	memcpy(buffer + desplazamiento, &(paquete->buffer->size), sizeof(paquete->buffer->size));
 	desplazamiento+= sizeof(paquete->buffer->size);
@@ -216,12 +212,10 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 char* client_recibir_mensaje(int socket_cliente)
 {
 	op_code operacion;
-	int buffer_size, ID, correlativeID;
+	int buffer_size;
 
-	//recibe codop, id , id correlativo, pero SOLO DEVUELVE BUFFER CON MENSAJE
+
 	recv(socket_cliente, &operacion, sizeof(operacion), 0);
-	recv(socket_cliente, &ID, sizeof(ID), 0);
-	recv(socket_cliente, &correlativeID, sizeof(correlativeID), 0);
 
 	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
 

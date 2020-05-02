@@ -44,8 +44,6 @@ typedef struct
 typedef struct
 {
 	op_code header;
-	uint32_t ID;
-	uint32_t correlativeID;
 	t_buffer* buffer;
 
 } t_package;
