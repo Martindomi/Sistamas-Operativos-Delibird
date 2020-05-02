@@ -5,10 +5,10 @@ int main(int argc, char *argv[]){
 	t_log* logger;
 	t_config* config;
 	int conexion;
-	char* mensaje;
+	char* mensaje ;
 
-	logger = log_create("gameboy.log", "GAMEBOY", false, LOG_LEVEL_INFO);
-	config = config_create("gameboy.config");
+	logger = log_create("./gameboy.log", "GAMEBOY", 1, LOG_LEVEL_INFO);
+	config = config_create("./gameboy.config");
 
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
@@ -19,8 +19,11 @@ int main(int argc, char *argv[]){
 
 	log_info(logger, "ESTOY LOGEANDO");
 
-	conexion = crear_conexion(ip_broker, puerto_broker);
+	if( (conexion = crear_conexion(ip_broker, puerto_broker)) == -1){
+		printf("NO SE CONECTO");
+	}
 	//enviar mensaje
+	printf("%d",conexion);
 	log_info(logger, "conexion creada");
 	enviar_mensaje("hola", conexion);
 	//recibir mensaje
