@@ -1,36 +1,38 @@
-#include <commons/config.h>
-#include <commons/log.h>
-#include <conexiones.h>
+
+#include "team.h"
+
+
+
 
 int main(int argc, char *argv[]){
-	char* ip;
-	char* puerto;
-	t_log* logger;
-	t_config* config;
 
-	logger = log_create("team.log", "TEAM", false, LOG_LEVEL_INFO);
-	config = config_create("team.config");
-	ip = config_get_string_value(config, "IP_BROKER");
-	puerto = config_get_string_value(config, "PUERTO_BROKER");
+	t_config *config = config_create("./team.config");
+	t_list * entrenadores_list = list_create();
+	t_list *lista = list_create();
+	t_entrenador unEntrenador;
 
-	log_info(logger, "ESTOY LOGEANDO");
-	log_info(logger, ip);
-	log_info(logger, puerto);
+/*	TODO
+ * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
+ *
+ */
 
-	int conexion = crear_conexion(ip, puerto);
+	inicializar_entrenadores(config, unEntrenador, entrenadores_list);
 
-	enviar_mensaje("hola", conexion);
-	//recibir mensaje
-	log_info(logger, "mensaje enviado");
-	char*mensaje = client_recibir_mensaje(conexion);
-	//loguear mensaje recibido
-	log_info(logger, "mensaje recibido");
-	log_info(logger, mensaje);
 
-	log_info(logger, "ESTOY LOGEANDO");
-	log_info(logger, ip);
-	log_info(logger, puerto);
+/* TODO
+ * se deben hacer threads por cada entrenador
+ *
+ */
 
-	log_destroy(logger);
-	liberar_conexion(conexion);
+/*TODO
+ * se debe realizar planificaion	1°FIFO
+ * 									2°RR
+ * 									3°SJF
+ *
+ */
+
+
 }
+
+
+
