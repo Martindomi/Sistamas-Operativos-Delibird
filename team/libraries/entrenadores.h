@@ -41,8 +41,9 @@ typedef struct {
 }t_entrenador;
 
 
-void inicializar_entrenadores (t_config*, t_entrenador , t_list* );
+void inicializar_entrenadores (t_config*,t_list* );
 int calcularCantidadLista(char**);
+void imprimirLista(t_list*);
 
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */
