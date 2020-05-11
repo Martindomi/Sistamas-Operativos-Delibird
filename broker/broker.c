@@ -6,11 +6,17 @@ int main(int argc, char *argv[]){
 	char * configPath = "../broker.config";
 	char * ipconfig= "IP_BROKER";
 	char * puertocofing= "PUERTO_BROKER";
-	t_list* suscriptores = malloc(sizeof(t_list));
-	t_list* mensajes = malloc(sizeof(t_list));
+	t_list* suscriptores_new = malloc(sizeof(t_list));
+	t_list* mensajes_new = malloc(sizeof(t_list));
+	t_list* suscriptores_appeared = malloc(sizeof(t_list));
+	t_list* mensajes_appeared = malloc(sizeof(t_list));
 	new_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*new_pokemon).suscriptores = suscriptores;
-	(*new_pokemon).mensajes = mensajes;
+	(*new_pokemon).suscriptores = suscriptores_new;
+	(*new_pokemon).mensajes = mensajes_new;
+
+	appeared_pokemon = malloc(sizeof(t_cola_mensaje));
+	(*appeared_pokemon).suscriptores = suscriptores_appeared;
+	(*appeared_pokemon).mensajes = mensajes_appeared;
 
 	cantidad_mensajes = 0;
 
@@ -33,7 +39,7 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 	t_config* config;
 
 
-	config = config_create(path_config);
+	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config");
 
 	ip = config_get_string_value(config, ip_config);
 	puerto = config_get_string_value(config, port_config);
@@ -124,6 +130,22 @@ void process_request(int cod_op, int socket) {
 			free(mensajeRecibido);
 			free(mensaje);
 			break;
+		case SUSCRIBE:
+			log_info(logger_broker, "ENTRA SUSCRIPCION");
+			puntero_suscripcion_cola mensaje_suscripcion;
+			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
+			log_info(logger_broker, "SALE SUSCRIPCION");
+
+			agregar_suscriptor_cola(mensaje_suscripcion);
+
+			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
+			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
+
+			log_info(logger_broker, "SUSCRIPCION");
+
+			free(mensajeRecibido);
+			free(mensaje);
+			break;
 		case 0:
 			pthread_exit(NULL);
 		case -1:
@@ -133,6 +155,14 @@ void process_request(int cod_op, int socket) {
 
 void aumentar_cantidad_mensajes(){
 	cantidad_mensajes ++;
+}
+
+void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion){
+	switch(mensaje_suscripcion->cola) {
+		case APPEARED_POKEMON:
+			list_add(appeared_pokemon->suscriptores, mensaje_suscripcion->cliente);
+			break;
+	}
 }
 
 /*void* server_recibir_mensaje(int socket_cliente, uint32_t* size)

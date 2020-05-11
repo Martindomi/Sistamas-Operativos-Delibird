@@ -330,3 +330,67 @@ puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_s
 	free(buffer);
 	return mensaje_recibido;
 }
+
+//----------------------------------SUSCRIPCION-------------------------------------------------
+void enviar_mensaje_suscribir(op_code codigo_operacion, char* puerto_thread_team, int socket){
+	t_package* paquete = malloc(sizeof(t_package));
+
+	paquete->header = SUSCRIBE;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	int size_puerto = strlen(puerto_thread_team) + 1;
+	buffer->size = sizeof(op_code) + sizeof(int) + size_puerto;
+	void* stream = malloc(buffer->size);
+
+	int tamanio = 0;
+	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
+	tamanio += sizeof(op_code);
+
+	memcpy(stream + tamanio, &size_puerto, sizeof(int));
+	tamanio += sizeof(int);
+
+	memcpy(stream + tamanio, puerto_thread_team, size_puerto);
+	tamanio += size_puerto;
+
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+}
+
+puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size, t_log* logger_broker){
+	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	log_info(logger_broker, "buffer suscripcion pasa");
+	puntero_suscripcion_cola mensaje_recibido = malloc(sizeof(puntero_suscripcion_cola));
+	int puerto_size;
+	char* puerto;
+	op_code codigo_cola;
+
+	log_info(logger_broker, "PASA MALLOC");
+	log_info(logger_broker, &buffer);
+	log_info(logger_broker, "muestra buffer");
+
+	int desplazamiento = 0;
+	memcpy(&codigo_cola, buffer + desplazamiento, sizeof(op_code));
+	desplazamiento += sizeof(op_code);
+
+	memcpy(&puerto_size, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	puerto = malloc(puerto_size);
+	memcpy(puerto, buffer + desplazamiento, puerto_size);
+
+	mensaje_recibido->cola = codigo_cola;
+	mensaje_recibido->cliente = puerto;
+
+	free(buffer);
+	return mensaje_recibido;
+}

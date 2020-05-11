@@ -94,9 +94,17 @@ typedef struct {
 	uint32_t caught_pokemon;
 } t_mensaje_caught_pokemon;
 
+typedef struct {
+	op_code cola;
+	char* cliente;
+} t_suscripcion_cola;
+typedef t_suscripcion_cola* puntero_suscripcion_cola;
+
 
 pthread_t thread;
 t_log* logger_global;
+
+
 // Server
 
 void* recibir_buffer(int*, int);
