@@ -6,7 +6,7 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 
 	int i=0;
 	int cant_objetivo, cant_capturado;
-	char ** list_values;
+	char ** posiciones;
 	t_entrenador *unEntrenador;
 
 	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
@@ -18,9 +18,9 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		unEntrenador = malloc(sizeof(t_entrenador));
 		unEntrenador->estado= NEW;
 
-		list_values = string_split(read_posiciones[i], "|");
-		unEntrenador->x = atoi(*(list_values));
-		unEntrenador->y = atoi(*(list_values+1));
+		posiciones = string_split(read_posiciones[i], "|");
+		unEntrenador->x = atoi(*(posiciones));
+		unEntrenador->y = atoi(*(posiciones+1));
 
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
@@ -61,11 +61,26 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		//printf("%d\n", entrenador->x);
 
 
+		liberarArrayDeStrings(posiciones);
 
 	}
 
+	liberarArrayDeStrings(read_objetivos);
+	liberarArrayDeStrings(read_pokemones);
+	liberarArrayDeStrings(read_posiciones);
+
+
+
 }
 
+
+void liberarArrayDeStrings(char** options){
+	int j=0;
+	while(options[j]!=NULL){
+		free(options[j]);
+		j++;
+	}free(options);
+}
 
 
 int calcularCantidadLista(char **lista){

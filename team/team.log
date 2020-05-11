@@ -7,3 +7,44 @@
 [INFO] 00:24:46:970 TEAM/(24933:24933): ESTOY LOGEANDO
 [INFO] 00:24:46:970 TEAM/(24933:24933): 127.0.0.1
 [INFO] 00:24:46:970 TEAM/(24933:24933): 5001
+[INFO] 00:45:16:427 TEAM/(9335:9335): conexion creada
+[INFO] 00:45:16:429 TEAM/(9335:9335): mensaje enviado
+[INFO] 00:45:16:433 TEAM/(9335:9335): mensaje recibido
+[INFO] 00:45:16:433 TEAM/(9335:9335): 0
+[INFO] 00:46:03:729 TEAM/(9377:9377): conexion creada
+[INFO] 00:46:03:733 TEAM/(9377:9377): mensaje enviado
+[INFO] 00:46:03:734 TEAM/(9377:9377): mensaje recibido
+[INFO] 00:46:03:734 TEAM/(9377:9377): 1
+[INFO] 00:47:12:281 TEAM/(9406:9406): conexion creada
+[INFO] 00:47:12:282 TEAM/(9406:9406): mensaje enviado
+[INFO] 00:47:12:282 TEAM/(9406:9406): mensaje recibido
+[INFO] 00:47:12:283 TEAM/(9406:9406): 2
+[INFO] 00:47:15:457 TEAM/(9432:9432): conexion creada
+[INFO] 00:47:15:467 TEAM/(9432:9432): mensaje enviado
+[INFO] 00:47:15:468 TEAM/(9432:9432): mensaje recibido
+[INFO] 00:47:15:468 TEAM/(9432:9432): 3
+[INFO] 00:47:17:844 TEAM/(9451:9451): conexion creada
+[INFO] 00:47:17:851 TEAM/(9451:9451): mensaje enviado
+[INFO] 00:47:17:853 TEAM/(9451:9451): mensaje recibido
+[INFO] 00:47:17:853 TEAM/(9451:9451): 4
+[INFO] 00:47:19:821 TEAM/(9469:9469): conexion creada
+[INFO] 00:47:19:831 TEAM/(9469:9469): mensaje enviado
+[INFO] 00:47:19:831 TEAM/(9469:9469): mensaje recibido
+[INFO] 00:47:19:831 TEAM/(9469:9469): 5
+[INFO] 00:47:21:233 TEAM/(9484:9484): conexion creada
+[INFO] 00:47:21:239 TEAM/(9484:9484): mensaje enviado
+[INFO] 00:47:21:243 TEAM/(9484:9484): mensaje recibido
+[INFO] 00:47:21:244 TEAM/(9484:9484): 6
+[INFO] 00:47:27:360 TEAM/(9502:9502): conexion creada
+[INFO] 00:47:27:367 TEAM/(9502:9502): mensaje enviado
+[INFO] 00:47:27:370 TEAM/(9502:9502): mensaje recibido
+[INFO] 00:47:27:370 TEAM/(9502:9502): 7
+[INFO] 21:49:03:288 TEAM/(3758:3758): conexion creada
+[INFO] 21:50:10:78 TEAM/(3808:3808): conexion creada
+[INFO] 21:50:44:254 TEAM/(3874:3874): conexion creada
+[INFO] 21:50:55:514 TEAM/(3886:3886): conexion creada
+[INFO] 21:52:01:705 TEAM/(3963:3963): conexion creada
+[INFO] 21:59:27:691 TEAM/(4141:4141): conexion creada
+[INFO] 22:02:38:196 TEAM/(4298:4298): conexion creada
+[INFO] 22:03:47:959 TEAM/(4377:4377): conexion creada
+[INFO] 22:06:31:390 TEAM/(4699:4699): conexion creada

@@ -3,6 +3,7 @@
 	<name>conexiones</name>
 	<comment></comment>
 	<projects>
+		<project>conexiones</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

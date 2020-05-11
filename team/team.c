@@ -6,9 +6,10 @@
 
 int main(int argc, char *argv[]){
 
-	t_config *config = config_create("./team.config");
+	t_config *config = config_create("../team.config");
 	t_list * entrenadores_list = list_create();
 	t_list *lista = list_create();
+
 
 
 /*	TODO
@@ -37,6 +38,9 @@ int main(int argc, char *argv[]){
  *
  */
 
+	list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
+	list_destroy(lista);
+	config_destroy(config);
 
 }
 
