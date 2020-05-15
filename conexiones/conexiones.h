@@ -83,6 +83,9 @@ typedef struct {
 	uint32_t pos_y;
 } t_mensaje_appeared_pokemon;
 
+typedef t_mensaje_appeared_pokemon* puntero_mensaje_appeared_pokemon;
+
+
 typedef struct {
 	uint32_t name_size;
 	char* name_pokemon;
@@ -90,9 +93,14 @@ typedef struct {
 	uint32_t pos_y;
 } t_mensaje_catch_pokemon;
 
+typedef t_mensaje_catch_pokemon* puntero_mensaje_catch_pokemon;
+
+
 typedef struct {
 	uint32_t caught_pokemon;
 } t_mensaje_caught_pokemon;
+
+typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
 
 typedef struct {
 	op_code cola;
