@@ -17,6 +17,8 @@
 #include <string.h>
 #include <pthread.h>
 #include <sys/socket.h>
+#include <semaphore.h>
+
 
 typedef enum
 {
@@ -37,7 +39,8 @@ typedef struct {
 	char** pokemonesObjetivo;
 	int espacioLibre;
 	t_estado estado;
-	pthread_t fred;
+	pthread_t th;
+	sem_t sem_entrenador;
 
 	// lo que se mueve por las colas seria el entrenador y cuando se tiene que ejecutar ahi hago el pthread_join ?
 
@@ -49,7 +52,7 @@ typedef struct{
 	char* pokemon;
 	int cantidad;
 
-};
+} t_pokemonObjetivo;
 
 t_list* objetivo; // cargar todos los objetivos para poder mandar GETS al borker ( es necesario ? )
 
@@ -86,6 +89,7 @@ void inicializar_entrenadores (t_config*,t_list* );
 int calcularCantidadLista(char**);
 void imprimirLista(t_list*);
 void liberarArrayDeStrings(char**);
+void *main_entrenador(t_entrenador*);
 
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */

@@ -50,6 +50,8 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		cant_capturado = calcularCantidadLista(unEntrenador->pokemonesCapturados);
 
 		unEntrenador->espacioLibre = cant_objetivo - cant_capturado;
+
+		sem_init(&(unEntrenador->sem_entrenador),0,0);
 		//printf("%d\n",unEntrenador.espacioLibre);
 
 		list_add(entrenadores_list,unEntrenador);
@@ -113,5 +115,15 @@ void imprimirLista(t_list* entrenadores_list){
 	puts("");
 
 	}
+}
+
+void *main_entrenador(t_entrenador* entrenador){
+
+	printf("Posicion entrenador: %d %d\n", entrenador->x, entrenador->y);
+	sem_wait(&(entrenador->sem_entrenador));
+	printf("Se desbloque esta cosa como dijo el sino no va andar\n");
+	list_add(cola_EXIT,entrenador);
+	list_remove(cola_READY,0);
+
 }
 
