@@ -527,12 +527,13 @@ puntero_mensaje_caught_pokemon recibir_caught_pokemon( int socket, uint32_t* paq
 
 
 //----------------------------------SUSCRIPCION-------------------------------------------------
-void enviar_mensaje_suscribir(op_code codigo_operacion, char* puerto_thread_team, int socket){
+void enviar_mensaje_suscribir(op_code codigo_operacion, int socket_propio, int socket){
 	t_package* paquete = malloc(sizeof(t_package));
 
 	paquete->header = SUSCRIBE;
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	int size_puerto = strlen(puerto_thread_team) + 1;
+	char* socket_cliente = string_itoa(socket_propio);
+	int size_puerto = strlen(socket_cliente) + 1;
 	buffer->size = sizeof(op_code) + sizeof(int) + size_puerto;
 	void* stream = malloc(buffer->size);
 
@@ -543,7 +544,7 @@ void enviar_mensaje_suscribir(op_code codigo_operacion, char* puerto_thread_team
 	memcpy(stream + tamanio, &size_puerto, sizeof(int));
 	tamanio += sizeof(int);
 
-	memcpy(stream + tamanio, puerto_thread_team, size_puerto);
+	memcpy(stream + tamanio, socket_cliente, size_puerto);
 	tamanio += size_puerto;
 
 	buffer->stream = stream;
@@ -589,3 +590,6 @@ puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size
 	free(buffer);
 	return mensaje_recibido;
 }
+
+int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; }
+

@@ -53,6 +53,7 @@ typedef struct {
 	t_list* suscriptores_enviados;
 	t_list* suscriptores_ack;
 } t_mensaje;
+typedef t_mensaje* puntero_mensaje;
 
 typedef struct {
 	uint32_t name_size;
@@ -109,7 +110,6 @@ typedef struct {
 typedef t_suscripcion_cola* puntero_suscripcion_cola;
 
 
-pthread_t thread;
 t_log* logger_global;
 
 

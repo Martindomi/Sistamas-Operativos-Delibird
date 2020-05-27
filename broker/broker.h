@@ -8,7 +8,13 @@
 #include <commons/config.h>
 #include <commons/log.h>
 
+#define  THREAD_POOL 5
+pthread_t  thread_pool[THREAD_POOL];
+
 t_log *logger_broker;
+pthread_t thread;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t condition_variable = PTHREAD_COND_INITIALIZER;
 
 typedef struct {
 	t_list* suscriptores;
@@ -18,6 +24,10 @@ typedef struct {
 
 t_cola_mensaje* new_pokemon;
 t_cola_mensaje* appeared_pokemon;
+
+void* distribuir_mensajes(void* arg);
+int mensajes_nuevos();
+void* distribuir_mensaje();
 
 int cantidad_mensajes;
 

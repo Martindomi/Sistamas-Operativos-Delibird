@@ -90,19 +90,13 @@ int main(int argc, char *argv[]){
 
 		//enviar_mensaje_new_pokemon(logger, ip_broker, puerto_broker);
 		char* puerto_thread_team = "55010";
-		suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
+		crear_thread_suscripcion(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
 		config_destroy(config);
 
 }
 
-void suscribirse_cola(op_code codigo_cola, char* ip_broker, char* puerto_broker, char* puerto_thread_team, t_log* logger) {
-	char* ip_team = "127.0.0.1";
-	//crear_thread_suscripcion(ip_team, puerto_thread_team);
 
-	suscribir(codigo_cola, ip_broker, puerto_broker, puerto_thread_team, logger);
-}
-
-void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* puerto_thread_team, t_log* logger) {
+void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, int socket, t_log* logger) {
 	char* mensaje;
 	int conexion;
 	//crear conexion
@@ -110,7 +104,7 @@ void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, c
 	//enviar mensaje
 	log_info(logger, "conexion creada - suscripcion");
 
-	enviar_mensaje_suscribir(codigo_operacion, puerto_thread_team, conexion);
+	enviar_mensaje_suscribir(codigo_operacion, socket, conexion);
 	//recibir mensaje
 	log_info(logger, "suscripcion enviado");
 	mensaje = client_recibir_mensaje(conexion);
@@ -119,13 +113,13 @@ void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, c
 	log_info(logger, mensaje);
 
 	free(mensaje);
-	log_destroy(logger);
 	liberar_conexion(conexion);
 }
 
-void crear_thread_suscripcion(char* ip, char* port)
+void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broker, char* port_team, t_log* logger)
 {
 	pthread_t thread_team;
+	char* ip_team = "127.0.0.2";
 
 	int socket_servidor;
     struct addrinfo hints, *servinfo, *p;
@@ -136,12 +130,17 @@ void crear_thread_suscripcion(char* ip, char* port)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(ip, port, &hints, &servinfo);
+    getaddrinfo(ip_team, port_team, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
     {
-        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+    	socket_servidor = guard(socket(p->ai_family, p->ai_socktype, p->ai_protocol), "could not create TCP listening socket");
+
+        if (socket_servidor == -1)
             continue;
+
+        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
+        guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
 
         if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
             close(socket_servidor);
@@ -154,6 +153,8 @@ void crear_thread_suscripcion(char* ip, char* port)
 
     freeaddrinfo(servinfo);
 
+	suscribir(op_code, ip_broker, port_broker, socket_servidor, logger);
+	enviar_mensaje_new_pokemon(logger, ip_broker, port_broker);
     while(1){
 
     	struct sockaddr_in dir_cliente;
@@ -161,9 +162,19 @@ void crear_thread_suscripcion(char* ip, char* port)
 		socklen_t tam_direccion = sizeof(struct sockaddr_in);
 
 		int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
-
-		pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket_cliente);
-		pthread_detach(thread_team);
+		if (socket_cliente == -1) {
+		  if (errno == EWOULDBLOCK) {
+			printf("No pending connections; sleeping for one second.\n");
+			sleep(1);
+		  } else {
+			perror("error when accepting connection");
+			exit(1);
+		  }
+		} else {
+		  printf("Got a connection; writing 'hello' then closing.\n");
+		  pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket_cliente);
+		  pthread_detach(thread_team);
+		}
 
     }
 
@@ -196,7 +207,6 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		log_info(logger, mensaje);
 
 		free(mensaje);
-		log_destroy(logger);
 		liberar_conexion(conexion);
 }
 

@@ -6,6 +6,7 @@ int main(int argc, char *argv[]){
 	char * configPath = "../broker.config";
 	char * ipconfig= "IP_BROKER";
 	char * puertocofing= "PUERTO_BROKER";
+
 	t_list* suscriptores_new = malloc(sizeof(t_list));
 	t_list* mensajes_new = malloc(sizeof(t_list));
 	t_list* suscriptores_appeared = malloc(sizeof(t_list));
@@ -20,8 +21,8 @@ int main(int argc, char *argv[]){
 
 	cantidad_mensajes = 0;
 
-	logger_broker =log_create("../broker.log", "BROKER", false, LOG_LEVEL_INFO);
-	logger_global = log_create("../global.log", "GLOBAL", false, LOG_LEVEL_INFO);
+	logger_broker =log_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.log", "BROKER", false, LOG_LEVEL_INFO);
+	logger_global = log_create("/home/utnso/tp-2020-1c-Elite-Four/broker/global.log", "GLOBAL", false, LOG_LEVEL_INFO);
 	log_info(logger_broker, "ESTOY LOGEANDO");
 
 	iniciar_servidor(configPath, ipconfig, puertocofing);
@@ -37,7 +38,7 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 	char* puerto;
     struct addrinfo hints, *servinfo, *p;
 	t_config* config;
-
+	const int lista_colas[5] = {NEW_POKEMON, APPEARED_POKEMON, CATCH_POKEMON, CAUGHT_POKEMON, GET_POKEMON, LOCALIZED_POKEMON };
 
 	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config");
 
@@ -51,19 +52,22 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 
     getaddrinfo(ip, puerto, &hints, &servinfo);
 
+    //for(int j= 0; j < 6; j++) {
+    	int* puntero_cola = malloc(sizeof(puntero_cola));
+    	*puntero_cola = lista_colas[0];
+		pthread_create(&thread_pool[0], NULL, distribuir_mensajes, puntero_cola);
+    //}
+
     for (p=servinfo; p != NULL; p = p->ai_next)
     {
-        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-            continue;
+        guard((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)), "Failed to create socket");
 
-        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
-            close(socket_servidor);
-            continue;
-        }
+        guard(bind(socket_servidor, p->ai_addr, p->ai_addrlen), "Bind failed");
+
         break;
     }
 
-	listen(socket_servidor, SOMAXCONN);
+	guard(listen(socket_servidor, SOMAXCONN), "Listen failed");
 
     freeaddrinfo(servinfo);
 
@@ -79,7 +83,7 @@ void esperar_cliente(int socket_servidor)
 
 	socklen_t tam_direccion = sizeof(struct sockaddr_in);
 
-	int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+	int socket_cliente = guard(accept(socket_servidor, (void*) &dir_cliente, &tam_direccion), "Accept failed");
 
 	pthread_create(&thread,NULL,(void*)serve_client,&socket_cliente);
 	pthread_detach(thread);
@@ -99,6 +103,8 @@ void process_request(int cod_op, int socket) {
 	void* msg;
 	puntero_mensaje_new_pokemon mensajeRecibido;
 	t_mensaje* mensaje = malloc(sizeof(t_mensaje));
+	mensaje->suscriptores_ack = list_create();
+	mensaje->suscriptores_enviados = list_create();
 		switch (cod_op) {
 		case MESSAGE:
 			msg = server_recibir_mensaje(socket, &size);
@@ -107,9 +113,10 @@ void process_request(int cod_op, int socket) {
 			devolver_mensaje(msg, size, socket);
 			log_info(logger_broker, "MESSAGE");
 			log_info(logger_broker, msg);
-			free(msg);
 			break;
 		case NEW_POKEMON:
+			pthread_mutex_lock(&mutex);
+
 			log_info(logger_broker, "ENTRA");
 
 			mensajeRecibido = recibir_new_pokemon(socket, &size, logger_broker);
@@ -117,6 +124,7 @@ void process_request(int cod_op, int socket) {
 
 			mensaje->id = cantidad_mensajes;
 			mensaje->mensaje = mensajeRecibido;
+			mensaje->suscriptores_ack =
 
 			list_add(new_pokemon->mensajes, mensaje);
 
@@ -128,9 +136,13 @@ void process_request(int cod_op, int socket) {
 			log_info(logger_broker, "NEWPOKEMON");
 
 			free(mensajeRecibido);
-			free(mensaje);
+			pthread_mutex_unlock(&mutex);
+			pthread_cond_signal(&condition_variable);
+
 			break;
 		case SUSCRIBE:
+			pthread_mutex_lock(&mutex);
+
 			log_info(logger_broker, "ENTRA SUSCRIPCION");
 			puntero_suscripcion_cola mensaje_suscripcion;
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
@@ -140,17 +152,17 @@ void process_request(int cod_op, int socket) {
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
-
-			log_info(logger_broker, "SUSCRIPCION");
-
-			free(mensajeRecibido);
-			free(mensaje);
+			pthread_mutex_unlock(&mutex);
+			pthread_cond_signal(&condition_variable);
 			break;
 		case 0:
 			pthread_exit(NULL);
 		case -1:
 			pthread_exit(NULL);
 		}
+	free(mensaje->suscriptores_ack);
+	free(mensaje->suscriptores_enviados);
+	free(mensaje);
 }
 
 void aumentar_cantidad_mensajes(){
@@ -165,10 +177,68 @@ void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion){
 	}
 }
 
-/*void* server_recibir_mensaje(int socket_cliente, uint32_t* size)
-{
-	void * buffer = malloc(*size);
-	recv(socket_cliente, buffer, *size, MSG_WAITALL);
+void* distribuir_mensajes(void* puntero_cola) {
+	while(1) {
+		// ENVIA MENSAJES A SUSCRIPTORES
+		int cola = *((int*) puntero_cola);
+		int cant_mensajes_nuevos;
+		pthread_cond_wait(&condition_variable, &mutex);
+		pthread_mutex_lock(&mutex);
+		if((cant_mensajes_nuevos = mensajes_nuevos(cola)) <= 0) {
+			cant_mensajes_nuevos = mensajes_nuevos(cola);
+		}
 
-	return buffer;
-}*/
+		if(cant_mensajes_nuevos > 0) {
+			distribuir_mensaje(cola);
+		}
+		pthread_mutex_unlock(&mutex);
+
+	}
+}
+
+int mensajes_nuevos(cola) {
+	int retorno;
+	puntero_mensaje puntero;
+	t_cola_mensaje* cola_mensajes;
+	switch(cola) {
+		case NEW_POKEMON: {
+			cola_mensajes = new_pokemon;
+			break;
+		}
+		case APPEARED_POKEMON: {
+			cola_mensajes = appeared_pokemon;
+			break;
+		}
+		default: {
+			//TODO SACAR ESTO Y PONER LSA OTRAS COLAS
+			cola_mensajes = new_pokemon;
+		}
+	}
+	for(int i = 0; i < list_size(cola_mensajes->mensajes); i++) {
+		puntero = list_get(cola_mensajes->mensajes, i);
+		//TODO asi no se calcula la cantidad de mensajes nuevos
+		if(list_size(cola_mensajes->suscriptores) == list_size(puntero->suscriptores_enviados)) {
+			retorno = 0;
+		} else {
+			retorno = 1;
+			break;
+		}
+	}
+	return retorno;
+}
+
+void* distribuir_mensaje(cola) {
+	int conexion;
+	conexion = crear_conexion("127.0.0.2", "55002");
+
+	// TODO completar con las demas colas
+	switch(cola) {
+		case NEW_POKEMON: {
+			char* nombre = "pikachu";
+			uint32_t posx = 2;
+			uint32_t posy = 3;
+			uint32_t quant = 8;
+			send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+		}
+	}
+}
