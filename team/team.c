@@ -19,13 +19,33 @@ int main(int argc, char *argv[]){
  *
  */
 
-	//inicializar_entrenadores(config, entrenadores_list);
-	//imprimirLista(entrenadores_list);
+	char* ip_broker;
+	char* puerto_broker;
+
+
+	t_log* logger;
+
+	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
+
+	//Loggear "soy un log"
+
+	//config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
+	ip_broker = config_get_string_value(config, "IP_BROKER");
+	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
+
+	//enviar_mensaje_new_pokemon(logger, ip_broker, puerto_broker);
+	char* puerto_thread_team = "55010";
+	suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
+	//config_destroy(config);--> COMENTADO YA QUE MAS ADELANTE SE USA EL CONFIG, se cierra al final del main
+
+
 
 /* TODO
  * se deben hacer threads por cada entrenador
  *
  */
+	inicializar_entrenadores(config, entrenadores_list);
+	imprimirLista(entrenadores_list);
 
 	int cant_entrenadores = list_size(entrenadores_list);
 	int i=0;
@@ -72,27 +92,11 @@ int main(int argc, char *argv[]){
  *
  *
  */
-		char* ip_broker;
-		char* puerto_broker;
 
-	list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
-	list_destroy(lista);
-	config_destroy(config);
-		t_log* logger;
 
-		logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
-
-		//Loggear "soy un log"
-
-		config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
-		ip_broker = config_get_string_value(config, "IP_BROKER");
-		puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
-
-		//enviar_mensaje_new_pokemon(logger, ip_broker, puerto_broker);
-		char* puerto_thread_team = "55010";
-		suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
+		list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
+		list_destroy(lista);
 		config_destroy(config);
-
 }
 
 void suscribirse_cola(op_code codigo_cola, char* ip_broker, char* puerto_broker, char* puerto_thread_team, t_log* logger) {
