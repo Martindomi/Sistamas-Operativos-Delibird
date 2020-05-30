@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 
 	t_log* logger;
 
-	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
+	logger = log_create("/home/utnso/delibird/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
 
 	//Loggear "soy un log"
 
@@ -100,8 +100,8 @@ int main(int argc, char *argv[]){
 }
 
 void suscribirse_cola(op_code codigo_cola, char* ip_broker, char* puerto_broker, char* puerto_thread_team, t_log* logger) {
-	char* ip_team = "127.0.0.1";
-	//crear_thread_suscripcion(ip_team, puerto_thread_team);
+	char* ip_team = "127.0.0.2";
+	crear_thread_suscripcion(ip_team, puerto_thread_team);
 
 	suscribir(codigo_cola, ip_broker, puerto_broker, puerto_thread_team, logger);
 }
@@ -112,7 +112,7 @@ void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, c
 	//crear conexion
 	conexion = crear_conexion(ip_broker, puerto_broker);
 	//enviar mensaje
-	log_info(logger, "conexion creada - suscripcion");
+	log_info(logger, "conexion creada - suscripcion: %d",conexion);
 
 	enviar_mensaje_suscribir(codigo_operacion, puerto_thread_team, conexion);
 	//recibir mensaje
@@ -124,7 +124,7 @@ void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, c
 
 	free(mensaje);
 	log_destroy(logger);
-	liberar_conexion(conexion);
+	close(conexion);
 }
 
 void crear_thread_suscripcion(char* ip, char* port)
@@ -139,6 +139,7 @@ void crear_thread_suscripcion(char* ip, char* port)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
+
 
     getaddrinfo(ip, port, &hints, &servinfo);
 
@@ -158,6 +159,9 @@ void crear_thread_suscripcion(char* ip, char* port)
 
     freeaddrinfo(servinfo);
 
+    pthread_create(&thread_team,NULL,(void*)hilo_escucha, &socket_servidor);
+    pthread_detach(thread_team);
+/*
     while(1){
 
     	struct sockaddr_in dir_cliente;
@@ -171,6 +175,26 @@ void crear_thread_suscripcion(char* ip, char* port)
 
     }
 
+ */
+
+}
+
+void* hilo_escucha(int socket_servidor){
+
+	while(1){
+
+		struct sockaddr_in dir_cliente;
+
+		socklen_t tam_direccion = sizeof(struct sockaddr_in);
+
+		int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+
+		//char* mensaje = client_recibir_mensaje(socket_cliente);
+		recibe_mensaje_broker(&socket_cliente);
+
+
+
+	}
 }
 
 void recibe_mensaje_broker(int* socket) {

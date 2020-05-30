@@ -24,6 +24,8 @@ int main(int argc, char *argv[]){
 	logger_global = log_create("../global.log", "GLOBAL", false, LOG_LEVEL_INFO);
 	log_info(logger_broker, "ESTOY LOGEANDO");
 
+
+
 	iniciar_servidor(configPath, ipconfig, puertocofing);
 
 	return EXIT_SUCCESS;
@@ -39,7 +41,7 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 	t_config* config;
 
 
-	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config");
+	config = config_create("/home/utnso/delibird/tp-2020-1c-Elite-Four/broker/broker.config");
 
 	ip = config_get_string_value(config, ip_config);
 	puerto = config_get_string_value(config, port_config);
@@ -161,6 +163,7 @@ void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion){
 	switch(mensaje_suscripcion->cola) {
 		case APPEARED_POKEMON:
 			list_add(appeared_pokemon->suscriptores, mensaje_suscripcion->cliente);
+
 			break;
 	}
 }

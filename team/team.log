@@ -76,3 +76,67 @@
 [INFO] 23:11:52:383 TEAM/(12783:12783): suscripcion enviado
 [INFO] 23:11:52:389 TEAM/(12783:12783): suscripcion recibido
 [INFO] 23:11:52:389 TEAM/(12783:12783): SUSCRIPCION COMPLETADA
+[INFO] 14:51:41:795 TEAM/(4126:4126): conexion creada - suscripcion
+[INFO] 14:51:41:800 TEAM/(4126:4126): suscripcion enviado
+[INFO] 14:51:41:807 TEAM/(4126:4126): suscripcion recibido
+[INFO] 14:51:41:807 TEAM/(4126:4126): SUSCRIPCION COMPLETADA
+[INFO] 14:58:26:864 TEAM/(4476:4476): conexion creada - suscripcion
+[INFO] 14:58:26:864 TEAM/(4476:4476): suscripcion enviado
+[INFO] 14:58:26:872 TEAM/(4476:4476): suscripcion recibido
+[INFO] 14:58:26:872 TEAM/(4476:4476): SUSCRIPCION COMPLETADA
+[INFO] 15:00:05:101 TEAM/(4541:4541): conexion creada - suscripcion
+[INFO] 15:00:12:850 TEAM/(4541:4541): suscripcion enviado
+[INFO] 15:00:18:196 TEAM/(4541:4541): suscripcion recibido
+[INFO] 15:00:19:273 TEAM/(4541:4541): SUSCRIPCION COMPLETADA
+[INFO] 15:15:21:447 TEAM/(5236:5236): conexion creada - suscripcion
+[INFO] 15:15:21:448 TEAM/(5236:5236): suscripcion enviado
+[INFO] 15:15:21:459 TEAM/(5236:5236): suscripcion recibido
+[INFO] 15:15:21:459 TEAM/(5236:5236): SUSCRIPCION COMPLETADA
+[INFO] 15:17:35:209 TEAM/(5286:5286): conexion creada - suscripcion
+[INFO] 15:17:36:580 TEAM/(5286:5286): suscripcion enviado
+[INFO] 15:17:40:985 TEAM/(5286:5286): suscripcion recibido
+[INFO] 15:17:42:843 TEAM/(5286:5286): SUSCRIPCION COMPLETADA
+[INFO] 15:21:50:755 TEAM/(5501:5501): conexion creada - suscripcion: 5
+[INFO] 15:21:50:756 TEAM/(5501:5501): suscripcion enviado
+[INFO] 15:21:50:759 TEAM/(5501:5501): suscripcion recibido
+[INFO] 15:21:50:759 TEAM/(5501:5501): SUSCRIPCION COMPLETADA
+[INFO] 15:24:15:88 TEAM/(5588:5588): conexion creada - suscripcion: 5
+[INFO] 15:24:15:95 TEAM/(5588:5588): suscripcion enviado
+[INFO] 15:24:15:95 TEAM/(5588:5588): suscripcion recibido
+[INFO] 15:24:15:97 TEAM/(5588:5588): SUSCRIPCION COMPLETADA
+[INFO] 15:24:38:865 TEAM/(5647:5647): conexion creada - suscripcion: 5
+[INFO] 15:24:38:865 TEAM/(5647:5647): suscripcion enviado
+[INFO] 15:24:38:865 TEAM/(5647:5647): suscripcion recibido
+[INFO] 15:24:38:865 TEAM/(5647:5647): SUSCRIPCION COMPLETADA
+[INFO] 15:28:45:287 TEAM/(5902:5902): conexion creada - suscripcion: 4
+[INFO] 15:28:45:287 TEAM/(5902:5902): suscripcion enviado
+[INFO] 15:28:45:287 TEAM/(5902:5902): suscripcion recibido
+[INFO] 15:28:45:287 TEAM/(5902:5902): SUSCRIPCION COMPLETADA
+[INFO] 15:30:00:799 TEAM/(5969:5969): conexion creada - suscripcion: 4
+[INFO] 15:30:00:803 TEAM/(5969:5969): suscripcion enviado
+[INFO] 15:30:00:803 TEAM/(5969:5969): suscripcion recibido
+[INFO] 15:30:00:804 TEAM/(5969:5969): SUSCRIPCION COMPLETADA
+[INFO] 15:31:36:461 TEAM/(6105:6105): conexion creada - suscripcion: 4
+[INFO] 15:31:36:476 TEAM/(6105:6105): suscripcion enviado
+[INFO] 15:31:36:476 TEAM/(6105:6105): suscripcion recibido
+[INFO] 15:31:36:476 TEAM/(6105:6105): SUSCRIPCION COMPLETADA
+[INFO] 15:32:59:630 TEAM/(6177:6177): conexion creada - suscripcion: 4
+[INFO] 15:32:59:632 TEAM/(6177:6177): suscripcion enviado
+[INFO] 15:32:59:632 TEAM/(6177:6177): suscripcion recibido
+[INFO] 15:32:59:633 TEAM/(6177:6177): SUSCRIPCION COMPLETADA
+[INFO] 15:53:59:0 TEAM/(7143:7143): conexion creada - suscripcion: 5
+[INFO] 15:54:00:7 TEAM/(7143:7143): suscripcion enviado
+[INFO] 15:54:00:7 TEAM/(7143:7143): suscripcion recibido
+[INFO] 15:54:00:7 TEAM/(7143:7143): SUSCRIPCION COMPLETADA
+[INFO] 15:55:52:836 TEAM/(7213:7213): conexion creada - suscripcion: 5
+[INFO] 15:55:52:837 TEAM/(7213:7213): suscripcion enviado
+[INFO] 15:55:52:852 TEAM/(7213:7213): suscripcion recibido
+[INFO] 15:55:52:852 TEAM/(7213:7213): SUSCRIPCION COMPLETADA
+[INFO] 16:05:17:30 TEAM/(7471:7471): conexion creada - suscripcion: 5
+[INFO] 16:05:17:30 TEAM/(7471:7471): suscripcion enviado
+[INFO] 16:05:17:30 TEAM/(7471:7471): suscripcion recibido
+[INFO] 16:05:17:30 TEAM/(7471:7471): SUSCRIPCION COMPLETADA
+[INFO] 16:15:03:307 TEAM/(7965:7965): conexion creada - suscripcion: 5
+[INFO] 16:15:03:311 TEAM/(7965:7965): suscripcion enviado
+[INFO] 16:15:03:311 TEAM/(7965:7965): suscripcion recibido
+[INFO] 16:15:03:311 TEAM/(7965:7965): SUSCRIPCION COMPLETADA

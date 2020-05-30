@@ -223,6 +223,7 @@ char* client_recibir_mensaje(int socket_cliente)
 	char * buffer = malloc(buffer_size);
 	recv(socket_cliente, buffer, buffer_size, 0);
 
+
 	return buffer;
 
 }

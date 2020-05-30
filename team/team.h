@@ -7,3 +7,4 @@ void crear_thread_suscripcion(char* ip, char* port);
 void esperar_mensajes_broker(int socket_servidor);
 void recibe_mensaje_broker(int* socket);
 void enviar_menssaje_new_pokemon(t_log* logger, char* ip, char* puerto);
+void* hilo_escucha(int);
