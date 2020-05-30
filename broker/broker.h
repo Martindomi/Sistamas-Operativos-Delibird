@@ -18,6 +18,11 @@ typedef struct {
 
 t_cola_mensaje* new_pokemon;
 t_cola_mensaje* appeared_pokemon;
+t_cola_mensaje* catch_pokemon;
+t_cola_mensaje* caught_pokemon;
+t_cola_mensaje* get_pokemon;
+t_cola_mensaje* localized_pokemon;
+
 
 int cantidad_mensajes;
 

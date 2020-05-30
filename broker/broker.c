@@ -96,11 +96,10 @@ void serve_client(int* socket)
 
 void process_request(int cod_op, int socket) {
 	uint32_t size;
-	void* msg;
-	puntero_mensaje_new_pokemon mensajeRecibido;
-	t_mensaje* mensaje = malloc(sizeof(t_mensaje));
+		t_mensaje* mensaje = malloc(sizeof(t_mensaje));
 		switch (cod_op) {
 		case MESSAGE:
+			void* msg;
 			msg = server_recibir_mensaje(socket, &size);
 			msg = "1";
 			size = sizeof(4);
@@ -108,15 +107,16 @@ void process_request(int cod_op, int socket) {
 			log_info(logger_broker, "MESSAGE");
 			log_info(logger_broker, msg);
 			free(msg);
+			free(mensaje);
 			break;
 		case NEW_POKEMON:
 			log_info(logger_broker, "ENTRA");
-
-			mensajeRecibido = recibir_new_pokemon(socket, &size, logger_broker);
+			puntero_mensaje_new_pokemon mensajeRecibido_NP;
+			mensajeRecibido_NP = recibir_new_pokemon(socket, &size, logger_broker);
 			log_info(logger_broker, "SALE");
 
 			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido;
+			mensaje->mensaje = mensajeRecibido_NP;
 
 			list_add(new_pokemon->mensajes, mensaje);
 
@@ -127,7 +127,97 @@ void process_request(int cod_op, int socket) {
 
 			log_info(logger_broker, "NEWPOKEMON");
 
-			free(mensajeRecibido);
+			free(mensajeRecibido_NP);
+			free(mensaje);
+			break;
+		case APPEARED_POKEMON:
+			puntero_mensaje_appeared_pokemon mensajeRecibido_AP;
+			mensajeRecibido_AP = recibir_appeared_pokemon(socket, &size, logger_broker);
+			mensaje->id = cantidad_mensajes;
+			mensaje->mensaje = mensajeRecibido_AP;
+
+			list_add(appeared_pokemon->mensajes, mensaje);
+
+			char* id_mensaje = string_itoa(cantidad_mensajes);
+			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+			aumentar_cantidad_mensajes();
+
+			log_info(logger_broker, "APPEAREDPOKEMON");
+
+			free(mensajeRecibido_AP);
+			free(mensaje);
+			break;
+		case CATCH_POKEMON:
+			puntero_mensaje_catch_pokemon mensajeRecibido_CP;
+			mensajeRecibido_CP = recibir_catch_pokemon(socket, &size, logger_broker);
+			mensaje->id = cantidad_mensajes;
+			mensaje->mensaje = mensajeRecibido_CP;
+
+			list_add(catch_pokemon->mensajes, mensaje);
+
+			char* id_mensaje = string_itoa(cantidad_mensajes);
+			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+			aumentar_cantidad_mensajes();
+
+			log_info(logger_broker, "CATCHPOKEMON");
+
+			free(mensajeRecibido_CP);
+			free(mensaje);
+			break;
+		case CAUGHT_POKEMON:
+			puntero_mensaje_caught_pokemon mensajeRecibido_CTP;
+			mensajeRecibido_CTP = recibir_caugth_pokemon(socket, &size, logger_broker);
+			mensaje->id = cantidad_mensajes;
+			mensaje->mensaje = mensajeRecibido_CTP;
+
+			list_add(caught_pokemon->mensajes, mensaje);
+
+			char* id_mensaje = string_itoa(cantidad_mensajes);
+			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+			aumentar_cantidad_mensajes();
+
+			log_info(logger_broker, "CAUGHTPOKEMON");
+
+			free(mensajeRecibido_CTP);
+			free(mensaje);
+			break;
+		case GET_POKEMON:
+			puntero_mensaje_get_pokemon mensajeRecibido_GP;
+			mensajeRecibido_GP = recibir_get_pokemon(socket, &size, logger_broker);
+			mensaje->id = cantidad_mensajes;
+			mensaje->mensaje = mensajeRecibido_GP;
+
+			list_add(get_pokemon->mensajes, mensaje);
+
+			char* id_mensaje = string_itoa(cantidad_mensajes);
+			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+			aumentar_cantidad_mensajes();
+
+			log_info(logger_broker, "GETPOKEMON");
+
+			free(mensajeRecibido_GP);
+			free(mensaje);
+			break;
+		case LOCALIZED_POKEMON:
+			puntero_mensaje_localized_pokemon mensajeRecibido_LP;
+			mensajeRecibido_LP = recibir_localized_pokemon(socket, &size, logger_broker);
+			mensaje->id = cantidad_mensajes;
+			mensaje->mensaje = mensajeRecibido_LP;
+
+			list_add(localized_pokemon->mensajes, mensaje);
+
+			char* id_mensaje = string_itoa(cantidad_mensajes);
+			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+			aumentar_cantidad_mensajes();
+
+			log_info(logger_broker, "LOCALIZEDPOKEMON");
+
+			free(mensajeRecibido_LP);
 			free(mensaje);
 			break;
 		case SUSCRIBE:
@@ -143,7 +233,7 @@ void process_request(int cod_op, int socket) {
 
 			log_info(logger_broker, "SUSCRIPCION");
 
-			free(mensajeRecibido);
+			free(mensaje_suscripcion);
 			free(mensaje);
 			break;
 		case 0:
