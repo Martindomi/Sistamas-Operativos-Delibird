@@ -19,6 +19,9 @@ int main(int argc, char *argv[]){
 	(*appeared_pokemon).suscriptores = suscriptores_appeared;
 	(*appeared_pokemon).mensajes = mensajes_appeared;
 
+	sem_init(&mutex_sem, 0, 1);
+	sem_init(&mutex_envio, 0, 0);
+
 	cantidad_mensajes = 0;
 
 	logger_broker =log_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.log", "BROKER", false, LOG_LEVEL_INFO);
@@ -115,8 +118,7 @@ void process_request(int cod_op, int socket) {
 			log_info(logger_broker, msg);
 			break;
 		case NEW_POKEMON:
-			pthread_mutex_lock(&mutex);
-
+			sem_wait(&mutex_sem);
 			log_info(logger_broker, "ENTRA");
 
 			mensajeRecibido = recibir_new_pokemon(socket, &size, logger_broker);
@@ -124,7 +126,8 @@ void process_request(int cod_op, int socket) {
 
 			mensaje->id = cantidad_mensajes;
 			mensaje->mensaje = mensajeRecibido;
-			mensaje->suscriptores_ack =
+			mensaje->suscriptores_ack = list_create();
+			mensaje->suscriptores_enviados = list_create();
 
 			list_add(new_pokemon->mensajes, mensaje);
 
@@ -136,13 +139,11 @@ void process_request(int cod_op, int socket) {
 			log_info(logger_broker, "NEWPOKEMON");
 
 			free(mensajeRecibido);
-			pthread_mutex_unlock(&mutex);
-			pthread_cond_signal(&condition_variable);
+			sem_post(&mutex_sem);
 
 			break;
 		case SUSCRIBE:
-			pthread_mutex_lock(&mutex);
-
+			sem_wait(&mutex_sem);
 			log_info(logger_broker, "ENTRA SUSCRIPCION");
 			puntero_suscripcion_cola mensaje_suscripcion;
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
@@ -152,14 +153,14 @@ void process_request(int cod_op, int socket) {
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
-			pthread_mutex_unlock(&mutex);
-			pthread_cond_signal(&condition_variable);
+			sem_post(&mutex_sem);
 			break;
 		case 0:
 			pthread_exit(NULL);
 		case -1:
 			pthread_exit(NULL);
 		}
+	sem_post(&mutex_envio);
 	free(mensaje->suscriptores_ack);
 	free(mensaje->suscriptores_enviados);
 	free(mensaje);
@@ -174,6 +175,9 @@ void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion){
 		case APPEARED_POKEMON:
 			list_add(appeared_pokemon->suscriptores, mensaje_suscripcion->cliente);
 			break;
+		case NEW_POKEMON:
+			list_add(new_pokemon->suscriptores, mensaje_suscripcion->cliente);
+			break;
 	}
 }
 
@@ -182,17 +186,15 @@ void* distribuir_mensajes(void* puntero_cola) {
 		// ENVIA MENSAJES A SUSCRIPTORES
 		int cola = *((int*) puntero_cola);
 		int cant_mensajes_nuevos;
-		pthread_cond_wait(&condition_variable, &mutex);
-		pthread_mutex_lock(&mutex);
-		if((cant_mensajes_nuevos = mensajes_nuevos(cola)) <= 0) {
-			cant_mensajes_nuevos = mensajes_nuevos(cola);
-		}
+		sem_wait(&mutex_envio);
+		sem_wait(&mutex_sem);
+		cant_mensajes_nuevos = mensajes_nuevos(cola);
 
 		if(cant_mensajes_nuevos > 0) {
 			distribuir_mensaje(cola);
 		}
-		pthread_mutex_unlock(&mutex);
-
+		sem_post(&mutex_sem);
+		sleep(10);
 	}
 }
 
@@ -229,16 +231,23 @@ int mensajes_nuevos(cola) {
 
 void* distribuir_mensaje(cola) {
 	int conexion;
-	conexion = crear_conexion("127.0.0.2", "55002");
+	conexion = crear_conexion("127.0.0.2", "55010");
+
 
 	// TODO completar con las demas colas
 	switch(cola) {
 		case NEW_POKEMON: {
-			char* nombre = "pikachu";
-			uint32_t posx = 2;
-			uint32_t posy = 3;
-			uint32_t quant = 8;
-			send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+			for(int i = 0; i < list_size(new_pokemon->mensajes); i++){
+				t_mensaje* mensaje = (t_mensaje*) list_get(new_pokemon->mensajes, i);
+				puntero_mensaje_new_pokemon mensaje_envio = mensaje->mensaje;
+				char* nombre = mensaje_envio->name_pokemon;
+				uint32_t posx = mensaje_envio->pos_x;
+				uint32_t posy = mensaje_envio->pos_y;
+				uint32_t quant = mensaje_envio->quant_pokemon;
+				send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+				list_add(mensaje->suscriptores_enviados, nombre);
+			}
+
 		}
 	}
 }

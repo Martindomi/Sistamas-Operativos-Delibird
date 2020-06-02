@@ -96,7 +96,6 @@ void* server_recibir_mensaje(int socket_cliente, uint32_t* size)
 
 	recv(socket_cliente, size, sizeof(uint32_t), MSG_WAITALL);
 	buffer = malloc(*size);
-	log_info(logger_global, size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
 	return buffer;
@@ -293,18 +292,14 @@ void* serializar_paquete(t_package* paquete, int *bytes) {
 	return mem;
 }
 
-puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_size, t_log* logger_broker){
+puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_size){
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
-	log_info(logger_broker, "buffer pasa");
 	puntero_mensaje_new_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_new_pokemon));
 	uint32_t name_size;
 	char* name_pokemon;
 	uint32_t pos_x;
 	uint32_t pos_y;
 	uint32_t quant_pokemon;
-	log_info(logger_broker, "PASA MALLOC");
-	log_info(logger_broker, &buffer);
-	log_info(logger_broker, "muestra buffer");
 
 	int desplazamiento = 0;
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));

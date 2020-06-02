@@ -7,14 +7,16 @@
 #include<string.h>
 #include <commons/config.h>
 #include <commons/log.h>
+#include <semaphore.h>
 
 #define  THREAD_POOL 5
 pthread_t  thread_pool[THREAD_POOL];
 
+sem_t mutex_sem;
+sem_t mutex_envio;
+
 t_log *logger_broker;
 pthread_t thread;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t condition_variable = PTHREAD_COND_INITIALIZER;
 
 typedef struct {
 	t_list* suscriptores;

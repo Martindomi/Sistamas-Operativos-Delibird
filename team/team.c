@@ -6,13 +6,13 @@
 
 int main(int argc, char *argv[]){
 
-	t_config *config = config_create("./team.config");
-	t_list * entrenadores_list = list_create();
+	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
+	/*t_list * entrenadores_list = list_create();
 	t_list *lista = list_create();
 	cola_NEW=list_create();
 	cola_READY=list_create();
 	cola_EXEC=list_create();
-	cola_EXIT=list_create();
+	cola_EXIT=list_create();*/
 
 /*	TODO
  * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
  *
  */
 
-	int cant_entrenadores = list_size(entrenadores_list);
+	/*int cant_entrenadores = list_size(entrenadores_list);
 	int i=0;
 	while(i<cant_entrenadores){
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 
 	}
 
-	imprimirLista(cola_EXIT);
+	imprimirLista(cola_EXIT);*/
 
 /*TODO
  * se debe realizar planificaion	1°FIFO
@@ -75,8 +75,8 @@ int main(int argc, char *argv[]){
 		char* ip_broker;
 		char* puerto_broker;
 
-	list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
-	list_destroy(lista);
+	/*list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
+	list_destroy(lista);*/
 	config_destroy(config);
 		t_log* logger;
 
@@ -90,8 +90,10 @@ int main(int argc, char *argv[]){
 
 		//enviar_mensaje_new_pokemon(logger, ip_broker, puerto_broker);
 		char* puerto_thread_team = "55010";
-		crear_thread_suscripcion(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
-		config_destroy(config);
+		crear_thread_suscripcion(NEW_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
+
+
+		//config_destroy(config);
 
 }
 
@@ -155,35 +157,46 @@ void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broke
 
 	suscribir(op_code, ip_broker, port_broker, socket_servidor, logger);
 	enviar_mensaje_new_pokemon(logger, ip_broker, port_broker);
-    while(1){
 
-    	struct sockaddr_in dir_cliente;
+	while(1){
 
-		socklen_t tam_direccion = sizeof(struct sockaddr_in);
+	    	struct sockaddr_in dir_cliente;
 
-		int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
-		if (socket_cliente == -1) {
-		  if (errno == EWOULDBLOCK) {
-			printf("No pending connections; sleeping for one second.\n");
-			sleep(1);
-		  } else {
-			perror("error when accepting connection");
-			exit(1);
-		  }
-		} else {
-		  printf("Got a connection; writing 'hello' then closing.\n");
-		  pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket_cliente);
-		  pthread_detach(thread_team);
-		}
+			socklen_t tam_direccion = sizeof(struct sockaddr_in);
 
-    }
+			int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+			if (socket_cliente == -1) {
+			  if (errno == EWOULDBLOCK) {
+				printf("No pending connections; sleeping for one second.\n");
+				sleep(1);
+			  } else {
+				perror("error when accepting connection");
+				exit(1);
+			  }
+			} else {
+			  printf("Got a connection; writing 'hello' then closing.\n");
+			  pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket_cliente);
+			  pthread_detach(thread_team);
+			}
+
+	    }
+
 
 }
+
 
 void recibe_mensaje_broker(int* socket) {
 	op_code cod_op;
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	//hace algo
+	printf("%d\n", &cod_op);
+
+	puntero_mensaje_new_pokemon mensajeRecibido;
+	uint32_t size;
+
+	mensajeRecibido = recibir_new_pokemon(*socket, &size);
+	printf("%s\n", mensajeRecibido->name_pokemon);
+
+	free(mensajeRecibido);
 }
 
 void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
