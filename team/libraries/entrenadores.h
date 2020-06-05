@@ -33,7 +33,7 @@ typedef enum
 }t_estado;
 
 typedef struct {
-
+	int id;
 	int x;
 	int y;
 	char** pokemonesCapturados;
@@ -91,6 +91,7 @@ int calcularCantidadLista(char**);
 void imprimirLista(t_list*);
 void liberarArrayDeStrings(char**);
 void *main_entrenador(t_entrenador*);
-
-
+void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador);
+void agregarAColas(t_list* lista, t_entrenador* entrenador);
+void imprimerEntrenador(t_entrenador* entrenador);
 #endif /* LIBRARIES_ENTRENADORES_H_ */

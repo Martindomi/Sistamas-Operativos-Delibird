@@ -12,12 +12,12 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
 	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
 	char** read_objetivos= config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
-
+	int id = 0;
 	while(read_posiciones[i]!= NULL){
-
+		id++;
 		unEntrenador = malloc(sizeof(t_entrenador));
 		unEntrenador->estado= NEW;
-
+		unEntrenador->id = id;
 		posiciones = string_split(read_posiciones[i], "|");
 		unEntrenador->x = atoi(*(posiciones));
 		unEntrenador->y = atoi(*(posiciones+1));
@@ -54,8 +54,8 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		sem_init(&(unEntrenador->sem_entrenador),0,0);
 		//printf("%d\n",unEntrenador.espacioLibre);
 
-		list_add(entrenadores_list,unEntrenador);
-
+		//list_add(entrenadores_list,unEntrenador);
+		agregarAColas(entrenadores_list,unEntrenador);
 
 		i++;
 
@@ -106,6 +106,7 @@ void imprimirLista(t_list* entrenadores_list){
 	for (int i = 0; i < largoLista; i++ ) {
 
 	t_entrenador *entrenador = list_get(entrenadores_list,i);
+	printf("ID: %d\n", entrenador->id);
 	printf("Espacio libre %d\n", entrenador->espacioLibre);
 	printf("ESTADO: %d\n", entrenador->estado);
 	printf("X: %d\n", entrenador->x);
@@ -117,13 +118,40 @@ void imprimirLista(t_list* entrenadores_list){
 	}
 }
 
+void imprimerEntrenador(t_entrenador* entrenador) {
+	printf("ID: %d\n", entrenador->id);
+	printf("Espacio libre %d\n", entrenador->espacioLibre);
+	printf("ESTADO: %d\n", entrenador->estado);
+	printf("X: %d\n", entrenador->x);
+	printf("Y: %d\n", entrenador->y);
+	printf("EL entrenador capturo el pokemon %s \n",entrenador->pokemonesCapturados[0]);
+	printf("El entrenador necesita un %s \n", entrenador->pokemonesObjetivo[1]);
+	puts("");
+}
+
 void *main_entrenador(t_entrenador* entrenador){
 
 	printf("Posicion entrenador: %d %d\n", entrenador->x, entrenador->y);
 	sem_wait(&(entrenador->sem_entrenador));
 	printf("Se desbloque esta cosa como dijo el sino no va andar\n");
-	list_add(cola_EXIT,entrenador);
-	list_remove(cola_READY,0);
-
+	moverColas(cola_READY,cola_EXIT, entrenador);
 }
+
+
+void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
+	int tamanio = list_size(origen);
+	for(int i = 0; i<tamanio;i++){
+		t_entrenador* comp =  list_get(origen,i);
+		if(comp->id == entrenador->id) {
+			list_remove(origen,i);
+			break;
+		}
+	}
+	list_add(destino, entrenador);
+}
+
+void agregarAColas(t_list* lista, t_entrenador* entrenador) {
+	list_add(lista, entrenador);
+}
+
 
