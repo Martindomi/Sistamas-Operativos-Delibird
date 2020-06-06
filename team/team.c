@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
 }
 
 
-void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, int socket, t_log* logger) {
+void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team, t_log* logger) {
 	char* mensaje;
 	int conexion;
 	//crear conexion
@@ -106,7 +106,7 @@ void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, i
 	//enviar mensaje
 	log_info(logger, "conexion creada - suscripcion");
 
-	enviar_mensaje_suscribir(codigo_operacion, socket, conexion);
+	enviar_mensaje_suscribir(codigo_operacion, ip_puerto_team, conexion);
 	//recibir mensaje
 	log_info(logger, "suscripcion enviado");
 	mensaje = client_recibir_mensaje(conexion);
@@ -155,7 +155,10 @@ void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broke
 
     freeaddrinfo(servinfo);
 
-	suscribir(op_code, ip_broker, port_broker, socket_servidor, logger);
+    // TODO ver como unir puerto e ip del team
+    char* ip_puerto_team = "127.0.0.2:55010";
+
+	suscribir(op_code, ip_broker, port_broker, ip_puerto_team, logger);
 	enviar_mensaje_new_pokemon(logger, ip_broker, port_broker);
 
 	while(1){
@@ -188,7 +191,8 @@ void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broke
 void recibe_mensaje_broker(int* socket) {
 	op_code cod_op;
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	printf("%d\n", &cod_op);
+	printf("%d\n", cod_op);
+	printf("%d\n",*socket);
 
 	puntero_mensaje_new_pokemon mensajeRecibido;
 	uint32_t size;

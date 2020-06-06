@@ -522,25 +522,23 @@ puntero_mensaje_caught_pokemon recibir_caught_pokemon( int socket, uint32_t* paq
 
 
 //----------------------------------SUSCRIPCION-------------------------------------------------
-void enviar_mensaje_suscribir(op_code codigo_operacion, int socket_propio, int socket){
+void enviar_mensaje_suscribir(op_code codigo_operacion, char* ip_puerto_cliente, int socket){
 	t_package* paquete = malloc(sizeof(t_package));
 
 	paquete->header = SUSCRIBE;
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	char* socket_cliente = string_itoa(socket_propio);
-	int size_puerto = strlen(socket_cliente) + 1;
-	buffer->size = sizeof(op_code) + sizeof(int) + size_puerto;
+	int size_cliente = strlen(ip_puerto_cliente) + 1;
+	buffer->size = sizeof(op_code) + sizeof(int) + size_cliente;
 	void* stream = malloc(buffer->size);
 
 	int tamanio = 0;
 	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
 	tamanio += sizeof(op_code);
 
-	memcpy(stream + tamanio, &size_puerto, sizeof(int));
+	memcpy(stream + tamanio, &size_cliente, sizeof(int));
 	tamanio += sizeof(int);
 
-	memcpy(stream + tamanio, socket_cliente, size_puerto);
-	tamanio += size_puerto;
+	memcpy(stream + tamanio, ip_puerto_cliente, size_cliente);
 
 	buffer->stream = stream;
 
