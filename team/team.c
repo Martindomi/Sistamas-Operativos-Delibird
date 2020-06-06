@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]){
 
-	t_config *config = config_create("./team.config");
+	t_config *config = config_create("./team2.config");
 	t_list * entrenadores_list = list_create();
 	t_list *lista = list_create();
 	cola_NEW=list_create();

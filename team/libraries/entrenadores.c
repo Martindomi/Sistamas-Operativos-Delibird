@@ -13,8 +13,11 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
 	char** read_objetivos= config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
 	int id = 0;
+	crearListaObjetivo();
+
 	while(read_posiciones[i]!= NULL){
 		id++;
+		printf("cargando entrenador %d\n",id);
 		unEntrenador = malloc(sizeof(t_entrenador));
 		unEntrenador->estado= NEW;
 		unEntrenador->id = id;
@@ -38,7 +41,7 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 
 
 		unEntrenador->pokemonesObjetivo= string_split(read_objetivos[i], "|");
-
+		cargarObjetivosGlobales(unEntrenador->pokemonesObjetivo);
 
 		//puts(*(unEntrenador.pokemonesObjetivo));
 		//puts(*(unEntrenador.pokemonesObjetivo +1));
@@ -66,6 +69,15 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		liberarArrayDeStrings(posiciones);
 
 	}
+
+	imprimirListaObjetivo();
+
+
+	quitarPokemonesDeListaObjetivo(entrenadores_list);
+
+	imprimirListaObjetivo();
+
+
 
 	liberarArrayDeStrings(read_objetivos);
 	liberarArrayDeStrings(read_pokemones);
@@ -118,6 +130,19 @@ void imprimirLista(t_list* entrenadores_list){
 	}
 }
 
+void imprimirListaObjetivo(){
+
+	printf("------------\n");
+	for(int i = 0; i < list_size(lista_objetivo);i++){
+
+		t_pokemonObjetivo *poke = list_get(lista_objetivo,i);
+		printf("lista %s, %d\n",poke->pokemon,poke->cantidad);
+
+	}
+
+	printf("------------\n");
+}
+
 void imprimerEntrenador(t_entrenador* entrenador) {
 	printf("ID: %d\n", entrenador->id);
 	printf("Espacio libre %d\n", entrenador->espacioLibre);
@@ -153,5 +178,99 @@ void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
 void agregarAColas(t_list* lista, t_entrenador* entrenador) {
 	list_add(lista, entrenador);
 }
+
+
+void crearListaObjetivo(){
+
+	if(lista_objetivo==NULL){
+		printf("crea lista\n");
+		lista_objetivo=list_create();
+	}
+	printf("lista craeda\n");
+
+
+
+}
+
+void cargarObjetivosGlobales(char ** pokemones){
+
+	int i = 0;
+	while(pokemones[i]!=NULL){
+
+		agregarPokemonALista(pokemones[i]);
+		i++;
+
+	}
+}
+
+
+
+void agregarPokemonALista(char* pokemon){
+
+	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(pokemonObjetivo));
+
+	//strcpy(pokemonObjetivo->pokemon,pokemon);
+
+	t_pokemonObjetivo *pokemonBuscado = buscarPokemon(pokemon);
+
+
+
+	if(pokemonBuscado==NULL){
+
+		pokemonObjetivo->pokemon=malloc(strlen(pokemon)+1);
+		strcpy(pokemonObjetivo->pokemon,pokemon);
+		//pokemonObjetivo->pokemon = pokemon;
+		pokemonObjetivo->cantidad = 1;
+		list_add(lista_objetivo,pokemonObjetivo);
+
+
+	}else{
+
+		pokemonBuscado->cantidad = pokemonBuscado->cantidad +1;
+
+	}
+
+
+
+}
+
+void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list){
+
+	for(int i = 0 ; i< list_size(entrenadores_list) ; i++){
+
+
+	t_entrenador *entrenador = list_get(entrenadores_list, i);
+
+	int j=0;
+	while(entrenador->pokemonesCapturados[j]!=NULL){
+		quitarPokemonDeLista((entrenador->pokemonesCapturados[j]));
+		j++;
+	}
+
+}
+
+}
+void quitarPokemonDeLista(char* pokemon){
+
+	t_pokemonObjetivo *pokemonBuscado = buscarPokemon(pokemon);
+
+	pokemonBuscado->cantidad = pokemonBuscado->cantidad -1;
+}
+
+t_pokemonObjetivo *buscarPokemon(char* pokemon)
+{
+
+
+	bool _filterPokemon(t_pokemonObjetivo *element){
+		return !strcmp(element->pokemon,pokemon);
+	}
+
+	t_pokemonObjetivo *poke =list_find(lista_objetivo,(void*)_filterPokemon);
+	 return poke;
+
+
+}
+
+
 
 

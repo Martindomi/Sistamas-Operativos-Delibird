@@ -49,13 +49,11 @@ typedef struct {
 
 
 typedef struct{
-
 	char* pokemon;
 	int cantidad;
 
-} t_pokemonObjetivo;
-
-t_list* objetivo; // cargar todos los objetivos para poder mandar GETS al borker ( es necesario ? )
+}t_pokemonObjetivo;
+t_list* lista_objetivo; // cargar todos los objetivos para poder mandar GETS al borker ( es necesario ? )
 
 
 t_list *cola_NEW;
@@ -89,9 +87,18 @@ planificacion = get_config_string(....) // fifo
 void inicializar_entrenadores (t_config*,t_list* );
 int calcularCantidadLista(char**);
 void imprimirLista(t_list*);
+void imprimirListaObjetivo();
 void liberarArrayDeStrings(char**);
 void *main_entrenador(t_entrenador*);
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador);
 void agregarAColas(t_list* lista, t_entrenador* entrenador);
 void imprimerEntrenador(t_entrenador* entrenador);
+void crearListaObjetivo();
+void cargarObjetivosGlobales();
+void agregarPokemonALista(char* pokemon);
+t_pokemonObjetivo* buscarPokemon(char* pokemon);
+void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list);
+void quitarPokemonDeLista(char* pokemon);
+
+
 #endif /* LIBRARIES_ENTRENADORES_H_ */
