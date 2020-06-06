@@ -69,13 +69,17 @@ typedef struct {
 	uint32_t name_size;
 	char* name_pokemon;
 	uint32_t quant_pokemon;
-	t_list* coords; // TODO lista de pares de coordenadas
+	t_list* coords; // lista ordenada de uint32_t
 } t_mensaje_localized_pokemon;
+
+typedef t_mensaje_localized_pokemon* puntero_mensaje_localized_pokemon;
 
 typedef struct {
 	uint32_t name_size;
 	char* name_pokemon;
 } t_mensaje_get_pokemon;
+
+typedef t_mensaje_get_pokemon* puntero_mensaje_get_pokemon;
 
 typedef struct {
 	uint32_t name_size;

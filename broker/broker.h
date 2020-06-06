@@ -23,7 +23,6 @@ typedef struct {
 	t_list* mensajes;
 } t_cola_mensaje;
 
-
 t_cola_mensaje* new_pokemon;
 t_cola_mensaje* appeared_pokemon;
 t_cola_mensaje* get_pokemon;
