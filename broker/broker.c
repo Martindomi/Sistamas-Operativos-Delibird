@@ -94,9 +94,9 @@ void serve_client(int* socket)
 
 void process_request(int cod_op, int socket) {
 	uint32_t size;
-	t_mensaje* mensaje = malloc(sizeof(t_mensaje));
-	mensaje->suscriptores_ack = list_create();
-	mensaje->suscriptores_enviados = list_create();
+	t_mensaje_completo* mensaje_completo = malloc(sizeof(t_mensaje_completo));
+	mensaje_completo->suscriptores_ack = list_create();
+	mensaje_completo->suscriptores_enviados = list_create();
 	sem_wait(&mutex_sem);
 	switch (cod_op) {
 		case MESSAGE: {
@@ -111,128 +111,68 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case NEW_POKEMON: {
-			log_info(logger_broker, "ENTRA");
-			puntero_mensaje_new_pokemon mensajeRecibido_NP;
-			mensajeRecibido_NP = recibir_new_pokemon(socket, &size, logger_broker);
-			log_info(logger_broker, "SALE");
+			mensaje_completo->mensaje = recibir_new_pokemon(socket, &size);
 
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_NP;
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			list_add(new_pokemon->mensajes, mensaje);
+			list_add(new_pokemon->mensajes, mensaje_completo);
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
-
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "NEWPOKEMON");
-
-			free(mensajeRecibido_NP);
 			break;
 		}
 		case APPEARED_POKEMON: {
-			puntero_mensaje_appeared_pokemon mensajeRecibido_AP;
-			mensajeRecibido_AP = recibir_appeared_pokemon(socket, &size, logger_broker);
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_AP;
+			mensaje_completo->mensaje = recibir_appeared_pokemon(socket, &size);
 
-			list_add(appeared_pokemon->mensajes, mensaje);
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+			list_add(appeared_pokemon->mensajes, mensaje_completo);
 
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "APPEAREDPOKEMON");
-
-			free(mensajeRecibido_AP);
 			break;
 		}
 		case CATCH_POKEMON: {
-			puntero_mensaje_catch_pokemon mensajeRecibido_CP;
-			mensajeRecibido_CP = recibir_catch_pokemon(socket, &size, logger_broker);
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_CP;
+			mensaje_completo->mensaje = recibir_catch_pokemon(socket, &size);
 
-			list_add(catch_pokemon->mensajes, mensaje);
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+			list_add(catch_pokemon->mensajes, mensaje_completo);
 
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "CATCHPOKEMON");
-
-			free(mensajeRecibido_CP);
 			break;
 		}
 		case CAUGHT_POKEMON: {
-			puntero_mensaje_caught_pokemon mensajeRecibido_CTP;
-			mensajeRecibido_CTP = recibir_caught_pokemon(socket, &size, logger_broker);
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_CTP;
+			mensaje_completo->mensaje = recibir_caught_pokemon(socket, &size);
 
-			list_add(caught_pokemon->mensajes, mensaje);
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+			list_add(caught_pokemon->mensajes, mensaje_completo);
 
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "CAUGHTPOKEMON");
-
-			free(mensajeRecibido_CTP);
 			break;
 		}
 		case GET_POKEMON: {
-			puntero_mensaje_get_pokemon mensajeRecibido_GP;
-			mensajeRecibido_GP = recibir_get_pokemon(socket, &size, logger_broker);
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_GP;
+			mensaje_completo->mensaje = recibir_get_pokemon(socket, &size);
 
-			list_add(get_pokemon->mensajes, mensaje);
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+			list_add(get_pokemon->mensajes, mensaje_completo);
 
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "GETPOKEMON");
-
-			free(mensajeRecibido_GP);
 			break;
 		}
 		case LOCALIZED_POKEMON: {
-			puntero_mensaje_localized_pokemon mensajeRecibido_LP;
-			mensajeRecibido_LP = recibir_localized_pokemon(socket, &size, logger_broker);
-			mensaje->id = cantidad_mensajes;
-			mensaje->mensaje = mensajeRecibido_LP;
+			mensaje_completo->mensaje = recibir_localized_pokemon(socket, &size);
 
-			list_add(localized_pokemon->mensajes, mensaje);
+			mensaje_completo->mensaje->id = cantidad_mensajes;
 
-			char* id_mensaje = string_itoa(cantidad_mensajes);
-			devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+			list_add(localized_pokemon->mensajes, mensaje_completo);
 
-			aumentar_cantidad_mensajes();
-
-			log_info(logger_broker, "LOCALIZEDPOKEMON");
-
-			free(mensajeRecibido_LP);
 			break;
 		}
 		case SUSCRIBE: {
-			log_info(logger_broker, "ENTRA SUSCRIPCION");
 			puntero_suscripcion_cola mensaje_suscripcion;
+
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
-			log_info(logger_broker, "SALE SUSCRIPCION");
 
 			agregar_suscriptor_cola(mensaje_suscripcion);
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
-
-			log_info(logger_broker, "SUSCRIPCION");
 
 			free(mensaje_suscripcion);
 			break;
@@ -242,6 +182,15 @@ void process_request(int cod_op, int socket) {
 		case -1:
 			pthread_exit(NULL);
 		}
+
+	if(cod_op != SUSCRIBE) {
+		char* id_mensaje = string_itoa(cantidad_mensajes);
+		devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
+
+		aumentar_cantidad_mensajes();
+
+	}
+
 	sem_post(&mutex_sem);
 	sem_post(&mutex_envio);
 	/*free(mensaje->suscriptores_ack);
@@ -273,7 +222,7 @@ void* distribuir_mensajes(void* puntero_cola) {
 }
 
 void distribuir_mensajes_cola(int cola) {
-	puntero_mensaje puntero_mensaje;
+	puntero_mensaje_completo puntero_mensaje_completo;
 	t_cola_mensaje* cola_mensajes = selecciono_cola(cola);
 	char* suscriptor;
 	// TODO Mejorar manejo de error
@@ -282,7 +231,7 @@ void distribuir_mensajes_cola(int cola) {
 	}
 
 	for(int i = 0; i < list_size(cola_mensajes->mensajes); i++) {
-		puntero_mensaje = list_get(cola_mensajes->mensajes, i);
+		puntero_mensaje_completo = list_get(cola_mensajes->mensajes, i);
 		//TODO asi no se calcula la cantidad de mensajes nuevos
 		for(int j = 0; j < list_size(cola_mensajes->suscriptores) ;j++) {
 			suscriptor = list_get(cola_mensajes->suscriptores, j);
@@ -290,11 +239,11 @@ void distribuir_mensajes_cola(int cola) {
 			bool encuentra_suscriptor(void* elemento) {
 				return (char*)elemento == suscriptor;
 			}
-
-			bool encontre = list_any_satisfy(puntero_mensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
+			// TODO ver si no es mejor utilizar los ACK en vez de los enviados.
+			bool encontre = list_any_satisfy(puntero_mensaje_completo->suscriptores_enviados, (void*)encuentra_suscriptor);
 			if (!encontre) {
-				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje);
-				list_add(puntero_mensaje->suscriptores_enviados, suscriptor);
+				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje_completo);
+				list_add(puntero_mensaje_completo->suscriptores_enviados, suscriptor);
 				break;
 			}
 		}
@@ -302,10 +251,11 @@ void distribuir_mensajes_cola(int cola) {
 	}
 }
 
-void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje puntero_mensaje) {
+void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje_completo puntero_mensaje_completo) {
 	int conexion;
 	char* ip_suscriptor;
 	char* puerto_suscriptor;
+	char* mensaje_recibido;
 
 	ip_suscriptor = "127.0.0.2";
 	puerto_suscriptor = "55010";
@@ -318,58 +268,55 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 
 	switch(cola) {
 		case NEW_POKEMON: {
+			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			uint32_t id = puntero_mensaje_completo->mensaje->id;
+			uint32_t id_correlativo = puntero_mensaje_completo->mensaje->id_correlativo;
+			char* nombre = puntero_mensaje->name_pokemon;
+			uint32_t posx = puntero_mensaje->pos_x;
+			uint32_t posy = puntero_mensaje->pos_y;
+			uint32_t quant = puntero_mensaje->quant_pokemon;
+			send_message_new_pokemon(nombre, posx, posy, quant, id, id_correlativo, conexion);
 
-			puntero_mensaje_new_pokemon mensaje_envio = puntero_mensaje->mensaje;
-			char* nombre = mensaje_envio->name_pokemon;
-			uint32_t posx = mensaje_envio->pos_x;
-			uint32_t posy = mensaje_envio->pos_y;
-			uint32_t quant = mensaje_envio->quant_pokemon;
-			send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+			mensaje_recibido = client_recibir_mensaje(conexion);
 
+			// TODO que hago si no recibo el ACK?
+			if(mensaje_recibido == "ACK") {
+				list_add(puntero_mensaje_completo->suscriptores_ack, suscriptor);
+			}
+
+			free(mensaje_recibido);
+			break;
 		}
 		// TODO hacer el envio de los demas mensajes
 	}
-
 	close(conexion);
 }
 
 void inicializar_colas() {
-	// TODO Esto es necesario que sea asi?
-	t_list* suscriptores_new = malloc(sizeof(t_list));
-	t_list* mensajes_new = malloc(sizeof(t_list));
-	t_list* suscriptores_appeared = malloc(sizeof(t_list));
-	t_list* mensajes_appeared = malloc(sizeof(t_list));
-	t_list* suscriptores_get = malloc(sizeof(t_list));
-	t_list* mensajes_get = malloc(sizeof(t_list));
-	t_list* suscriptores_localized = malloc(sizeof(t_list));
-	t_list* mensajes_localized = malloc(sizeof(t_list));
-	t_list* suscriptores_catch = malloc(sizeof(t_list));
-	t_list* mensajes_catch = malloc(sizeof(t_list));
-	t_list* suscriptores_caught = malloc(sizeof(t_list));
-	t_list* mensajes_caught = malloc(sizeof(t_list));
+
 	new_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*new_pokemon).suscriptores = suscriptores_new;
-	(*new_pokemon).mensajes = mensajes_new;
+	(*new_pokemon).suscriptores = list_create();
+	(*new_pokemon).mensajes = list_create();
 
 	appeared_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*appeared_pokemon).suscriptores = suscriptores_appeared;
-	(*appeared_pokemon).mensajes = mensajes_appeared;
+	(*appeared_pokemon).suscriptores = list_create();
+	(*appeared_pokemon).mensajes = list_create();
 
 	get_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*get_pokemon).suscriptores = suscriptores_get;
-	(*get_pokemon).mensajes = mensajes_get;
+	(*get_pokemon).suscriptores = list_create();
+	(*get_pokemon).mensajes = list_create();
 
 	localized_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*localized_pokemon).suscriptores = suscriptores_localized;
-	(*localized_pokemon).mensajes = mensajes_localized;
+	(*localized_pokemon).suscriptores = list_create();
+	(*localized_pokemon).mensajes = list_create();
 
 	catch_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*catch_pokemon).suscriptores = suscriptores_catch;
-	(*catch_pokemon).mensajes = mensajes_catch;
+	(*catch_pokemon).suscriptores = list_create();
+	(*catch_pokemon).mensajes = list_create();
 
 	caught_pokemon = malloc(sizeof(t_cola_mensaje));
-	(*caught_pokemon).suscriptores = suscriptores_caught;
-	(*caught_pokemon).mensajes = mensajes_caught;
+	(*caught_pokemon).suscriptores = list_create();
+	(*caught_pokemon).mensajes = list_create();
 }
 
 t_cola_mensaje* selecciono_cola(int cola) {

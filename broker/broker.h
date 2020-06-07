@@ -33,7 +33,7 @@ t_cola_mensaje* caught_pokemon;
 int mensajes_nuevos();
 void distribuir_mensajes_cola(int cola);
 t_cola_mensaje* selecciono_cola(int cola);
-void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje puntero_mensaje);
+void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje_completo puntero_mensaje_completo);
 void* distribuir_mensajes(void* puntero_cola);
 
 int cantidad_mensajes;

@@ -72,13 +72,12 @@ int main(int argc, char *argv[]){
  *
  *
  */
-		char* ip_broker;
-		char* puerto_broker;
 
+		ids_mensajes_enviados = list_create();
+		ACK = "ACK";
 	/*list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
 	list_destroy(lista);*/
-	config_destroy(config);
-		t_log* logger;
+		config_destroy(config);
 
 		logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
 
@@ -177,9 +176,10 @@ void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broke
 				exit(1);
 			  }
 			} else {
-			  printf("Got a connection; writing 'hello' then closing.\n");
-			  pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket_cliente);
-			  pthread_detach(thread_team);
+				int socket = socket_cliente;
+				printf("Got a connection; writing 'hello' then closing.\n");
+				pthread_create(&thread_team,NULL,(void*)recibe_mensaje_broker, &socket);
+				pthread_detach(thread_team);
 			}
 
 	    }
@@ -194,13 +194,29 @@ void recibe_mensaje_broker(int* socket) {
 	printf("%d\n", cod_op);
 	printf("%d\n",*socket);
 
-	puntero_mensaje_new_pokemon mensajeRecibido;
+	puntero_mensaje mensajeRecibido;
 	uint32_t size;
 
 	mensajeRecibido = recibir_new_pokemon(*socket, &size);
-	printf("%s\n", mensajeRecibido->name_pokemon);
+
+	printf("%d\n", mensajeRecibido->id_correlativo);
+
+	bool encuentra_mensaje_propio(void* elemento) {
+		return (char*)elemento == mensajeRecibido->id_correlativo;
+	}
+	// TODO ver si no es mejor utilizar los ACK en vez de los enviados.
+	bool encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
+
+	if(encontre) {
+		printf("%d\n", mensajeRecibido->id_correlativo);
+	}
+
+	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
 	free(mensajeRecibido);
+	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
+	sleep(10);
+	enviar_mensaje_new_pokemon2(logger, ip_broker, puerto_broker);
 }
 
 void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
@@ -215,7 +231,7 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		uint32_t posx = 2;
 		uint32_t posy = 3;
 		uint32_t quant = 8;
-		send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+		send_message_new_pokemon(nombre, posx, posy, quant, -1, -1, conexion);
 		//recibir mensaje
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);
@@ -223,9 +239,35 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		log_info(logger, "mensaje recibido");
 		log_info(logger, mensaje);
 
+		list_add(ids_mensajes_enviados, mensaje);
+
 		free(mensaje);
 		liberar_conexion(conexion);
 }
 
+void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto) {
+		char* mensaje;
+		int conexion;
 
+		//crear conexion
+		conexion = crear_conexion(ip, puerto);
+		//enviar mensaje
+		log_info(logger, "conexion creada");
+		char* nombre = "pikachu";
+		uint32_t posx = 2;
+		uint32_t posy = 3;
+		uint32_t quant = 8;
+		send_message_new_pokemon(nombre, posx, posy, quant, -1, 0, conexion);
+		//recibir mensaje
+		log_info(logger, "mensaje enviado");
+		mensaje = client_recibir_mensaje(conexion);
+		//loguear mensaje recibido
+		log_info(logger, "mensaje recibido");
+		log_info(logger, mensaje);
+
+		list_add(ids_mensajes_enviados, mensaje);
+
+		free(mensaje);
+		liberar_conexion(conexion);
+}
 

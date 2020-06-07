@@ -47,13 +47,18 @@ typedef struct
 } t_package;
 
 typedef struct {
-	int id;
-	void* mensaje;
-	int id_correlacional;
-	t_list* suscriptores_enviados;
-	t_list* suscriptores_ack;
+	uint32_t id;
+	uint32_t id_correlativo;
+	void* mensaje_cuerpo;
 } t_mensaje;
 typedef t_mensaje* puntero_mensaje;
+
+typedef struct {
+	t_mensaje* mensaje;
+	t_list* suscriptores_enviados;
+	t_list* suscriptores_ack;
+} t_mensaje_completo;
+typedef t_mensaje_completo* puntero_mensaje_completo;
 
 typedef struct {
 	uint32_t name_size;
@@ -115,7 +120,6 @@ typedef t_suscripcion_cola* puntero_suscripcion_cola;
 
 
 t_log* logger_global;
-
 
 // Server
 

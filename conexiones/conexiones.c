@@ -233,21 +233,26 @@ void liberar_conexion(int socket_cliente)
 
 // -------------------------------------------------NEW POKEMON--------------------------------------------------
 
-void send_message_new_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32_t quant, int socket_cliente)
+void send_message_new_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32_t quant, uint32_t id, uint32_t id_correlativo, int socket_cliente)
 {
 	t_package* paquete = malloc(sizeof(t_package));
 
 	paquete->header = NEW_POKEMON;
-	//paquete->buffer = malloc(sizeof(t_buffer));
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	buffer->size = sizeof(uint32_t) * 4 + strlen(nombre) + 1;
+	buffer->size = sizeof(uint32_t) * 6 + strlen(nombre) + 1;
 	void* stream = malloc(buffer->size);
-	//paquete->buffer->stream = malloc(sizeof(t_mensaje_new_pokemon));
 
 	uint32_t name_size = strlen(nombre) + 1;
 
 
 	int tamanio = 0;
+
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
 	memcpy(stream + tamanio, &name_size, sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
 
@@ -292,8 +297,11 @@ void* serializar_paquete(t_package* paquete, int *bytes) {
 	return mem;
 }
 
-puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_new_pokemon( int socket, uint32_t* paquete_size){
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
 	puntero_mensaje_new_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_new_pokemon));
 	uint32_t name_size;
 	char* name_pokemon;
@@ -302,6 +310,12 @@ puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_s
 	uint32_t quant_pokemon;
 
 	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
@@ -323,349 +337,444 @@ puntero_mensaje_new_pokemon recibir_new_pokemon( int socket, uint32_t* paquete_s
 	mensaje_recibido->pos_y = pos_y;
 	mensaje_recibido->quant_pokemon = quant_pokemon;
 
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
+
 	free(buffer);
-	return mensaje_recibido;
+	return mensaje;
 }
 
 //----------------------------------APPEARED_POKEMON-------------------------------------------------
 
-void send_message_appeared_pokemon(char* nombre, uint32_t posx, uint32_t posy, int socket_cliente){
+void send_message_appeared_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32_t id, uint32_t id_correlativo, int socket_cliente){
 
 	t_package* paquete = malloc(sizeof(t_package));
 
-		paquete->header = APPEARED_POKEMON;
-		t_buffer* buffer = malloc(sizeof(t_buffer));
-		buffer->size = sizeof(uint32_t) * 3 + strlen(nombre) + 1;
-		void* stream = malloc(buffer->size);
+	paquete->header = APPEARED_POKEMON;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	buffer->size = sizeof(uint32_t) * 3 + strlen(nombre) + 1;
+	void* stream = malloc(buffer->size);
 
-		uint32_t name_size = strlen(nombre) + 1;
+	uint32_t name_size = strlen(nombre) + 1;
 
-		int tamanio = 0;
+	int tamanio = 0;
 
-		memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
-		tamanio += strlen(nombre) + 1;
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, &(posx), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
+	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+	tamanio += strlen(nombre) + 1;
 
-		buffer->stream = stream;
+	memcpy(stream + tamanio, &(posx), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		paquete->buffer = buffer;
+	memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
 
-		int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-		void* a_enviar = serializar_paquete(paquete, &bytes);
+	buffer->stream = stream;
 
-		send(socket_cliente, a_enviar, bytes, 0);
+	paquete->buffer = buffer;
 
-		free(paquete->buffer->stream);
-		free(paquete->buffer);
-		free(paquete);
-		free(a_enviar);
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 
 }
 
-puntero_mensaje_appeared_pokemon recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
+	puntero_mensaje_appeared_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_appeared_pokemon));
+	uint32_t name_size;
+	char* name_pokemon;
+	uint32_t pos_x;
+	uint32_t pos_y;
 
-		puntero_mensaje_appeared_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_appeared_pokemon));
-		uint32_t name_size;
-		char* name_pokemon;
-		uint32_t pos_x;
-		uint32_t pos_y;
+	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		int desplazamiento = 0;
-		memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		name_pokemon = malloc(name_size);
-		memcpy(name_pokemon, buffer + desplazamiento, name_size);
-		desplazamiento += name_size;
+	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	name_pokemon = malloc(name_size);
+	memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	desplazamiento += name_size;
 
-		memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
+	memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		mensaje_recibido->name_size = name_size;
-		mensaje_recibido->name_pokemon = name_pokemon;
-		mensaje_recibido->pos_x = pos_x;
-		mensaje_recibido->pos_y = pos_y;
+	memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
 
-		free(buffer);
-		return mensaje_recibido;
+	mensaje_recibido->name_size = name_size;
+	mensaje_recibido->name_pokemon = name_pokemon;
+	mensaje_recibido->pos_x = pos_x;
+	mensaje_recibido->pos_y = pos_y;
+
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
+
+	free(buffer);
+	return mensaje;
 }
 
 //----------------------------------CATCH_POKEMON-------------------------------------------------
 
-void send_message_catch_pokemon(char* nombre, uint32_t posx, uint32_t posy, int socket_cliente){
+void send_message_catch_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32_t id, uint32_t id_correlativo, int socket_cliente){
 
 	t_package* paquete = malloc(sizeof(t_package));
 
-		paquete->header = CATCH_POKEMON;
-		t_buffer* buffer = malloc(sizeof(t_buffer));
-		buffer->size = sizeof(uint32_t) * 3 + strlen(nombre) + 1;
-		void* stream = malloc(buffer->size);
+	paquete->header = CATCH_POKEMON;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	buffer->size = sizeof(uint32_t) * 3 + strlen(nombre) + 1;
+	void* stream = malloc(buffer->size);
 
-		uint32_t name_size = strlen(nombre) + 1;
+	uint32_t name_size = strlen(nombre) + 1;
 
-		int tamanio = 0;
+	int tamanio = 0;
 
-		memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
-		tamanio += strlen(nombre) + 1;
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, &(posx), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
+	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+	tamanio += strlen(nombre) + 1;
 
-		buffer->stream = stream;
+	memcpy(stream + tamanio, &(posx), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		paquete->buffer = buffer;
+	memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
 
-		int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-		void* a_enviar = serializar_paquete(paquete, &bytes);
+	buffer->stream = stream;
 
-		send(socket_cliente, a_enviar, bytes, 0);
+	paquete->buffer = buffer;
 
-		free(paquete->buffer->stream);
-		free(paquete->buffer);
-		free(paquete);
-		free(a_enviar);
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 
 }
 
-puntero_mensaje_catch_pokemon recibir_catch_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_catch_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
+	puntero_mensaje_catch_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_catch_pokemon));
+	uint32_t name_size;
+	char* name_pokemon;
+	uint32_t pos_x;
+	uint32_t pos_y;
 
-		puntero_mensaje_catch_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_catch_pokemon));
-		uint32_t name_size;
-		char* name_pokemon;
-		uint32_t pos_x;
-		uint32_t pos_y;
+	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		int desplazamiento = 0;
-		memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		name_pokemon = malloc(name_size);
-		memcpy(name_pokemon, buffer + desplazamiento, name_size);
-		desplazamiento += name_size;
+	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	name_pokemon = malloc(name_size);
+	memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	desplazamiento += name_size;
 
-		memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
+	memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		mensaje_recibido->name_size = name_size;
-		mensaje_recibido->name_pokemon = name_pokemon;
-		mensaje_recibido->pos_x = pos_x;
-		mensaje_recibido->pos_y = pos_y;
+	memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
 
-		free(buffer);
-		return mensaje_recibido;
+	mensaje_recibido->name_size = name_size;
+	mensaje_recibido->name_pokemon = name_pokemon;
+	mensaje_recibido->pos_x = pos_x;
+	mensaje_recibido->pos_y = pos_y;
+
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
+
+	free(buffer);
+	return mensaje;
 }
 
 //----------------------------------CAUGHT_POKEMON-------------------------------------------------
 
-void send_message_caught_pokemon(uint32_t caught_pokemon, int socket_cliente){
+void send_message_caught_pokemon(uint32_t caught_pokemon, uint32_t id, uint32_t id_correlativo, int socket_cliente){
 
 	t_package* paquete = malloc(sizeof(t_package));
 
-		paquete->header = CAUGHT_POKEMON;
-		t_buffer* buffer = malloc(sizeof(t_buffer));
-		buffer->size = sizeof(uint32_t);
-		void* stream = malloc(buffer->size);
+	paquete->header = CAUGHT_POKEMON;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	buffer->size = sizeof(uint32_t);
+	void* stream = malloc(buffer->size);
 
-		memcpy(stream, &(caught_pokemon), sizeof(uint32_t));
+	int tamanio = 0;
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		buffer->stream = stream;
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		paquete->buffer = buffer;
+	memcpy(stream, &(caught_pokemon), sizeof(uint32_t));
 
-		int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-		void* a_enviar = serializar_paquete(paquete, &bytes);
+	buffer->stream = stream;
 
-		send(socket_cliente, a_enviar, bytes, 0);
+	paquete->buffer = buffer;
 
-		free(paquete->buffer->stream);
-		free(paquete->buffer);
-		free(paquete);
-		free(a_enviar);
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 
 }
 
-puntero_mensaje_caught_pokemon recibir_caught_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_caught_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
+	puntero_mensaje_caught_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_caught_pokemon));
 
-		puntero_mensaje_caught_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_caught_pokemon));
+	uint32_t caught_pokemon;
 
-		uint32_t caught_pokemon;
+	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		memcpy(&caught_pokemon, buffer, sizeof(uint32_t));
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		mensaje_recibido->caught_pokemon = caught_pokemon;
+	memcpy(&caught_pokemon, buffer, sizeof(uint32_t));
 
-		free(buffer);
-		return mensaje_recibido;
+	mensaje_recibido->caught_pokemon = caught_pokemon;
+
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
+
+	free(buffer);
+	return mensaje;
 }
 
 //----------------------------------GET_POKEMON-------------------------------------------------
 
-void send_message_get_pokemon(char* nombre, int socket_cliente){
+void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo, int socket_cliente){
 
 	t_package* paquete = malloc(sizeof(t_package));
 
-		paquete->header = GET_POKEMON;
-		t_buffer* buffer = malloc(sizeof(t_buffer));
-		buffer->size = sizeof(uint32_t) + strlen(nombre) + 1;
-		void* stream = malloc(buffer->size);
+	paquete->header = GET_POKEMON;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	buffer->size = sizeof(uint32_t) + strlen(nombre) + 1;
+	void* stream = malloc(buffer->size);
 
-		uint32_t name_size = strlen(nombre) + 1;
+	uint32_t name_size = strlen(nombre) + 1;
 
-		int tamanio = 0;
+	int tamanio = 0;
 
-		memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		buffer->stream = stream;
+	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
 
-		paquete->buffer = buffer;
+	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
 
-		int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-		void* a_enviar = serializar_paquete(paquete, &bytes);
+	buffer->stream = stream;
 
-		send(socket_cliente, a_enviar, bytes, 0);
+	paquete->buffer = buffer;
 
-		free(paquete->buffer->stream);
-		free(paquete->buffer);
-		free(paquete);
-		free(a_enviar);
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 
 }
 
-puntero_mensaje_get_pokemon recibir_get_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_get_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
+	puntero_mensaje_get_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_get_pokemon));
+	uint32_t name_size;
+	char* name_pokemon;
 
-		puntero_mensaje_get_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_get_pokemon));
-		uint32_t name_size;
-		char* name_pokemon;
+	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		int desplazamiento = 0;
-		memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		name_pokemon = malloc(name_size);
-		memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		mensaje_recibido->name_size = name_size;
-		mensaje_recibido->name_pokemon = name_pokemon;
+	name_pokemon = malloc(name_size);
+	memcpy(name_pokemon, buffer + desplazamiento, name_size);
 
-		free(buffer);
-		return mensaje_recibido;
+	mensaje_recibido->name_size = name_size;
+	mensaje_recibido->name_pokemon = name_pokemon;
+
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
+
+	free(buffer);
+	return mensaje;
 }
 
 //----------------------------------LOCALIZED_POKEMON-------------------------------------------------
-void send_message_localized_pokemon(char* nombre,uint32_t quant_pokemon,t_list* coords, int socket_cliente){
+void send_message_localized_pokemon(char* nombre,uint32_t quant_pokemon,t_list* coords, uint32_t id, uint32_t id_correlativo, int socket_cliente){
 
 	t_package* paquete = malloc(sizeof(t_package));
 
-		// "pokemon" 3 x y x1 y1 x2 y2
+	// "pokemon" 3 x y x1 y1 x2 y2
 
-		paquete->header = LOCALIZED_POKEMON;
-		t_buffer* buffer = malloc(sizeof(t_buffer));
-		buffer->size = sizeof(uint32_t)*(2 + 2 * quant_pokemon) + strlen(nombre) + 1;
-		void* stream = malloc(buffer->size);
+	paquete->header = LOCALIZED_POKEMON;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	buffer->size = sizeof(uint32_t)*(2 + 2 * quant_pokemon) + strlen(nombre) + 1;
+	void* stream = malloc(buffer->size);
 
-		uint32_t name_size = strlen(nombre) + 1;
+	uint32_t name_size = strlen(nombre) + 1;
 
-		int tamanio = 0;
+	int tamanio = 0;
 
-		memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+	tamanio += name_size;
+
+	memcpy(stream + tamanio, &(quant_pokemon), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	for(int i=0; i<quant_pokemon;i++){
+
+		uint32_t* coord = list_get(coords,i);
+
+		memcpy(stream + tamanio, &(coord), sizeof(uint32_t));
 		tamanio += sizeof(uint32_t);
+	}
 
-		memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
-		tamanio += name_size;
+	buffer->stream = stream;
 
-		memcpy(stream + tamanio, &(quant_pokemon), sizeof(uint32_t));
-		tamanio += sizeof(uint32_t);
+	paquete->buffer = buffer;
 
-		for(int i=0; i<quant_pokemon;i++){
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
 
-			uint32_t* coord = list_get(coords,i);
+	send(socket_cliente, a_enviar, bytes, 0);
 
-			memcpy(stream + tamanio, &(coord), sizeof(uint32_t));
-			tamanio += sizeof(uint32_t);
-		}
-
-		buffer->stream = stream;
-
-		paquete->buffer = buffer;
-
-		int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-		void* a_enviar = serializar_paquete(paquete, &bytes);
-
-		send(socket_cliente, a_enviar, bytes, 0);
-
-		free(paquete->buffer->stream);
-		free(paquete->buffer);
-		free(paquete);
-		free(a_enviar);
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 
 }
 
-puntero_mensaje_localized_pokemon recibir_localized_pokemon( int socket, uint32_t* paquete_size){
+puntero_mensaje recibir_localized_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+	uint32_t id;
+	uint32_t id_correlacional;
+	puntero_mensaje_localized_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_localized_pokemon));
+	uint32_t name_size;
+	char* name_pokemon;
+	uint32_t quant_pokemon;
+	t_list* coords = list_create();
 
-		puntero_mensaje_localized_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_localized_pokemon));
-		uint32_t name_size;
-		char* name_pokemon;
-		uint32_t quant_pokemon;
-		t_list* coords = list_create();
+	int desplazamiento = 0;
+	memcpy(&id, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		int desplazamiento = 0;
+	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-		memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
+	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	name_pokemon = malloc(name_size);
+	memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	desplazamiento += name_size;
+
+	memcpy(&quant_pokemon, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	for(int i=0; i<quant_pokemon;i++){
+
+		uint32_t* coord;
+		memcpy(&coord, buffer + desplazamiento, sizeof(uint32_t));
 		desplazamiento += sizeof(uint32_t);
 
-		name_pokemon = malloc(name_size);
-		memcpy(name_pokemon, buffer + desplazamiento, name_size);
-		desplazamiento += name_size;
+		list_add(coords,coord);
 
-		memcpy(&quant_pokemon, buffer + desplazamiento, sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	}
 
-		for(int i=0; i<quant_pokemon;i++){
+	mensaje_recibido->name_size = name_size;
+	mensaje_recibido->name_pokemon = name_pokemon;
+	mensaje_recibido->quant_pokemon = quant_pokemon;
+	mensaje_recibido->coords = coords;
 
-			uint32_t* coord;
-			memcpy(&coord, buffer + desplazamiento, sizeof(uint32_t));
-			desplazamiento += sizeof(uint32_t);
+	mensaje->id = id;
+	mensaje->id_correlativo = id_correlacional;
+	mensaje->mensaje_cuerpo = mensaje_recibido;
 
-			list_add(coords,coord);
-
-		}
-
-		mensaje_recibido->name_size = name_size;
-		mensaje_recibido->name_pokemon = name_pokemon;
-		mensaje_recibido->quant_pokemon = quant_pokemon;
-		mensaje_recibido->coords = coords;
-
-		free(buffer);
-		return mensaje_recibido;
+	free(buffer);
+	return mensaje;
 }
 
 
