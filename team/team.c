@@ -19,15 +19,23 @@ int main(int argc, char *argv[]){
  *
  */
 
-	//inicializar_entrenadores(config, entrenadores_list);
-	//imprimirLista(entrenadores_list);
+	char* ip_broker;
+	char* puerto_broker;
+
+
+	t_log* logger;
+
+	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
+
 
 /* TODO
  * se deben hacer threads por cada entrenador
  *
  */
+	/*inicializar_entrenadores(config, entrenadores_list);
+	imprimirLista(entrenadores_list);
 
-	/*int cant_entrenadores = list_size(entrenadores_list);
+	int cant_entrenadores = list_size(entrenadores_list);
 	int i=0;
 	while(i<cant_entrenadores){
 
@@ -75,11 +83,6 @@ int main(int argc, char *argv[]){
 
 		ids_mensajes_enviados = list_create();
 		ACK = "ACK";
-	/*list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
-	list_destroy(lista);*/
-		config_destroy(config);
-
-		logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
 
 		//Loggear "soy un log"
 
@@ -91,11 +94,10 @@ int main(int argc, char *argv[]){
 		char* puerto_thread_team = "55010";
 		crear_thread_suscripcion(NEW_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
 
-
-		//config_destroy(config);
-
+		/*list_destroy(entrenadores_list);// AGREGAR DESTRUCTOR DE ELEMENTOS
+		list_destroy(lista);*/
+		config_destroy(config);
 }
-
 
 void suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team, t_log* logger) {
 	char* mensaje;
