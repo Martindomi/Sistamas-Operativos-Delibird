@@ -19,6 +19,6 @@ char* puerto_gamecard;
 char* ip_gameboy;
 char* puerto_gameboy;
 
-t_log* logger;
+t_log* logger_gameboy;
 uint32_t obtener_cola_mensaje(char* cola_string);
 #endif /* TP0_H_ */

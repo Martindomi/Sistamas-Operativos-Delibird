@@ -107,7 +107,8 @@ typedef t_mensaje_catch_pokemon* puntero_mensaje_catch_pokemon;
 
 
 typedef struct {
-	uint32_t caught_pokemon;
+	uint32_t caught_size;
+	char* caught_pokemon;
 } t_mensaje_caught_pokemon;
 
 typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
