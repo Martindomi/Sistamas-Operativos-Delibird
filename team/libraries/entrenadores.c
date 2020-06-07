@@ -2,12 +2,14 @@
 #include "entrenadores.h"
 
 
-void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
+void inicializar_entrenadores (t_list* entrenadores_list){
 
 	int i=0;
 	int cant_objetivo, cant_capturado;
 	char ** posiciones;
 	t_entrenador *unEntrenador;
+
+	t_config *config = config_create("./team.config");
 
 	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
 	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
@@ -49,8 +51,8 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 		//puts(*(unEntrenador.pokemonesObjetivo +3));
 
 
-		cant_objetivo = calcularCantidadLista(unEntrenador->pokemonesObjetivo);
-		cant_capturado = calcularCantidadLista(unEntrenador->pokemonesCapturados);
+		cant_objetivo = sizeVectorString(unEntrenador->pokemonesObjetivo);
+		cant_capturado = sizeVectorString(unEntrenador->pokemonesCapturados);
 
 		unEntrenador->espacioLibre = cant_objetivo - cant_capturado;
 
@@ -83,7 +85,7 @@ void inicializar_entrenadores (t_config *config, t_list* entrenadores_list){
 	liberarArrayDeStrings(read_pokemones);
 	liberarArrayDeStrings(read_posiciones);
 
-
+	config_destroy(config);
 
 }
 
@@ -97,7 +99,7 @@ void liberarArrayDeStrings(char** options){
 }
 
 
-int calcularCantidadLista(char **lista){
+int sizeVectorString(char **lista){
 
 	int i = 0;
 	char** aux = lista;
@@ -111,13 +113,21 @@ int calcularCantidadLista(char **lista){
 
 }
 
-void imprimirLista(t_list* entrenadores_list){
+void imprimirListaEntrenadores(t_list* entrenadores_list){
 
 	int largoLista = list_size(entrenadores_list);
 
 	for (int i = 0; i < largoLista; i++ ) {
 
 	t_entrenador *entrenador = list_get(entrenadores_list,i);
+
+	imprimirEntrenador(entrenador);
+
+	}
+}
+
+void imprimirEntrenador(t_entrenador* entrenador) {
+	printf("----------\n");
 	printf("ID: %d\n", entrenador->id);
 	printf("Espacio libre %d\n", entrenador->espacioLibre);
 	printf("ESTADO: %d\n", entrenador->estado);
@@ -126,8 +136,6 @@ void imprimirLista(t_list* entrenadores_list){
 	printf("EL entrenador capturo el pokemon %s \n",entrenador->pokemonesCapturados[0]);
 	printf("El entrenador necesita un %s \n", entrenador->pokemonesObjetivo[1]);
 	puts("");
-
-	}
 }
 
 void imprimirListaObjetivo(){
@@ -143,41 +151,9 @@ void imprimirListaObjetivo(){
 	printf("------------\n");
 }
 
-void imprimerEntrenador(t_entrenador* entrenador) {
-	printf("ID: %d\n", entrenador->id);
-	printf("Espacio libre %d\n", entrenador->espacioLibre);
-	printf("ESTADO: %d\n", entrenador->estado);
-	printf("X: %d\n", entrenador->x);
-	printf("Y: %d\n", entrenador->y);
-	printf("EL entrenador capturo el pokemon %s \n",entrenador->pokemonesCapturados[0]);
-	printf("El entrenador necesita un %s \n", entrenador->pokemonesObjetivo[1]);
-	puts("");
-}
-
-void *main_entrenador(t_entrenador* entrenador){
-
-	printf("Posicion entrenador: %d %d\n", entrenador->x, entrenador->y);
-	sem_wait(&(entrenador->sem_entrenador));
-	printf("Se desbloque esta cosa como dijo el sino no va andar\n");
-	moverColas(cola_READY,cola_EXIT, entrenador);
-}
 
 
-void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
-	int tamanio = list_size(origen);
-	for(int i = 0; i<tamanio;i++){
-		t_entrenador* comp =  list_get(origen,i);
-		if(comp->id == entrenador->id) {
-			list_remove(origen,i);
-			break;
-		}
-	}
-	list_add(destino, entrenador);
-}
 
-void agregarAColas(t_list* lista, t_entrenador* entrenador) {
-	list_add(lista, entrenador);
-}
 
 
 void crearListaObjetivo(){
