@@ -181,7 +181,7 @@ int crear_conexion(char *ip, char* puerto)
 	int socket_cliente = socket(server_info->ai_family, server_info->ai_socktype, server_info->ai_protocol);
 
 	if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1)
-		printf("error");
+		return -1;
 
 	freeaddrinfo(server_info);
 
@@ -590,3 +590,93 @@ puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size
 	free(buffer);
 	return mensaje_recibido;
 }
+
+
+
+
+//----------------------------------HILO ESCUCHA-------------------------------------------------
+
+
+void crear_hilo_escucha(char* ip, char* puerto)
+{
+	pthread_t thread_team;
+
+	int socket_servidor;
+    struct addrinfo hints, *servinfo, *p;
+
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+
+    for (p=servinfo; p != NULL; p = p->ai_next)
+    {
+        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+            continue;
+
+        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
+            close(socket_servidor);
+            continue;
+        }
+        break;
+    }
+
+	listen(socket_servidor, SOMAXCONN);
+
+    freeaddrinfo(servinfo);
+
+    pthread_create(&thread_team,NULL,(void*)hilo_escucha, &socket_servidor);
+    pthread_detach(thread_team);
+
+}
+
+void* hilo_escucha(int socket_servidor){
+
+	while(1){
+
+		struct sockaddr_in dir_cliente;
+
+		socklen_t tam_direccion = sizeof(struct sockaddr_in);
+
+		int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+		sleep(2);printf("Esperando mensaje\n");
+
+		//char* mensaje = client_recibir_mensaje(socket_cliente);
+		aplica_funcion_escucha(&socket_cliente);
+
+
+
+	}
+}
+
+
+//---------------------------------- INICIALIZAR CONFIG/LOG -------------------------------------------------
+
+t_config * inicializar_config(char* pathConfig){
+	t_config *config;
+	if((config = config_create(pathConfig))==NULL){
+		printf("no se pudo leer config\n");
+		exit(2);
+	}
+
+	return config;
+}
+
+t_log* inicializar_log(char* pathConfig, char* nombreModulo){
+	t_config* config = inicializar_config(pathConfig);
+	char* log_path = config_get_string_value(config,"LOG_FILE");
+	t_log *logger ;
+	if((logger= log_create(log_path, nombreModulo, true, LOG_LEVEL_INFO))==NULL){
+		printf("no se pudo leer log\n");
+		exit(3);
+	}
+
+	return logger;
+}
+
+
+

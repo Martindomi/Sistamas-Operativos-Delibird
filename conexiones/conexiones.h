@@ -135,4 +135,17 @@ void eliminar_paquete(t_package* paquete);
 void liberar_conexion(int socket_cliente);
 void* serializar_paquete(t_package* paquete, int* bytes);
 
+// HILO ESCUCHA
+void crear_hilo_escucha(char* ip, char* puerto);
+void* hilo_escucha(int);
+
+// INICIALIZACION CONFIG/LOGGER
+
+
+//  hay que pasarle el path donde este el config. EJ: ./gameboy.config
+t_config * inicializar_config(char*);
+
+// hay que pasarle 1° el path donde esta el config y 2° el nombre del modulo para que aparezca en el log ("GAMECARD"/"BROKER"/"TEAM")
+t_log* inicializar_log(char*, char*);
+
 #endif /* CONEXIONES_H_ */
