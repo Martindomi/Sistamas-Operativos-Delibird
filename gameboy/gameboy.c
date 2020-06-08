@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 
 	if((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc == 4)) {
 		// TODO SUSCRIPCION
-		realizar_suscripcion(cola_destino);
+		realizar_suscripcion(cola_destino, (uint32_t) argv[3]);
 	} else if ((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc != 4)) {
 		manejar_error_mensaje();
 		return -1;
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	}
 
 	log_destroy(logger_gameboy);
-	config_destroy(config);
+	//config_destroy(config);
 
 	return 0;
 }
@@ -155,7 +155,7 @@ void inicializar_datos(t_config* config) {
 	puerto_gameboy = config_get_string_value(config, "PUERTO_GAMEBOY");
 }
 
-void realizar_suscripcion(uint32_t cola_destino) {
+void realizar_suscripcion(uint32_t cola_destino, uint32_t tiempo_suscripto) {
 	char* ip_puerto_gameboy = malloc(strlen(ip_gameboy) + strlen(puerto_gameboy) + strlen(":") + 2);
 	strcpy(ip_puerto_gameboy, ip_gameboy);
 	strcat(ip_puerto_gameboy, ":");
