@@ -6,7 +6,7 @@
 
 
 
-
+void aplica_funcion_escucha(int * socket);
 
 
 

@@ -13,7 +13,12 @@ int main(int argc, char *argv[]){
 	cola_READY=list_create();
 	cola_EXEC=list_create();
 	cola_EXIT=list_create();
-	//[ 1|2, 3|7]
+	char* path_log;
+	char* ip_broker;
+	char* puerto_broker;
+	char* ip_team;
+	char* puerto_team;
+
 	t_pokemon* pika1 = malloc(sizeof(t_pokemon));
 			pika1->x = 2;
 			pika1->y = 3;
@@ -24,30 +29,6 @@ int main(int argc, char *argv[]){
 			pika2->x = 2;
 			pika2->y = 3;
 
-
-/*	TODO
- * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
- *
- */
-
-	char* ip_broker;
-	char* puerto_broker;
-
-
-	t_log* logger;
-
-	logger = log_create("/home/utnso/delibird/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
-
-	//Loggear "soy un log"
-
-	t_config *config = config_create("./team.config");
-	ip_broker = config_get_string_value(config, "IP_BROKER");
-	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
-
-	//enviar_mensaje_new_pokemon(logger, ip_broker, puerto_broker);
-	char* puerto_thread_team = "55010";
-	suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, puerto_thread_team, logger);
-	config_destroy(config);
 
 
 /* TODO
@@ -72,6 +53,54 @@ int main(int argc, char *argv[]){
 	//printf("Imprimo NEW");
 	//imprimirLista(cola_NEW);
 
+
+/*	TODO
+ * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
+ *
+ */
+
+
+
+
+
+	t_config *config = config_create("./team.config");
+	ip_broker = config_get_string_value(config, "IP_BROKER");
+	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
+	ip_team = config_get_string_value(config, "IP_TAEM");
+	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
+	path_log = config_get_string_value(config, "LOG_FILE");
+	t_log* logger;
+
+	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);
+	suscribirse_a_colas();
+
+
+	crear_hilo_escucha(ip_team,puerto_team);
+
+	bool conexionOK = suscribirse_a_colas();
+
+	if(!conexionOK){
+		hilo_reconexion();
+	}
+
+	sleep(10);
+/*	suscribirse_cola(LOCALIZED_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
+	suscribirse_cola(CAUGHT_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
+	suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
+*/
+	config_destroy(config);
+	log_destroy(logger);
+
+
+
+
+/*TODO
+ * se debe realizar planificaion	1°FIFO
+ * 									2°RR
+ * 									3°SJF
+ *
+ */
+
 	t_distancia* resultado = entrenadorMasCerca(pika1,cola_NEW);
 	moverColas(cola_NEW, cola_READY, resultado->entrenador);
 	resultado = entrenadorMasCerca(pika2,cola_NEW);
@@ -95,12 +124,7 @@ int main(int argc, char *argv[]){
 
 	//imprimirLista(cola_EXIT);
 
-/*TODO
- * se debe realizar planificaion	1°FIFO
- * 									2°RR
- * 									3°SJF
- *
- */
+
 
 /*TODO
  *ver como liberar memoria de los entrenadores -> los char** y los entrenadores en si
@@ -115,5 +139,7 @@ int main(int argc, char *argv[]){
 }
 
 
-
+void aplica_funcion_escucha(int * socket){
+	//printf("ARMA LA FUNCION \n");
+}
 
