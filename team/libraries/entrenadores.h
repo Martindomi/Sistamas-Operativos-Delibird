@@ -8,52 +8,12 @@
 #ifndef LIBRARIES_ENTRENADORES_H_
 #define LIBRARIES_ENTRENADORES_H_
 
+#include "libreriascomunes.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <sys/socket.h>
-#include <commons/config.h>
-#include <conexiones.h>
-#include <commons/log.h>
-#include <commons/string.h>
-#include <commons/collections/list.h>
-#include <stdint.h>
-#include <semaphore.h>
+//#include "planificacion.h"
 
 
-typedef enum
-{
 
-	NEW=1,
-	READY= 2,
-	EXEC= 3,
-	BLOCK= 4,
-	EXIT= 5
-
-}t_estado;
-
-typedef struct {
-	int id;
-	int x;
-	int y;
-	char** pokemonesCapturados;
-	char** pokemonesObjetivo;
-	int espacioLibre;
-	t_estado estado;
-	pthread_t th;
-	sem_t sem_entrenador;
-
-
-}t_entrenador;
-
-
-typedef struct{
-	char* pokemon;
-	int cantidad;
-
-}t_pokemonObjetivo;
 
 t_list* lista_objetivo;
 

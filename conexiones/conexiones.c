@@ -646,7 +646,7 @@ void* hilo_escucha(int socket_servidor){
 		sleep(2);printf("Esperando mensaje\n");
 
 		//char* mensaje = client_recibir_mensaje(socket_cliente);
-		aplica_funcion_escucha(&socket_cliente);
+		//aplica_funcion_escucha(&socket_cliente);
 
 
 

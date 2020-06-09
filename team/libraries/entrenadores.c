@@ -1,6 +1,46 @@
 
 #include "entrenadores.h"
+#include "../team.h"
 
+//lista poke recibidos/P1 P2 (P3 no se anali)
+//NEW/
+//READY/E1
+//EXEC/ E2
+void* main_entrenador(t_entrenador* entrenador){
+	while(1) {
+		sem_wait(&(entrenador->sem_entrenador));
+		int xDestino =  entrenador->pokemonCapturando->x;
+		int yDestino =  entrenador->pokemonCapturando->y;
+		printf("Entrenador iniciado: %d\n", entrenador->id);
+		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,xDestino, yDestino);
+		entrenador->x = xDestino;
+		entrenador->y = yDestino;
+		capturoPokemon(entrenador);
+		printf("Capturo pokemon\n");
+		if(list_size(entrenador->pokemonesObjetivo)!=list_size(entrenador->pokemonesCapturados)){
+			//Ak tiene q ir a block
+			moverColas(cola_EXEC,cola_NEW, entrenador);
+			printf("Entrenador %d: me quedan pokemons, vuelvo a ready\n", entrenador->id);
+		}else {
+			moverColas(cola_READY,cola_EXIT, entrenador);
+			printf("Entrenador %d: no me quedan pokemons, me suicido\n", entrenador->id);
+		}
+		sem_post(&(sem_cpu));
+	}
+}
+
+void capturoPokemon(t_entrenador* entrenador){
+	bool _filterPokemon(char* pokemonNombre){
+		return !strcmp(entrenador->pokemonCapturando->especie,pokemonNombre);
+	}
+
+	t_list* pokeObj = entrenador->pokemonesObjetivo;
+	t_list* pokeCap = entrenador->pokemonesCapturados;
+	entrenador->espacioLibre = entrenador->espacioLibre-1;
+
+	char* pokemonCapturado = list_filter(pokeObj,(void*)_filterPokemon);
+	list_add(pokeCap,pokemonCapturado);
+}
 
 void inicializar_entrenadores (t_list* entrenadores_list){
 
@@ -9,7 +49,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	char ** posiciones;
 	t_entrenador *unEntrenador;
 
-	t_config *config = config_create("./team.config");
+	t_config *config = config_create("./team2.config");
 
 	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
 	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
@@ -29,32 +69,39 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
-
+		unEntrenador->pokemonesCapturados = list_create();
+		unEntrenador->pokemonesObjetivo = list_create();
 		if(strcmp(read_pokemones[i],"")==0){
 			//printf("NO HAY\n");
-		}
-		else
-		{
-		unEntrenador->pokemonesCapturados= string_split(read_pokemones[i], "|");
+		} else {
+			char** tempCapt = string_split(read_pokemones[i], "|");
+			int capturadosContador = 0;
+			while(tempCapt[capturadosContador]!=NULL) {
+				list_add(unEntrenador->pokemonesCapturados,tempCapt[capturadosContador]);
+				capturadosContador++;
+			}
+
 		}
 		//printf("%s\n",*unEntrenador.pokemonesCapturados);
 		//puts(*(unEntrenador.pokemonesCapturados +1));
 		//puts(*(unEntrenador.pokemonesCapturados+2));
 
+		char** tempObjetivos = string_split(read_objetivos[i], "|");
+		int objetivoContador = 0;
+		while(tempObjetivos[objetivoContador]!=NULL) {
+			list_add(unEntrenador->pokemonesObjetivo,tempObjetivos[objetivoContador]);
+			objetivoContador++;
+		}
 
-		unEntrenador->pokemonesObjetivo= string_split(read_objetivos[i], "|");
+
 		cargarObjetivosGlobales(unEntrenador->pokemonesObjetivo);
-
 		//puts(*(unEntrenador.pokemonesObjetivo));
 		//puts(*(unEntrenador.pokemonesObjetivo +1));
 		//puts(*(unEntrenador.pokemonesObjetivo +2));
 		//puts(*(unEntrenador.pokemonesObjetivo +3));
 
 
-		cant_objetivo = sizeVectorString(unEntrenador->pokemonesObjetivo);
-		cant_capturado = sizeVectorString(unEntrenador->pokemonesCapturados);
-
-		unEntrenador->espacioLibre = cant_objetivo - cant_capturado;
+		unEntrenador->espacioLibre = list_size(unEntrenador->pokemonesObjetivo) - list_size(unEntrenador->pokemonesCapturados);
 
 		sem_init(&(unEntrenador->sem_entrenador),0,0);
 		//printf("%d\n",unEntrenador.espacioLibre);
@@ -133,8 +180,8 @@ void imprimirEntrenador(t_entrenador* entrenador) {
 	printf("ESTADO: %d\n", entrenador->estado);
 	printf("X: %d\n", entrenador->x);
 	printf("Y: %d\n", entrenador->y);
-	printf("EL entrenador capturo el pokemon %s \n",entrenador->pokemonesCapturados[0]);
-	printf("El entrenador necesita un %s \n", entrenador->pokemonesObjetivo[1]);
+	printf("EL entrenador capturo el pokemon %s \n",list_get(entrenador->pokemonesCapturados,0));
+	printf("El entrenador necesita un %s \n", list_get(entrenador->pokemonesObjetivo,0));
 	puts("");
 }
 
@@ -168,15 +215,16 @@ void crearListaObjetivo(){
 
 }
 
-void cargarObjetivosGlobales(char ** pokemones){
+void cargarObjetivosGlobales(t_list* pokemones){
 
-	int i = 0;
-	while(pokemones[i]!=NULL){
+	list_iterate(pokemones,(void*) agregarPokemonALista);
+	/*int i = 0;
+	while(list_get(pokemons[i]!=NULL){
 
 		agregarPokemonALista(pokemones[i]);
 		i++;
 
-	}
+	}*/
 }
 
 
@@ -218,8 +266,8 @@ void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list){
 	t_entrenador *entrenador = list_get(entrenadores_list, i);
 
 	int j=0;
-	while(entrenador->pokemonesCapturados[j]!=NULL){
-		quitarPokemonDeLista((entrenador->pokemonesCapturados[j]));
+	while(list_get(entrenador->pokemonesCapturados,j)!=NULL){
+		quitarPokemonDeLista(list_get(entrenador->pokemonesCapturados,j));
 		j++;
 	}
 

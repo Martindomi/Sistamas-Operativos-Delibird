@@ -8,29 +8,20 @@
 #ifndef LIBRARIES_PLANIFICACION_H_
 #define LIBRARIES_PLANIFICACION_H_
 
-#include "entrenadores.h"
 
-
-typedef struct {
-	int x,y;
-	char* especie;
-} t_pokemon;
+#include "libreriascomunes.h"
 
 
 
-typedef struct {
-	t_pokemon* pokemon;
-	t_entrenador* entrenador;
-	double distancia;
-} t_distancia;
+t_list* listaPokemons;
+t_list* listaPokemonsRecibidos;
 
-
-int planificacionFifo(t_list* colaReady);
 void *main_entrenador(t_entrenador*);
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador);
 void agregarAColas(t_list* lista, t_entrenador* entrenador);
-t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* lista);
+t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadores);
 double calcularDistancia(t_entrenador* entrenador, t_pokemon* pokemon);
+t_entrenador* planificacionFifo(t_list* colaReady);
 
 
 #endif /* LIBRARIES_PLANIFICACION_H_ */
