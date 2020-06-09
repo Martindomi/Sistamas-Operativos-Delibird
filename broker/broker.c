@@ -112,9 +112,15 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_completo->mensaje = recibir_appeared_pokemon(socket, &size);
 
-			asignar_y_devolver_id(mensaje_completo, socket);
+			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
+			if(!fue_respondido(mensaje_completo, appeared_pokemon)) {
+				asignar_y_devolver_id(mensaje_completo, socket);
 
-			list_add(appeared_pokemon->mensajes, mensaje_completo);
+				list_add(appeared_pokemon->mensajes, mensaje_completo);
+			} else {
+				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
+				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
+			}
 
 			sem_post(&mutexLista[APPEARED_POKEMON]);
 			break;
@@ -136,9 +142,15 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_completo->mensaje = recibir_caught_pokemon(socket, &size);
 
-			asignar_y_devolver_id(mensaje_completo, socket);
+			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
+			if(!fue_respondido(mensaje_completo, caught_pokemon)) {
+				asignar_y_devolver_id(mensaje_completo, socket);
 
-			list_add(caught_pokemon->mensajes, mensaje_completo);
+				list_add(caught_pokemon->mensajes, mensaje_completo);
+			} else {
+				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
+				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
+			}
 
 			sem_post(&mutexLista[CAUGHT_POKEMON]);
 			break;
@@ -160,9 +172,15 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_completo->mensaje = recibir_localized_pokemon(socket, &size);
 
-			asignar_y_devolver_id(mensaje_completo, socket);
+			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
+			if(!fue_respondido(mensaje_completo, localized_pokemon)) {
+				asignar_y_devolver_id(mensaje_completo, socket);
 
-			list_add(localized_pokemon->mensajes, mensaje_completo);
+				list_add(localized_pokemon->mensajes, mensaje_completo);
+			} else {
+				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
+				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
+			}
 
 			sem_post(&mutexLista[LOCALIZED_POKEMON]);
 			break;
@@ -430,4 +448,15 @@ void asignar_y_devolver_id(t_mensaje_completo* mensaje_completo, int socket) {
 	aumentar_cantidad_mensajes();
 
 	sem_post(&mutexIds);
+}
+
+bool fue_respondido(t_mensaje_completo* mensaje_completo, t_cola_mensaje* cola_mensaje) {
+	uint32_t id_correlativo = mensaje_completo->mensaje->id_correlativo;
+	bool encuentra_id_correlativo(void* elemento) {
+		t_mensaje_completo* mensaje = (t_mensaje_completo*)elemento;
+
+		return mensaje->mensaje->id_correlativo == id_correlativo;
+	}
+	// CHEQUEO SI ESTA EL ID CORRELATIVO DEL MENSAJE RECIBIDO EN LA COLA DE MENSAJES
+	return list_any_satisfy(cola_mensaje->mensajes, (void*)encuentra_id_correlativo);
 }

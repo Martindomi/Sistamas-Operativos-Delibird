@@ -38,6 +38,7 @@ void distribuir_mensajes_cola(int cola);
 t_cola_mensaje* selecciono_cola(int cola);
 void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje_completo puntero_mensaje_completo);
 void* distribuir_mensajes(void* puntero_cola);
+bool fue_respondido(t_mensaje_completo* mensaje_completo, t_cola_mensaje* cola_mensaje);
 
 int cantidad_mensajes;
 
