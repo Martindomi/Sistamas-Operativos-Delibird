@@ -204,7 +204,7 @@ void recibe_mensaje_broker(int* socket) {
 	printf("%d\n", mensajeRecibido->id_correlativo);
 
 	bool encuentra_mensaje_propio(void* elemento) {
-		return (char*)elemento == mensajeRecibido->id_correlativo;
+		return strcmp((char*)elemento, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
 	// TODO ver si no es mejor utilizar los ACK en vez de los enviados.
 	bool encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
@@ -215,7 +215,7 @@ void recibe_mensaje_broker(int* socket) {
 
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
-	free(mensajeRecibido);
+	//free(mensajeRecibido);
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
 	sleep(10);
 	enviar_mensaje_new_pokemon2(logger, ip_broker, puerto_broker);
@@ -233,7 +233,7 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		uint32_t posx = 2;
 		uint32_t posy = 3;
 		uint32_t quant = 8;
-		send_message_new_pokemon(nombre, posx, posy, quant, -1, -1, conexion);
+		send_message_new_pokemon(nombre, posx, posy, quant, 0, 0, conexion);
 		//recibir mensaje
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);
@@ -259,7 +259,7 @@ void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto) {
 		uint32_t posx = 2;
 		uint32_t posy = 3;
 		uint32_t quant = 8;
-		send_message_new_pokemon(nombre, posx, posy, quant, -1, 0, conexion);
+		send_message_new_pokemon(nombre, posx, posy, quant, 0, 1, conexion);
 		//recibir mensaje
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);

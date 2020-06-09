@@ -53,10 +53,10 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case NEW_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 7)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_new_pokemon(argv[3], (uint32_t) argv[4], (uint32_t) argv[5], (uint32_t) argv[6], -1, -1, conexion);
+				send_message_new_pokemon(argv[3], (uint32_t) argv[4], (uint32_t) argv[5], (uint32_t) argv[6], 0, 0, conexion);
 			} else if((strcmp(proceso,"GAMECARD") == 0) && (argc == 8)){
 				conexion = crear_conexion(ip_gamecard, puerto_gamecard);
-				send_message_new_pokemon(argv[3], (uint32_t) argv[4], (uint32_t) argv[5], (uint32_t) argv[6],(uint32_t) argv[7], -1, conexion);
+				send_message_new_pokemon(argv[3], (uint32_t) argv[4], (uint32_t) argv[5], (uint32_t) argv[6],(uint32_t) argv[7], 0, conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;
@@ -66,10 +66,10 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case GET_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 4)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_get_pokemon(argv[3],-1, -1, conexion);
+				send_message_get_pokemon(argv[3],0, 0, conexion);
 			} else if((strcmp(proceso,"GAMECARD") == 0) && (argc == 5)){
 				conexion = crear_conexion(ip_gamecard, puerto_gamecard);
-				send_message_get_pokemon(argv[3], (uint32_t) argv[4], -1, conexion);
+				send_message_get_pokemon(argv[3], (uint32_t) argv[4], 0, conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;
@@ -79,10 +79,10 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case CATCH_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 6)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_catch_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], -1, -1, conexion);
+				send_message_catch_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], 0, 0, conexion);
 			} else if((strcmp(proceso,"GAMECARD") == 0) && (argc == 7)){
 				conexion = crear_conexion(ip_gamecard, puerto_gamecard);
-				send_message_catch_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5],(uint32_t) argv[6], -1, conexion);
+				send_message_catch_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5],(uint32_t) argv[6], 0, conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;
@@ -92,10 +92,10 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case APPEARED_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 7)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_appeared_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], -1, (uint32_t) argv[6], conexion);
+				send_message_appeared_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], 0, (uint32_t) argv[6], conexion);
 			} else if((strcmp(proceso,"TEAM") == 0) && (argc == 6)){
 				conexion = crear_conexion(ip_team, puerto_team);
-				send_message_appeared_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], -1, -1, conexion);
+				send_message_appeared_pokemon(argv[3], (uint32_t) argv[4],(uint32_t) argv[5], 0, 0, conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;
@@ -105,7 +105,7 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case CAUGHT_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 5)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_caught_pokemon(argv[4], -1, (uint32_t) argv[3],conexion);
+				send_message_caught_pokemon(argv[4], 0, (uint32_t) argv[3],conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;

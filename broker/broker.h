@@ -9,11 +9,14 @@
 #include <commons/log.h>
 #include <semaphore.h>
 
-#define  THREAD_POOL 5
+#define  THREAD_POOL 6
+#define  SEM_POOL 7
+
 pthread_t  thread_pool[THREAD_POOL];
 
-sem_t mutex_sem;
-sem_t mutex_envio;
+sem_t mutexLista[7];
+sem_t mutexDistribucion;
+sem_t mutexIds;
 
 t_log *logger_broker;
 pthread_t thread;
