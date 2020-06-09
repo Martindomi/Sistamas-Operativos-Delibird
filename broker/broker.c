@@ -113,7 +113,7 @@ void process_request(int cod_op, int socket) {
 			mensaje_completo->mensaje = recibir_appeared_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(!fue_respondido(mensaje_completo, appeared_pokemon)) {
+			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, appeared_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
 
 				list_add(appeared_pokemon->mensajes, mensaje_completo);
@@ -143,7 +143,7 @@ void process_request(int cod_op, int socket) {
 			mensaje_completo->mensaje = recibir_caught_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(!fue_respondido(mensaje_completo, caught_pokemon)) {
+			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
 
 				list_add(caught_pokemon->mensajes, mensaje_completo);
@@ -173,7 +173,7 @@ void process_request(int cod_op, int socket) {
 			mensaje_completo->mensaje = recibir_localized_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(!fue_respondido(mensaje_completo, localized_pokemon)) {
+			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
 
 				list_add(localized_pokemon->mensajes, mensaje_completo);
