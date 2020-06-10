@@ -19,12 +19,6 @@ int main(int argc, char *argv[]){
  *
  */
 
-	char* ip_broker;
-	char* puerto_broker;
-
-
-	t_log* logger;
-
 	logger = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", true, LOG_LEVEL_INFO);
 
 
@@ -214,7 +208,7 @@ void recibe_mensaje_broker(int* socket) {
 	}
 
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
-
+	liberar_conexion(*socket);
 	//free(mensajeRecibido);
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
 	sleep(10);
