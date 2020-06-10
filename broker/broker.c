@@ -98,7 +98,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case NEW_POKEMON: {
-			sem_wait(&mutexLista[NEW_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_new_pokemon(socket, &size);
 
@@ -110,7 +109,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case APPEARED_POKEMON: {
-			sem_wait(&mutexLista[APPEARED_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_appeared_pokemon(socket, &size);
 
@@ -128,7 +126,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case CATCH_POKEMON: {
-			sem_wait(&mutexLista[CATCH_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_catch_pokemon(socket, &size);
 
@@ -140,7 +137,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case CAUGHT_POKEMON: {
-			sem_wait(&mutexLista[CAUGHT_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_caught_pokemon(socket, &size);
 
@@ -158,7 +154,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case GET_POKEMON: {
-			sem_wait(&mutexLista[GET_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_get_pokemon(socket, &size);
 
@@ -170,7 +165,6 @@ void process_request(int cod_op, int socket) {
 			break;
 		}
 		case LOCALIZED_POKEMON: {
-			sem_wait(&mutexLista[LOCALIZED_POKEMON]);
 
 			mensaje_completo->mensaje = recibir_localized_pokemon(socket, &size);
 
@@ -192,7 +186,6 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
 
-			sem_wait(&mutexLista[mensaje_suscripcion->cola]);
 			agregar_suscriptor_cola(mensaje_suscripcion);
 			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
@@ -227,12 +220,12 @@ void* distribuir_mensajes(void* puntero_cola) {
 	while(1) {
 		// ENVIA MENSAJES A SUSCRIPTORES
 		int cola = *((int*) puntero_cola);
-		sem_wait(&mutexDistribucion);
+
 		sem_wait(&mutexLista[cola]);
+		sem_wait(&mutexDistribucion);
 
 		distribuir_mensajes_cola(cola);
 
-		sem_post(&mutexLista[cola]);
 		sem_post(&mutexDistribucion);
 		sleep(10);
 	}
@@ -396,7 +389,7 @@ void inicializar_datos() {
 
 	for(int i = 0; i <= SEM_POOL; i++) {
 		sem_t semaforo;
-		sem_init(&semaforo, 0, 1);
+		sem_init(&semaforo, 0, 0);
 		mutexLista[i] = semaforo;
 	}
 
@@ -461,4 +454,8 @@ bool fue_respondido(t_mensaje_completo* mensaje_completo, t_cola_mensaje* cola_m
 	}
 	// CHEQUEO SI ESTA EL ID CORRELATIVO DEL MENSAJE RECIBIDO EN LA COLA DE MENSAJES
 	return list_any_satisfy(cola_mensaje->mensajes, (void*)encuentra_id_correlativo);
+}
+
+void aplica_funcion_escucha(int * socket){
+
 }

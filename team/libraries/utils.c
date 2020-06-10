@@ -5,18 +5,19 @@
 
 bool suscribirse_a_colas() {
 
-	t_config *config = inicializar_config("./team.config");
+	t_config *config = inicializar_config("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 	bool conexionOK=false;
 	char* ip_broker = config_get_string_value(config, "IP_BROKER");
 	char* puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 	char* ip_team= config_get_string_value(config, "IP_TEAM");
 	char* puerto_team= config_get_string_value(config, "PUERTO_TEAM");
 	char* log_path= config_get_string_value(config, "LOG_FILE");
-	t_log *logger = inicializar_log("./team.config", "TEAM");
-	char* ip_puerto_team;
-	strcat(ip_puerto_team, ip_team);
+	t_log* logger_asd = log_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.log", "TEAM", false, LOG_LEVEL_INFO);
+	//TODO ARREGLAR ESTO
+	char* ip_puerto_team = "127.0.0.2:55002";
+	/*strcat(ip_puerto_team, ip_team);
 	strcat(ip_puerto_team, ":");
-	strcat(ip_puerto_team, puerto_team);
+	strcat(ip_puerto_team, puerto_team);*/
 
 	op_code vectorCodigo[] = {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
 
@@ -24,7 +25,7 @@ bool suscribirse_a_colas() {
 
 	while(conexion!= -1 && i<3){
 
-		conexion = suscribir(vectorCodigo[i],ip_broker,puerto_broker,ip_puerto_team,logger);
+		conexion = suscribir(vectorCodigo[i],ip_broker,puerto_broker,ip_puerto_team,logger_asd);
 
 		i++;
 
@@ -32,10 +33,10 @@ bool suscribirse_a_colas() {
 
 	if(i==3 && conexion!= -1){
 		conexionOK = true;
-		log_info(logger, "Conexion Broker: true");
+		log_info(logger_asd, "Conexion Broker: true");
 	}
 
-	log_destroy(logger);
+	log_destroy(logger_asd);
 	config_destroy(config);
 
 	return conexionOK;
@@ -71,7 +72,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 
 void hilo_reconexion(){
 
-	t_config * config = inicializar_config("./team.config");
+	t_config * config = inicializar_config("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 
 	pthread_t th_reconexion;
 
@@ -85,8 +86,8 @@ void hilo_reconexion(){
 
 void reintentar_conexion(int tiempo){
 
-	t_config* config = inicializar_config("./team.config");
-	t_log *logger= inicializar_log("./team.config","TEAM");
+	t_config* config = inicializar_config("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
+	t_log *logger= inicializar_log("/home/utnso/tp-2020-1c-Elite-Four/team/team.config","TEAM");
 	bool conexionOK = false;
 	int count = 0;
 
@@ -153,7 +154,7 @@ void recibe_mensaje_broker(int* socket) {
 
 }
 
-void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
+void enviar_mensaje_appeared_pokemon(t_log* logger, char* ip, char* puerto) {
 		char* mensaje;
 		int conexion;
 
@@ -164,8 +165,7 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		char* nombre = "pikachu";
 		uint32_t posx = 2;
 		uint32_t posy = 3;
-		uint32_t quant = 8;
-		send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+		send_message_appeared_pokemon(nombre, posx, posy, 0, 0, conexion);
 		//recibir mensaje
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);
@@ -174,11 +174,9 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
 		log_info(logger, mensaje);
 
 		free(mensaje);
-		log_destroy(logger);
 		liberar_conexion(conexion);
 }
-
-void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto) {
+void enviar_mensaje_appeared_pokemon2(t_log* logger, char* ip, char* puerto) {
 		char* mensaje;
 		int conexion;
 
@@ -189,16 +187,13 @@ void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto) {
 		char* nombre = "pikachu";
 		uint32_t posx = 2;
 		uint32_t posy = 3;
-		uint32_t quant = 8;
-		send_message_new_pokemon(nombre, posx, posy, quant, 0, 1, conexion);
+		send_message_appeared_pokemon(nombre, posx, posy, 0, 1, conexion);
 		//recibir mensaje
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);
 		//loguear mensaje recibido
 		log_info(logger, "mensaje recibido");
 		log_info(logger, mensaje);
-
-		list_add(ids_mensajes_enviados, mensaje);
 
 		free(mensaje);
 		liberar_conexion(conexion);

@@ -19,6 +19,8 @@
 #include<string.h>
 #include<pthread.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
 
 typedef enum
 {
@@ -146,7 +148,7 @@ void* serializar_paquete(t_package* paquete, int* bytes);
 
 // HILO ESCUCHA
 void crear_hilo_escucha(char* ip, char* puerto);
-void* hilo_escucha(int);
+void* hilo_escucha(int* socket);
 
 // INICIALIZACION CONFIG/LOGGER
 

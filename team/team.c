@@ -8,7 +8,7 @@
 int main(int argc, char *argv[]){
 
 	//t_config *config = config_create("./team2.config");
-	t_list * lista_entrenadores = list_create();
+/*	t_list * lista_entrenadores = list_create();
 	int andaBroker = 1;
 
 	cola_NEW=list_create();
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
 			break;
 		}
 
-	}while(andaBroker);
+	}while(andaBroker);*/
 
 /*	TODO
  * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
@@ -91,21 +91,30 @@ int main(int argc, char *argv[]){
  *
  *
  */
-	t_config *config = config_create("./team.config");
+	char* path_log;
+	char* ip_team;
+	char* puerto_team;
+	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 	ip_team = config_get_string_value(config, "IP_TEAM");
 	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
+	ip_broker = config_get_string_value(config, "IP_BROKER");
+	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 	path_log = config_get_string_value(config, "LOG_FILE");
-	t_log* logger;
 	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);
+	ACK = "ACK";
+	ids_mensajes_enviados = list_create();
+
 	crear_hilo_escucha(ip_team,puerto_team);
 	bool conexionOK = suscribirse_a_colas();
 	if(!conexionOK){
 		hilo_reconexion();
 	}
 
-	list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
 
-		//config_destroy(config);
+	//list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
+	sleep(100000);
+	//config_destroy(config);
 }
 
 t_mensajeTeam esperoMensaje() {
@@ -175,7 +184,7 @@ void aplica_funcion_escucha(int * socket){
 	puntero_mensaje mensajeRecibido;
 	uint32_t size;
 
-	mensajeRecibido = recibir_new_pokemon(*socket, &size);
+	mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
 
 	printf("%d\n", mensajeRecibido->id_correlativo);
 
@@ -193,5 +202,5 @@ void aplica_funcion_escucha(int * socket){
 	//free(mensajeRecibido);
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
 	sleep(10);
-	enviar_mensaje_new_pokemon2(logger, ip_broker, puerto_broker);
+	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);
 }
