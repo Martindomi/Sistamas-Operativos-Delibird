@@ -1,0 +1,80 @@
+/*
+ * libreriascomunes.h
+ *
+ *  Created on: 8 jun. 2020
+ *      Author: utnso
+ */
+
+#ifndef LIBRARIES_LIBRERIASCOMUNES_H_
+#define LIBRARIES_LIBRERIASCOMUNES_H_
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <commons/config.h>
+#include <conexiones.h>
+#include <commons/log.h>
+#include <commons/string.h>
+#include <commons/collections/list.h>
+#include <stdint.h>
+#include <semaphore.h>
+
+typedef struct {
+	int x,y;
+	char* especie;
+} t_pokemon;
+
+
+typedef enum
+{
+
+	NEW=1,
+	READY= 2,
+	EXEC= 3,
+	BLOCK= 4,
+	EXIT= 5
+
+}t_estado;
+
+typedef enum
+{
+
+	APPEAR=1,
+	BROKEROFF = 2
+
+}t_mensajeTeam;
+
+typedef struct {
+	int id;
+	int x;
+	int y;
+	t_list* pokemonesCapturados;
+	t_list* pokemonesObjetivo;
+	int espacioLibre;
+	t_estado estado;
+	pthread_t th;
+	t_pokemon* pokemonCapturando;
+	sem_t sem_entrenador;
+
+
+}t_entrenador;
+
+
+typedef struct{
+	char* pokemon;
+	int cantidad;
+
+}t_pokemonObjetivo;
+
+
+
+typedef struct {
+	t_pokemon* pokemon;
+	t_entrenador* entrenador;
+	double distancia;
+} t_distancia;
+
+
+
+#endif /* LIBRARIES_LIBRERIASCOMUNES_H_ */

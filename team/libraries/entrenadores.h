@@ -8,54 +8,14 @@
 #ifndef LIBRARIES_ENTRENADORES_H_
 #define LIBRARIES_ENTRENADORES_H_
 
-#include <commons/config.h>
-#include <commons/log.h>
-#include <commons/string.h>
-#include <commons/collections/list.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <pthread.h>
-#include <sys/socket.h>
-#include <semaphore.h>
+#include "libreriascomunes.h"
+
+//#include "planificacion.h"
 
 
-typedef enum
-{
-
-	NEW=1,
-	READY= 2,
-	EXEC= 3,
-	BLOCK= 4,
-	EXIT= 5
-
-}t_estado;
-
-typedef struct {
-
-	int x;
-	int y;
-	char** pokemonesCapturados;
-	char** pokemonesObjetivo;
-	int espacioLibre;
-	t_estado estado;
-	pthread_t th;
-	sem_t sem_entrenador;
-
-	// lo que se mueve por las colas seria el entrenador y cuando se tiene que ejecutar ahi hago el pthread_join ?
-
-}t_entrenador;
 
 
-typedef struct{
-
-	char* pokemon;
-	int cantidad;
-
-} t_pokemonObjetivo;
-
-t_list* objetivo; // cargar todos los objetivos para poder mandar GETS al borker ( es necesario ? )
+t_list* lista_objetivo;
 
 
 t_list *cola_NEW;
@@ -64,16 +24,8 @@ t_list *cola_EXEC;
 t_list *cola_BLOQUED_terminadoOK;
 //t_list *cola_BLOQUED_terminadoDeadlock; Y esto?
 //t_list *cola_BLOQUED_noTerminado; Y esto?
-
 t_list *cola_EXIT;
 /*
-planificacion = new -> ready -> exec -> ready   <---- no es esta -----> creo,
-									 -> exit
-									 -> bloqued
-
-planificacion = ready -> exec -> siguiente estado  <------ es esta ---->
-
-planificacion = get_config_string(....) // fifo
 
 
 1) elegir entrenador de ready para entrenar (fifio y rr es el primero de la lista)
@@ -86,11 +38,37 @@ planificacion = get_config_string(....) // fifo
 											-> pasa a exit si: captura a todos los pokemones
 											-> ready (con desalojo)
 */
-void inicializar_entrenadores (t_config*,t_list* );
-int calcularCantidadLista(char**);
-void imprimirLista(t_list*);
+
+
+
+
+
+int sizeVectorString(char**);
 void liberarArrayDeStrings(char**);
-void *main_entrenador(t_entrenador*);
+
+/*
+ *  ENTRENADOR
+ */
+
+void inicializar_entrenadores (t_list* );
+void imprimirListaEntrenadores(t_list*);
+void imprimirEntrenador(t_entrenador* entrenador);
+
+
+/*
+ * LISTA OBJETIVO
+ */
+
+void imprimirListaObjetivo();
+void crearListaObjetivo();
+void cargarObjetivosGlobales();
+void agregarPokemonALista(char* pokemon);
+t_pokemonObjetivo* buscarPokemon(char* pokemon);
+void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list);
+void quitarPokemonDeLista(char* pokemon);
+
+
+
 
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */

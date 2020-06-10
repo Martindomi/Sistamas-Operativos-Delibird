@@ -3,6 +3,112 @@
 
 
 
+bool suscribirse_a_colas() {
+
+	t_config *config = inicializar_config("./team.config");
+	bool conexionOK=false;
+	char* ip_broker = config_get_string_value(config, "IP_BROKER");
+	char* puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
+	char* ip_team= config_get_string_value(config, "IP_TEAM");
+	char* puerto_team= config_get_string_value(config, "PUERTO_TEAM");
+	char* log_path= config_get_string_value(config, "LOG_FILE");
+	t_log *logger = inicializar_log("./team.config", "TEAM");
+	char* ip_puerto_team;
+	strcat(ip_puerto_team, ip_team);
+	strcat(ip_puerto_team, ":");
+	strcat(ip_puerto_team, puerto_team);
+
+	op_code vectorCodigo[] = {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+
+	int conexion, i=0;
+
+	while(conexion!= -1 && i<3){
+
+		conexion = suscribir(vectorCodigo[i],ip_broker,puerto_broker,ip_puerto_team,logger);
+
+		i++;
+
+	}
+
+	if(i==3 && conexion!= -1){
+		conexionOK = true;
+		log_info(logger, "Conexion Broker: true");
+	}
+
+	log_destroy(logger);
+	config_destroy(config);
+
+	return conexionOK;
+
+}
+
+
+int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team, t_log* logger) {
+	char* mensaje;
+	int conexion;
+
+	//crear conexion
+	conexion = crear_conexion(ip_broker, puerto_broker);
+	if(conexion == -1){
+		log_info(logger, "Conexion Broker: false");
+		return conexion;
+	}
+	log_info(logger, "conexion creada -> SUSCRIPCION ; CONEXION: %d",conexion);
+	enviar_mensaje_suscribir(codigo_operacion, ip_puerto_team, conexion);
+	log_info(logger, "suscripcion enviado");
+	//recibir mensaje
+	mensaje = client_recibir_mensaje(conexion);
+	//loguear mensaje recibido
+	log_info(logger, "suscripcion recibido %d", codigo_operacion);
+	log_info(logger, mensaje);
+	free(mensaje);
+
+	close(conexion);
+	return 1;
+}
+
+
+
+void hilo_reconexion(){
+
+	t_config * config = inicializar_config("./team.config");
+
+	pthread_t th_reconexion;
+
+	int tiempo = atoi(config_get_string_value(config,"TIEMPO_RECONEXION"));
+
+	pthread_create(&th_reconexion,NULL,&reintentar_conexion,tiempo);
+
+
+}
+
+
+void reintentar_conexion(int tiempo){
+
+	t_config* config = inicializar_config("./team.config");
+	t_log *logger= inicializar_log("./team.config","TEAM");
+	bool conexionOK = false;
+	int count = 0;
+
+	log_info(logger,"Inicio de proceso de reintento de comunicacion con el Broker");
+
+	while(!conexionOK){
+		if(count != 0){
+			log_info(logger,"Reintento de comunicacion con el broker: FALLIDO; intento numero: %d", (count+1));
+		}
+
+
+		sleep(tiempo);
+		conexionOK = suscribirse_a_colas();
+		++count ;
+	}
+
+	log_info(logger,"Reintento de comunicacion con el broker: EXITO; cantidad de intentos: %d", count);
+
+	config_destroy(config);
+	log_destroy(logger);
+}
+
 void comprobarConexion(){
 		char* ip;
 		char* puerto;
@@ -35,6 +141,66 @@ void comprobarConexion(){
 		log_destroy(logger);
 		liberar_conexion(conexion);
 
+}
 
+void recibe_mensaje_broker(int* socket) {
+
+	if(socket== -1)return;
+	char* ack = "ACK";
+	op_code cod_op;
+	send(*socket,ack,sizeof(char)*4,MSG_WAITALL);
+	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
 
 }
+
+void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto) {
+		char* mensaje;
+		int conexion;
+
+		//crear conexion
+		conexion = crear_conexion(ip, puerto);
+		//enviar mensaje
+		log_info(logger, "conexion creada");
+		char* nombre = "pikachu";
+		uint32_t posx = 2;
+		uint32_t posy = 3;
+		uint32_t quant = 8;
+		send_message_new_pokemon(nombre, posx, posy, quant, conexion);
+		//recibir mensaje
+		log_info(logger, "mensaje enviado");
+		mensaje = client_recibir_mensaje(conexion);
+		//loguear mensaje recibido
+		log_info(logger, "mensaje recibido");
+		log_info(logger, mensaje);
+
+		free(mensaje);
+		log_destroy(logger);
+		liberar_conexion(conexion);
+}
+
+void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto) {
+		char* mensaje;
+		int conexion;
+
+		//crear conexion
+		conexion = crear_conexion(ip, puerto);
+		//enviar mensaje
+		log_info(logger, "conexion creada");
+		char* nombre = "pikachu";
+		uint32_t posx = 2;
+		uint32_t posy = 3;
+		uint32_t quant = 8;
+		send_message_new_pokemon(nombre, posx, posy, quant, 0, 1, conexion);
+		//recibir mensaje
+		log_info(logger, "mensaje enviado");
+		mensaje = client_recibir_mensaje(conexion);
+		//loguear mensaje recibido
+		log_info(logger, "mensaje recibido");
+		log_info(logger, mensaje);
+
+		list_add(ids_mensajes_enviados, mensaje);
+
+		free(mensaje);
+		liberar_conexion(conexion);
+}
+

@@ -12,6 +12,8 @@ int main(int argc, char *argv[]){
 
 	creacion_hilos_distribucion(lista_colas);
 
+
+
 	iniciar_servidor(configPath, ipconfig, puertocofing);
 
 	return EXIT_SUCCESS;
