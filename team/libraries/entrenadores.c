@@ -49,7 +49,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	char ** posiciones;
 	t_entrenador *unEntrenador;
 
-	t_config *config = config_create("./team2.config");
+	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 
 	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
 	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");

@@ -907,16 +907,18 @@ void* hilo_escucha(int* socket_servidor){
 
 		if (socket_cliente == -1) {
 		  if (errno == EWOULDBLOCK) {
-			printf("No pending connections; sleeping for one second.\n");
-			sleep(1);
+				printf("No pending connections; sleeping for one second.\n");
+				sleep(1);
+
 		  } else {
-			perror("error when accepting connection");
-			exit(1);
+				perror("error when accepting connection");
+				exit(1);
+
 		  }
 		} else {
 			int socket = socket_cliente;
 			printf("Got a connection; writing 'hello' then closing.\n");
-			aplica_funcion_escucha(&socket_cliente);
+			aplica_funcion_escucha(&socket);
 		}
 
 	}

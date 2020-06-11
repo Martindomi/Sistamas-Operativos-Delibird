@@ -19,7 +19,7 @@ bool suscribirse_a_colas() {
 	strcat(ip_puerto_team, ":");
 	strcat(ip_puerto_team, puerto_team);*/
 
-	op_code vectorCodigo[] = {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+	op_code vectorCodigo[] = {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
 
 	int conexion, i=0;
 
@@ -170,8 +170,7 @@ void enviar_mensaje_appeared_pokemon(t_log* logger, char* ip, char* puerto) {
 		log_info(logger, "mensaje enviado");
 		mensaje = client_recibir_mensaje(conexion);
 		//loguear mensaje recibido
-		log_info(logger, "mensaje recibido");
-		log_info(logger, mensaje);
+		log_info(logger, "mensaje recibido: %s",mensaje);
 
 		free(mensaje);
 		liberar_conexion(conexion);

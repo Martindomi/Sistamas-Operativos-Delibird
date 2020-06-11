@@ -8,7 +8,7 @@
 int main(int argc, char *argv[]){
 
 	//t_config *config = config_create("./team2.config");
-/*	t_list * lista_entrenadores = list_create();
+	t_list * lista_entrenadores = list_create();
 	int andaBroker = 1;
 
 	cola_NEW=list_create();
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	//Espero un appear o broker desconecta entonces cierro
 
 
-
+/*
 	do {
 
 	t_mensajeTeam queHago =	esperoMensaje();
@@ -45,13 +45,13 @@ int main(int argc, char *argv[]){
 			break;
 		}
 
-	}while(andaBroker);*/
-
+	}while(andaBroker);
+*/
 /*	TODO
  * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
  *
   Conexiones Prueba
-	t_config *config = config_create("./team.config");
+	t_config *config = config_create("./team.config");	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 	ip_team = config_get_string_value(config, "IP_TEAM");
@@ -91,9 +91,7 @@ int main(int argc, char *argv[]){
  *
  *
  */
-	char* path_log;
-	char* ip_team;
-	char* puerto_team;
+
 	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 	ip_team = config_get_string_value(config, "IP_TEAM");
 	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
@@ -109,12 +107,24 @@ int main(int argc, char *argv[]){
 	if(!conexionOK){
 		hilo_reconexion();
 	}
+	sleep(5);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	sleep(5);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	sleep(5);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	//list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
+
+	sleep(10);
+
+	printf("el programa sigue por aqui \n");
+	//sleep(100000);
+	//config_destroy(config);
 
 	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-
-	//list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
-	sleep(100000);
-	//config_destroy(config);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	sleep(15);
 }
 
 t_mensajeTeam esperoMensaje() {
@@ -174,6 +184,7 @@ void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 }
 
 void aplica_funcion_escucha(int * socket){
+	printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
 	printf("%d\n", cod_op);
@@ -185,8 +196,8 @@ void aplica_funcion_escucha(int * socket){
 	uint32_t size;
 
 	mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
-
-	printf("%d\n", mensajeRecibido->id_correlativo);
+	printf("el mensaje es : %s", mensajeRecibido->mensaje_cuerpo);
+	printf("el id es: %d\n", mensajeRecibido->id_correlativo);
 
 	bool encuentra_mensaje_propio(void* elemento) {
 		return strcmp((char*)elemento, string_itoa(mensajeRecibido->id_correlativo)) == 0;
@@ -195,12 +206,12 @@ void aplica_funcion_escucha(int * socket){
 	bool encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
 	if(encontre) {
-		printf("%d\n", mensajeRecibido->id_correlativo);
+		printf("id:%d\n", mensajeRecibido->id_correlativo);
 	}
 
 	liberar_conexion(*socket);
 	//free(mensajeRecibido);
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
-	sleep(10);
-	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);
+	/*sleep(10);
+	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);*/
 }
