@@ -1,8 +1,12 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <conexiones.h>
+#include "gamecard.h"
+#include "TALL-GRASS.c"
+#include "TALL-GRASS.h"
 
-int main(int argc, char *argv[]){
+
+int main (int argc, char *argv[]) {
 	char* ip;
 	char* puerto;
 	t_log* logger;
@@ -30,7 +34,17 @@ int main(int argc, char *argv[]){
 	log_info(logger, ip);
 	log_info(logger, puerto);
 
+	t_configFS* configTG= crear_config(argc,argv);
+	char*ptoMontje = configTG->ptoMontaje;
+	int block_size = configTG->block_size;
+	int blocks = configTG->blocks;
+
+
+	iniciar_filesystem();
+
 	log_destroy(logger);
 	liberar_conexion(conexion);
 
 }
+
+
