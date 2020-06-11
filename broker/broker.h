@@ -10,11 +10,11 @@
 #include <semaphore.h>
 
 #define  THREAD_POOL 6
-#define  SEM_POOL 7
+#define  SEM_POOL 8
 
 pthread_t  thread_pool[THREAD_POOL];
 
-sem_t mutexLista[7];
+sem_t mutexLista[SEM_POOL];
 sem_t mutexDistribucion;
 sem_t mutexIds;
 
