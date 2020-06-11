@@ -3,15 +3,18 @@
 #define TALL_GRASS_H_
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
 #include <commons/bitarray.h>
+#include <sys/stat.h>
 
 #define PUERTO "PUERTO"
 #define IP "IP"
 #define PTO_MONTAJE "PTO_MONTAJE"
 #define CONFIG_FIELDS_N_ 3
+#define configuracionFS "../gamecard.config"
 
 /*
 #define BLOCK_SIZE "BLOCK_SIZE"
@@ -40,9 +43,9 @@ int blocks;
 char* magic_number;
 
 
-t_log logger;
-t_bitarray bitmap;
-t_configFS configTG;
-t_config config;
+t_log *logger;
+t_bitarray* bitmap;
+t_configFS* configTG;
+t_config*config;
 
 #endif /* TALL_GRASS_H_ */

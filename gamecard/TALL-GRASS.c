@@ -1,72 +1,74 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "TALL-GRASS.h"
 
-char* tomar_datos_de_block (int nroBlock){
-	log_debug(logger,"tomando los datos del block %d",nroBlock);
-	FILE* block_f = fopen(string_from_format("%s/Blocks/%d.bin",ptoMontaje,nroBlock), "r");
+/*char* tomar_datos_de_block (int nroBlock){
+	log_debug(logger,("tomando los datos del block %d",nroBlock));
+		FILE* block_f = fopen(string_from_format("%s/Blocks/%d.bin",ptoMontaje,nroBlock), "r");
 
-	//calcular_tam_bloque(block_f) (podria tomarlo como una funcion aparte)
+		//calcular_tam_bloque(block_f) (podria tomarlo como una funcion aparte)
 
-	int tamBlock;
-	char* buffer;
+		int tamBlock;
+		char* buffer;
 
-	fseek(block_f,0L,SEEK_END);
-	tamBlock = ftell (block_f);
-	fseek(block_f,0L,SEEK_SET);
+		fseek(block_f,0L,SEEK_END);
+		tamBlock = ftell (block_f);
+		fseek(block_f,0L,SEEK_SET);
 
-	buffer = malloc(tamBlock);
-	fread (buffer, tamBlock, 1, block_f);
-	buffer = string_substring_untill(buffer,tamBlock);
+		buffer = malloc(tamBlock);
+		fread(buffer, tamBlock, 1, block_f);
+		buffer = string_substring_untill(buffer,tamBlock);
 	return buffer;
-}
+}*/
 void iniciar_filesystem(){
-	log_debug(logger,"inicializando filesystem TALLGRASS");
 
+	log_debug(logger,"inicializando filesystem TALLGRASS");
 	iniciar_metadata_dir ();
 	iniciar_blocks_dir();
 	iniciar_files_dir();
-
 }
 t_configFS* crear_config(int argc, char* argv[]){
 	if(argc>1){
-		if(validar_existencia_archivo(argv[1])){
-			configTG =levantar_configuracion_filesystem(argv[1]);
-			log_info(logger,"se levanto correctamente la configuracion del filesystem");
-		}else{
-			log_error(logger, "El path recibido no corresponde a un filesystem en servicio");
+			if(validar_existencia_archivo(argv[1])){
+				configTG = levantar_configuracion_filesystem(argv[1]);
+				log_info(logger,"se levanto correctamente la configuracion del filesystem");
+			}else{
+				log_error(logger,"El path recibido no corresponde a un filesystem en servicio");
+			}
 		}
-	}
-	else if(validar_existencia_archivo(config)){
-		configTG=levantar_configuracion_filesystem(config);
-		log_info(logger, "La configuracion fue levantada correctamente");
-	}else if (validar_existencia_archivo(string_substring_from(config,3))){
-		configTG= levantar_configuracion_filesystem(config);
-		log_info(logger, "configuracion levantada correctamente");
-	}else{
-		log_error(logger, "No se pudo levatar el archivo de configuración");
-		exit(EXIT_FAILURE);
-	}
-	return configTG;
+		else if(validar_existencia_archivo(configuracionFS)){
+			configTG = levantar_configuracion_filesystem(configuracionFS);
+			log_info(logger, "La configuracion fue levantada correctamente");
+		}else if (validar_existencia_archivo(string_substring_from(configuracionFS,3))){
+			configTG = levantar_configuracion_filesystem(config);
+			log_info(logger, "configuracion levantada correctamente");
+		}else{
+			log_error(logger, "No se pudo levatar el archivo de configuración");
+			exit(EXIT_FAILURE);
+		}return configTG;
 }
 
-t_configFS* levantar_configuracion_filesystem(char*archivo){
+t_configFS* levantar_configuracion_filesystem(char* archivo){
 	t_configFS* configTG = malloc(sizeof(t_configFS));
-	t_config configuracion =config_create(archivo);
+	t_config* configuracion = config_create(archivo);
 
-	configTG->ptoEscucha = malloc(strlen(config_get_string_value(configuracion,"PUERTO_BROKER"))+1)
-	strcpy(configTG->ptoEscucha,config_get_string_value(configuracion,"PUERTO_BROKER"));
+		configTG->ptoEscucha = malloc(strlen(config_get_string_value(configuracion,"PUERTO_BROKER"))+1);
+		strcpy(configTG->ptoEscucha,config_get_string_value(configuracion,"PUERTO_BROKER"));
 
-	configTG->ptoMontaje =malloc(strlen(config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"))+1);
-	strcpy(configTG->ptoMontaje,config_get_string(configuracion,"PUNTO_MONTAJE_TALLGRASS"));
-	if(!string_ends_with(configTG->ptoMontaje,"/")) string_append(&configTG->ptoMontaje,"/");
+		configTG->ptoMontaje =malloc(strlen(config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"))+1);
+		strcpy(configTG->ptoMontaje,config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"));
 
-	configTG->block_size = config_get_int_value(configuracion,"BLOCK_SIZE");
-	configTG->blocks = config_get_int_value(configuracion,"BLOCKS");
+		if(!string_ends_with(configTG->ptoMontaje,"/")) string_append(&configTG->ptoMontaje,"/");
 
-	config_destroy(configuracion);
-	return configTG;
+		configTG->block_size = config_get_int_value(configuracion,"BLOCK_SIZE");
+		configTG->blocks = config_get_int_value(configuracion,"BLOCKS");
+
+		config_destroy(configuracion);
+		return (t_configFS*)configTG;
 }
+
 void iniciar_metadata_dir(){
 	crear_directorio(string_from_format("%s/Metadata", ptoMontaje));
 	iniciar_metadata();
@@ -81,8 +83,9 @@ void iniciar_metadata(){
 		int sizeBloque = config_get_int_value(metadataFS, "BLOCK_SIZE");
 		if (cantBloques != blocks ||  sizeBloque != block_size){
 				log_debug(logger,"Existe un filesystem con valores previos");
-		}config_destroy(metadata);
-		free(metadataFS);
+		}
+		config_destroy(metadataFS);
+		free(metadata);
 	}else{
 
 	FILE* archivo = fopen(string_from_format("%s/Metadata/Metadata.bin", ptoMontaje),"a");
@@ -110,7 +113,7 @@ log_debug(logger, "Iniciando Bitmap");
 		fstat(fileno(bitmap_f),&stats);
 
 		char* data =malloc(stats.st_size);
-		fread(data,stats.st_stize);
+		fread(data,stats.st_size,1,bitmap_f);
 		fclose(bitmap_f);
 
 		bitmap = bitarray_create_with_mode(data,stats.st_size,LSB_FIRST);
@@ -170,17 +173,16 @@ void liberar_blocks(char** blockArr){
 	fclose(bitmap_f);
 	log_info(logger,"Se han liberado los blocks del Bitmap");
 }
+
 bool validar_existencia_archivo(char* path){
-
-	log_info(logger,"Verificando si existe el archivo %s en el sistema de archivos", path);
-
+	log_info(logger,("Verificando si existe el archivo %s en el sistema de archivos",path));
 	FILE* archivo = fopen(path,"r");
 	if(archivo!=NULL){
-		fclose (archivo);
+	fclose (archivo);
 		return true;
-	}
-	return false;
+	} else return false;
 }
+
 /*bool es_directorio(char*path){
 	char* subCarpeta = string_substring_untill(path,string_pos_char(path, '/'));
 	if (subCarpeta == NULL) {
@@ -190,7 +192,7 @@ bool validar_existencia_archivo(char* path){
 	log_info(logger, "%s es un archivo", path);
 }*/
 
-void crear_files_metadata(char*pokemon){
+/*void crear_files_metadata(char*pokemon){
 	int posPrimerBloque = crear_block();
 	FILE* archivo = fopen(string_from_format("%s/Metadata.bin",crear_path_archivos(pokemon)));
 		fputs("DIRECTORY=%s\n",'N',archivo);
@@ -201,35 +203,29 @@ void crear_files_metadata(char*pokemon){
 	fclose(archivo);
 		log_debug(logger,"El archivo se ha creado exitosamente");
 		return ;
-}
+}*/
 void crear_directorio(char*path){
 	mkdir(path,0777);
 	log_debug(logger,"se ha creado el directorio %d",path);
 }
 void crear_files_metadata_directorio(char* dir){
 	FILE* directorio = fopen(("%s/metadata.bin",dir),"a");
-	fputs ("DIRECTORY\n = %s",'Y', directorio);
+	fputs(("DIRECTORY\n = %s",'Y'),directorio);
 	fclose(directorio);
 }
-char* crear_path_archivos(char*pokemon){
+char* crear_path_archivos(char* pokemon){
 	char* pathArchivo = string_new();
 	string_append(&pathArchivo,ptoMontaje);
 	string_append(&pathArchivo,"Files");
-	if (!string_starts_with(pokemon,'/')) strig_append(&pathArchivo,'/');
+	if (!string_starts_with(pokemon,"/")) string_append(&pathArchivo,"/");
 	string_append(&pathArchivo,pokemon);
 	return pathArchivo;
 }
-bool archivo_abierto(char* pokemon){
+/*bool archivo_abierto(char* pokemon){
 	FILE* archivo = buscar_archivo(pokemon);
 	FILE* puntero = &(fseek(archivo,0L,SEEK_END)-1);
 	if (*puntero == 'y') return true;
 	else return false;
-}
+}*/
 
-FILE* buscar_archivo(char* pokemon){
-
-}
-
-int main() {
-
-}
+/*FILE* buscar_archivo(char* pokemon){}*/

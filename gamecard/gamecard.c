@@ -12,6 +12,7 @@ int main (int argc, char *argv[]) {
 	t_log* logger;
 	t_config* config;
 
+
 	logger = log_create("gamecard.log", "GAMECARD", false, LOG_LEVEL_INFO);
 	config = config_create("gamecard.config");
 	ip = config_get_string_value(config, "IP_GAMECARD");
