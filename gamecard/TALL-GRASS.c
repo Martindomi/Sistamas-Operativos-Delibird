@@ -22,57 +22,73 @@
 		buffer = string_substring_untill(buffer,tamBlock);
 	return buffer;
 }*/
-void iniciar_filesystem(){
-
-	log_debug(logger,"inicializando filesystem TALLGRASS");
-	iniciar_metadata_dir ();
-	iniciar_blocks_dir();
-	iniciar_files_dir();
+void actualizar_bitmap(bool valor, int pos){
+	if(valor)
+		bitarray_set_bit(bitmap,pos);
+	else
+		bitarray_clean_bit(bitmap,pos);
+	FILE*bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin",ptoMontaje),"w");
+	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
+	fclose(bitmap_f);
 }
-t_configFS* crear_config(int argc, char* argv[]){
-	if(argc>1){
-			if(validar_existencia_archivo(argv[1])){
-				configTG = levantar_configuracion_filesystem(argv[1]);
-				log_info(logger,"se levanto correctamente la configuracion del filesystem");
-			}else{
-				log_error(logger,"El path recibido no corresponde a un filesystem en servicio");
-			}
+
+int crear_block (){
+	log_debug(logger,"crear nuevo block");
+
+	int i;
+	for (i = 0; i< bitmap->size /block_size; i++){
+		if(bitarray_test_bit(bitmap,i)==0){
+			FILE* f = fopen(string_from_format("%s/Blocks/%d.bin", ptoMontaje ,i),"w");
+			if(f == NULL)
+				return 1;
+			fclose (f);
+			actualizar_bitmap(true, i);
+			log_debug(logger, "se creo el nuevo block: int %d",i);
+			return i;
 		}
-		else if(validar_existencia_archivo(configuracionFS)){
-			configTG = levantar_configuracion_filesystem(configuracionFS);
-			log_info(logger, "La configuracion fue levantada correctamente");
-		}else if (validar_existencia_archivo(string_substring_from(configuracionFS,3))){
-			configTG = levantar_configuracion_filesystem(config);
-			log_info(logger, "configuracion levantada correctamente");
-		}else{
-			log_error(logger, "No se pudo levatar el archivo de configuración");
-			exit(EXIT_FAILURE);
-		}return configTG;
+	}
+	log_debug(logger, "No se pudo crear el bloque");
+	return -1;
 }
 
-t_configFS* levantar_configuracion_filesystem(char* archivo){
-	t_configFS* configTG = malloc(sizeof(t_configFS));
-	t_config* configuracion = config_create(archivo);
-
-		configTG->ptoEscucha = malloc(strlen(config_get_string_value(configuracion,"PUERTO_BROKER"))+1);
-		strcpy(configTG->ptoEscucha,config_get_string_value(configuracion,"PUERTO_BROKER"));
-
-		configTG->ptoMontaje =malloc(strlen(config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"))+1);
-		strcpy(configTG->ptoMontaje,config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"));
-
-		if(!string_ends_with(configTG->ptoMontaje,"/")) string_append(&configTG->ptoMontaje,"/");
-
-		configTG->block_size = config_get_int_value(configuracion,"BLOCK_SIZE");
-		configTG->blocks = config_get_int_value(configuracion,"BLOCKS");
-
-		config_destroy(configuracion);
-		return (t_configFS*)configTG;
+void liberar_blocks(char** blockArr){
+	log_debug(logger, "Liberando blocks");
+	int i = 0;
+	while (blockArr[i] != NULL){
+		int bitPos = atoi(blockArr[i]);
+		bitarray_clean_bit(bitmap,bitPos);
+		i++;
+	}
+	FILE*bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin",ptoMontaje),"w");
+	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
+	fclose(bitmap_f);
+	log_info(logger,"Se han liberado los blocks del Bitmap");
 }
 
-void iniciar_metadata_dir(){
-	crear_directorio(string_from_format("%s/Metadata", ptoMontaje));
-	iniciar_metadata();
-	iniciar_bitmap();
+int validar_existencia_archivo(char* path){
+	log_debug(logger,"Verificando si existe el archivo %d en el sistema de archivos", path);
+	FILE* archivo = fopen(path,"r");
+	if(archivo!=NULL){
+	fclose (archivo);
+		return true;
+	} else return false;
+}
+void crear_directorio(char*path){
+	mkdir(path,0777);
+	log_debug(logger,"se ha creado el directorio %d",path);
+}
+void crear_metadata_directorio(char* dir){
+	FILE* directorio = fopen((string_from_format("%s/metadata.bin",dir)),"a");
+	fputs((string_from_format("DIRECTORY\n = %s","Y")),directorio);
+	fclose(directorio);
+}
+char* crear_path_archivos(char* pokemon){
+	char* pathArchivo = string_new();
+	string_append(&pathArchivo,ptoMontaje);
+	string_append(&pathArchivo,"Files");
+	if (!string_starts_with(pokemon,"/")) string_append(&pathArchivo,"/");
+	string_append(&pathArchivo,pokemon);
+	return pathArchivo;
 }
 void iniciar_metadata(){
 	log_debug(logger, "inicializando archivo Metadata");
@@ -125,63 +141,78 @@ log_debug(logger, "Iniciando Bitmap");
 	fclose(bitmap_f);
 }
 }
+
 void iniciar_files_dir(){
 	crear_directorio(string_from_format("%s/Files", ptoMontaje));
 	crear_metadata_directorio(string_from_format("%s/Files", ptoMontaje));
 }
+
 void iniciar_blocks_dir(){
-	crear_directorio(string_from_format("%/Blocks"),ptoMontaje);
+	crear_directorio(string_from_format("%/Blocks",ptoMontaje));
 	crear_metadata_directorio(string_from_format("%s/Blocks",ptoMontaje));
 }
-void actualizar_bitmap(bool valor, int pos){
-	if(valor)
-		bitarray_set_bit(bitmap,pos);
-	else
-		bitarray_clean_bit(bitmap,pos);
-	FILE*bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin",ptoMontaje),"w");
-	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
-	fclose(bitmap_f);
-}
-int crear_block (){
-	log_debug(logger,"crear nuevo block");
 
-	int i;
-	for (i = 0; i< bitmap->size /block_size; i++){
-		if(bitarray_test_bit(bitmap,i)==0){
-			FILE* f = fopen(string_from_format("%s/Blocks/%d.bin", ptoMontaje ,i),"w");
-			if(f == NULL)
-				return 1;
-			fclose (f);
-			actualizar_bitmap(true, i);
-			log_debug(logger, "se creo el nuevo block: int %d",i);
-			return i;
+void iniciar_metadata_dir(){
+	crear_directorio(string_from_format("%s/Metadata", ptoMontaje));
+	iniciar_metadata();
+	iniciar_bitmap();
+}
+
+void iniciar_filesystem(){
+
+	log_debug(logger,"inicializando filesystem TALLGRASS");
+	iniciar_metadata_dir ();
+	iniciar_blocks_dir();
+	iniciar_files_dir();
+}
+
+t_configFS* levantar_configuracion_filesystem(char* archivo){
+	t_configFS* configTG = malloc(sizeof(t_configFS));
+	t_config* configuracion = config_create(archivo);
+
+		configTG->ptoEscucha = malloc(strlen(config_get_string_value(configuracion,"PUERTO_BROKER"))+1);
+		strcpy(configTG->ptoEscucha,config_get_string_value(configuracion,"PUERTO_BROKER"));
+
+		configTG->ptoMontaje =malloc(strlen(config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"))+1);
+		strcpy(configTG->ptoMontaje,config_get_string_value(configuracion,"PUNTO_MONTAJE_TALLGRASS"));
+
+		if(!string_ends_with(configTG->ptoMontaje,"/")) string_append(&configTG->ptoMontaje,"/");
+
+		configTG->block_size = config_get_int_value(configuracion,"BLOCK_SIZE");
+		configTG->blocks = config_get_int_value(configuracion,"BLOCKS");
+
+		config_destroy(configuracion);
+		return configTG;
+}
+
+t_configFS* crear_config(int argc, char* argv[]){
+	if(argc>1){
+			if(validar_existencia_archivo(argv[1])){
+				configTG = levantar_configuracion_filesystem(argv[1]);
+				log_info(logger,"se levanto correctamente la configuracion del filesystem");
+			}else{
+				log_error(logger,"El path recibido no corresponde a un filesystem en servicio");
+			}
 		}
-	}
-	log_debug(logger, "No se pudo crear el bloque");
-	return -1;
+		else if(validar_existencia_archivo(configuracionFS)){
+			configTG = levantar_configuracion_filesystem(configuracionFS);
+			log_info(logger, "La configuracion fue levantada correctamente");
+		}else if (validar_existencia_archivo(string_substring_from(configuracionFS,3))){
+			configTG = levantar_configuracion_filesystem(configuracionFS);
+			log_info(logger, "configuracion levantada correctamente");
+		}else{
+			log_error(logger, "No se pudo levatar el archivo de configuración");
+			exit(EXIT_FAILURE);
+		}return configTG;
 }
-void liberar_blocks(char** blockArr){
-	log_debug(logger, "Liberando blocks");
-	int i = 0;
-	while (blockArr[i] != NULL){
-		int bitPos = atoi(blockArr[i]);
-		bitarray_clean_bit(bitmap,bitPos);
-		i++;
-	}
-	FILE*bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin",ptoMontaje),"w");
-	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
-	fclose(bitmap_f);
-	log_info(logger,"Se han liberado los blocks del Bitmap");
-}
+/*bool archivo_abierto(char* pokemon){
+	FILE* archivo = buscar_archivo(pokemon);
+	FILE* puntero = &(fseek(archivo,0L,SEEK_END)-1);
+	if (*puntero == 'y') return true;
+	else return false;
+}*/
 
-bool validar_existencia_archivo(char* path){
-	log_info(logger,("Verificando si existe el archivo %s en el sistema de archivos",path));
-	FILE* archivo = fopen(path,"r");
-	if(archivo!=NULL){
-	fclose (archivo);
-		return true;
-	} else return false;
-}
+/*FILE* buscar_archivo(char* pokemon){}*/
 
 /*bool es_directorio(char*path){
 	char* subCarpeta = string_substring_untill(path,string_pos_char(path, '/'));
@@ -204,28 +235,3 @@ bool validar_existencia_archivo(char* path){
 		log_debug(logger,"El archivo se ha creado exitosamente");
 		return ;
 }*/
-void crear_directorio(char*path){
-	mkdir(path,0777);
-	log_debug(logger,"se ha creado el directorio %d",path);
-}
-void crear_files_metadata_directorio(char* dir){
-	FILE* directorio = fopen(("%s/metadata.bin",dir),"a");
-	fputs(("DIRECTORY\n = %s",'Y'),directorio);
-	fclose(directorio);
-}
-char* crear_path_archivos(char* pokemon){
-	char* pathArchivo = string_new();
-	string_append(&pathArchivo,ptoMontaje);
-	string_append(&pathArchivo,"Files");
-	if (!string_starts_with(pokemon,"/")) string_append(&pathArchivo,"/");
-	string_append(&pathArchivo,pokemon);
-	return pathArchivo;
-}
-/*bool archivo_abierto(char* pokemon){
-	FILE* archivo = buscar_archivo(pokemon);
-	FILE* puntero = &(fseek(archivo,0L,SEEK_END)-1);
-	if (*puntero == 'y') return true;
-	else return false;
-}*/
-
-/*FILE* buscar_archivo(char* pokemon){}*/
