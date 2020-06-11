@@ -161,7 +161,7 @@ void iniciar_metadata_dir(){
 void iniciar_filesystem(){
 
 	log_debug(logger,"inicializando filesystem TALLGRASS");
-	iniciar_metadata_dir ();
+	iniciar_metadata_dir();
 	iniciar_blocks_dir();
 	iniciar_files_dir();
 }
