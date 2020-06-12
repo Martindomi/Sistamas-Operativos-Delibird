@@ -879,6 +879,9 @@ void crear_hilo_escucha(char* ip, char* puerto)
         if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
             continue;
 
+        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
+        guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
+
         if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
             close(socket_servidor);
             continue;
@@ -896,31 +899,23 @@ void crear_hilo_escucha(char* ip, char* puerto)
 }
 
 void* hilo_escucha(int* socket_servidor){
-
+	int socketser = *socket_servidor;
 	while(1){
 
 		struct sockaddr_in dir_cliente;
 
 		socklen_t tam_direccion = sizeof(struct sockaddr_in);
-
-		int socket_cliente = accept(*socket_servidor, (void*) &dir_cliente, &tam_direccion);
+		int socket_cliente = accept(socketser, (void*) &dir_cliente, &tam_direccion);
 
 		if (socket_cliente == -1) {
-		  if (errno == EWOULDBLOCK) {
 				printf("No pending connections; sleeping for one second.\n");
 				sleep(1);
 
-		  } else {
-				perror("error when accepting connection");
-				exit(1);
-
-		  }
 		} else {
 			int socket = socket_cliente;
 			printf("Got a connection; writing 'hello' then closing.\n");
 			aplica_funcion_escucha(&socket);
 		}
-
 	}
 }
 

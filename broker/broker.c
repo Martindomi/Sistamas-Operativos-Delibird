@@ -255,6 +255,7 @@ void distribuir_mensajes_cola(int cola) {
 			bool encontre = list_any_satisfy(puntero_mensaje_completo->suscriptores_ack, (void*)encuentra_suscriptor);
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			if (!encontre) {
+				printf("MENSAJE %s\n", suscriptor);
 				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje_completo);
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 				bool enviado = list_any_satisfy(puntero_mensaje_completo->suscriptores_enviados, (void*)encuentra_suscriptor);
@@ -274,14 +275,12 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 	char* ip_suscriptor;
 	char* puerto_suscriptor;
 	char* mensaje_recibido;
-	char* aux;
+	char** aux;
+	aux = string_split(suscriptor, ":");
+	ip_suscriptor = aux[0];
+	puerto_suscriptor = aux[1];
 
-	// Separa el "suscriptor" (IP:PUERTO) en IP y PUERTO
-	aux = strtok(suscriptor, ":");
-	ip_suscriptor = aux;
-	aux = strtok(NULL, ":");
-	puerto_suscriptor = aux;
-
+	printf("SUS %s", suscriptor);
 	conexion = crear_conexion(ip_suscriptor, puerto_suscriptor);
 	uint32_t id = puntero_mensaje_completo->mensaje->id;
 	uint32_t id_correlativo = puntero_mensaje_completo->mensaje->id_correlativo;
@@ -322,7 +321,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			char* nombre = puntero_mensaje->name_pokemon;
 			uint32_t posx = puntero_mensaje->pos_x;
 			uint32_t posy = puntero_mensaje->pos_y;
-
+			printf("APPEARED con %d id %d\n", conexion, id);
 			send_message_appeared_pokemon(nombre, posx, posy, id, id_correlativo, conexion);
 
 			break;
@@ -351,7 +350,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 	}
 
 	mensaje_recibido = client_recibir_mensaje(conexion);
-
+	printf("RECIBE %s\n", mensaje_recibido);
 	// TODO que hago si no recibo el ACK?
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		list_add(puntero_mensaje_completo->suscriptores_ack, suscriptor);
@@ -430,6 +429,8 @@ void creacion_hilos_distribucion(int lista_colas[]) {
     	int* puntero_cola = malloc(sizeof(puntero_cola));
     	*puntero_cola = lista_colas[j];
 		pthread_create(&thread_pool[j], NULL, distribuir_mensajes, puntero_cola);
+		pthread_detach(thread_pool[j]);
+
     }
 }
 

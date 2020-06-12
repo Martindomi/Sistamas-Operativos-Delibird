@@ -110,21 +110,20 @@ int main(int argc, char *argv[]){
 	sleep(5);
 	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
 	sleep(5);
+	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);
+
+	/*sleep(5);
 	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
 	sleep(5);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
+	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);*/
 	//list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
-
-	sleep(10);
 
 	printf("el programa sigue por aqui \n");
 	//sleep(100000);
 	//config_destroy(config);
 
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	sleep(15);
+	// TODO sacar esto
+	sleep(50000);
 }
 
 t_mensajeTeam esperoMensaje() {
@@ -187,8 +186,6 @@ void aplica_funcion_escucha(int * socket){
 	printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	printf("%d\n", cod_op);
-	printf("%d\n",*socket);
 
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
@@ -196,20 +193,19 @@ void aplica_funcion_escucha(int * socket){
 	uint32_t size;
 
 	mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
-	printf("el mensaje es : %s", mensajeRecibido->mensaje_cuerpo);
-	printf("el id es: %d\n", mensajeRecibido->id_correlativo);
 
 	bool encuentra_mensaje_propio(void* elemento) {
-		return strcmp((char*)elemento, string_itoa(mensajeRecibido->id_correlativo)) == 0;
+		char* el = (char*) elemento;
+		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
-	// TODO ver si no es mejor utilizar los ACK en vez de los enviados.
 	bool encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
+	// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 	if(encontre) {
 		printf("id:%d\n", mensajeRecibido->id_correlativo);
 	}
 
-	liberar_conexion(*socket);
+	//liberar_conexion(*socket);
 	//free(mensajeRecibido);
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
 	/*sleep(10);

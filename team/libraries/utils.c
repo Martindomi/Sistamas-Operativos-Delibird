@@ -171,8 +171,8 @@ void enviar_mensaje_appeared_pokemon(t_log* logger, char* ip, char* puerto) {
 		mensaje = client_recibir_mensaje(conexion);
 		//loguear mensaje recibido
 		log_info(logger, "mensaje recibido: %s",mensaje);
+		list_add(ids_mensajes_enviados, mensaje);
 
-		free(mensaje);
 		liberar_conexion(conexion);
 }
 void enviar_mensaje_appeared_pokemon2(t_log* logger, char* ip, char* puerto) {
@@ -193,8 +193,8 @@ void enviar_mensaje_appeared_pokemon2(t_log* logger, char* ip, char* puerto) {
 		//loguear mensaje recibido
 		log_info(logger, "mensaje recibido");
 		log_info(logger, mensaje);
+		list_add(ids_mensajes_enviados, mensaje);
 
-		free(mensaje);
 		liberar_conexion(conexion);
 }
 
