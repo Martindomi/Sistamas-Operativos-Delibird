@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 #include "TALL-GRASS.h"
 
 /*char* tomar_datos_de_block (int nroBlock){
@@ -31,7 +27,60 @@ void actualizar_bitmap(bool valor, int pos){
 	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
 	fclose(bitmap_f);
 }
+char* generar_path_bloque(char*bloque){
+	char* pathBloque = string_new();
+		string_append(&pathBloque,ptoMontaje);
+		string_append(&pathBloque,"Blocks");
+		if (!string_starts_with(bloque,"/")) string_append(&pathBloque,"/");
+		string_append(&pathBloque,bloque);
+		return pathBloque;
+}
+char** obtener_array_de_bloques(char*path){
+	 t_config* c = config_create(path);
+	 char** bloques = config_get_array_value(c,"BLOCKS");
+	 config_destroy(c);
+	 return bloques;
+}
 
+int tam_ocupado_en_el_block(char*path){
+	 int tam;
+	 FILE* block = fopen(path,"r");
+	 fseek(block,0,SEEK_END);
+	 tam = ftell(block);
+	 fclose(block);
+	 return tam;
+}
+
+int block_completo(char*path, int size){
+	 if(tam_ocupado_en_el_block(path)<size) return false;
+	 else return true;
+}
+int tam_disponible_en_el_block(char*path,int size){
+	int tamDisponible;
+	int tamOcupado = tam_ocupado_en_el_block(path);
+	tamDisponible = size-tamOcupado;
+	return tamDisponible;
+}
+
+int calcular_tamanio_archivo(char*path){
+	int i;
+	int tamanio=0;
+	t_config* configArchivo = config_create(path);
+	int size = config_get_int_value(configArchivo,"SIZE");
+	char** blocks = obtener_array_de_bloques(path);
+
+	for(i=0; i<(sizeof(blocks));i++)
+	{
+		char* pathBlock = generar_path_bloque(blocks[i]);
+		if (block_completo(pathBlock,size)){
+			tamanio=tamanio+size;
+		}else {
+			tamanio = tamanio + tam_ocupado_en_el_block(pathBlock);
+		}
+	}
+	config_destroy(configArchivo);
+	return tamanio;
+}
 int crear_block (){
 	log_debug(logger,"crear nuevo block");
 
@@ -90,6 +139,7 @@ char* crear_path_archivos(char* pokemon){
 	string_append(&pathArchivo,pokemon);
 	return pathArchivo;
 }
+
 void iniciar_metadata(){
 	log_debug(logger, "inicializando archivo Metadata");
 	char*metadata = string_from_format("%s/Metadata/Metadata.bin", ptoMontaje);
@@ -223,15 +273,17 @@ t_configFS* crear_config(int argc, char* argv[]){
 	log_info(logger, "%s es un archivo", path);
 }*/
 
-/*void crear_files_metadata(char*pokemon){
+void crear_files_metadata(char*pokemon){
 	int posPrimerBloque = crear_block();
-	FILE* archivo = fopen(string_from_format("%s/Metadata.bin",crear_path_archivos(pokemon)));
-		fputs("DIRECTORY=%s\n",'N',archivo);
-		fputs("SIZE=%s\n'", 0 , archivo);
+	FILE* archivo = fopen(string_from_format("%s/Metadata.bin",crear_path_archivos(pokemon)),"a");
+		fputs(string_from_format("DIRECTORY=%s\n",'N'),archivo);
+		fputs(string_from_format("SIZE=%s\n'",calcular_tamanio_archivo(pokemon)), archivo);
 		char* blocks = string_from_format("BLOCKS=[%d]", posPrimerBloque);
 		fputs (blocks,archivo);
-		fputs("OPEN=%s\n",'N', archivo);
+		fputs(string_from_format("OPEN=%s\n",'N'), archivo);
 	fclose(archivo);
 		log_debug(logger,"El archivo se ha creado exitosamente");
 		return ;
-}*/
+}
+
+

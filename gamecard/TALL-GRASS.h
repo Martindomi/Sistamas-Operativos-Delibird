@@ -1,9 +1,11 @@
 
 #ifndef TALL_GRASS_H_
 #define TALL_GRASS_H_
+
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
+#include <stdbool.h>
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>

@@ -1,7 +1,8 @@
+//#include "gamecard.h"
+#include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
-#include <conexiones.h>
-#include "gamecard.h"
+
 //#include "TALL-GRASS.c"
 
 
@@ -47,6 +48,7 @@ int main (int argc, char *argv[]) {
 	liberar_conexion(conexion);
 */
 }
+
 
 
 
