@@ -27,7 +27,10 @@ int main(int argc, char *argv[]){
 
 	if((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc == 4)) {
 		// TODO SUSCRIPCION
+		crear_hilo_escucha(ip_gameboy, puerto_gameboy);
 		realizar_suscripcion(cola_destino, (uint32_t) argv[3]);
+		sleep(30000);
+
 	} else if ((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc != 4)) {
 		manejar_error_mensaje();
 		return -1;
@@ -40,7 +43,6 @@ int main(int argc, char *argv[]){
 
 	log_destroy(logger_gameboy);
 	//config_destroy(config);
-
 	return 0;
 }
 
@@ -153,6 +155,8 @@ void inicializar_datos(t_config* config) {
 	puerto_gamecard = config_get_string_value(config, "PUERTO_GAMECARD");
 	ip_gameboy = config_get_string_value(config, "IP_GAMEBOY");
 	puerto_gameboy = config_get_string_value(config, "PUERTO_GAMEBOY");
+
+	ACK = "ACK";
 }
 
 void realizar_suscripcion(uint32_t cola_destino, uint32_t tiempo_suscripto) {
@@ -172,4 +176,52 @@ void realizar_suscripcion(uint32_t cola_destino, uint32_t tiempo_suscripto) {
 
 	liberar_conexion(conexion);
 	free(ip_puerto_gameboy);
+}
+
+void aplica_funcion_escucha(int * socket) {
+	printf("recibe mensaje del broker\n");
+	op_code cod_op;
+	puntero_mensaje mensajeRecibido;
+	uint32_t size;
+
+	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	printf("socket %d", *socket);
+	printf("cod op %d", cod_op);
+	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
+	printf("PASE ACK %s", ACK);
+	switch(cod_op) {
+		case NEW_POKEMON: {
+			mensajeRecibido = recibir_new_pokemon(*socket, &size);
+			printf("mensaje new pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		case APPEARED_POKEMON: {
+			mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
+			printf("mensaje appeared pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		case GET_POKEMON: {
+			mensajeRecibido = recibir_get_pokemon(*socket, &size);
+			printf("mensaje get pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		case LOCALIZED_POKEMON: {
+			mensajeRecibido = recibir_localized_pokemon(*socket, &size);
+			printf("mensaje localized pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		case CATCH_POKEMON: {
+			mensajeRecibido = recibir_catch_pokemon(*socket, &size);
+			printf("mensaje catch pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		case CAUGHT_POKEMON: {
+			mensajeRecibido = recibir_caught_pokemon(*socket, &size);
+			printf("mensaje caught pokemon recibido con id %d", mensajeRecibido->id);
+			break;
+		}
+		default: {
+
+		}
+	}
 }

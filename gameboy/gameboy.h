@@ -18,6 +18,7 @@ char* ip_gamecard;
 char* puerto_gamecard;
 char* ip_gameboy;
 char* puerto_gameboy;
+char* ACK;
 
 t_log* logger_gameboy;
 uint32_t obtener_cola_mensaje(char* cola_string);
