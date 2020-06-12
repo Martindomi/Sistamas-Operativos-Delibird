@@ -41,7 +41,7 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 	t_config* config;
 
 
-	config = config_create("/home/utnso/delibird/tp-2020-1c-Elite-Four/broker/broker.config");
+	config = config_create("/home/utnso/Documentos/tp-2020-1c-Elite-Four/broker/broker.config");
 
 	ip = config_get_string_value(config, ip_config);
 	puerto = config_get_string_value(config, port_config);

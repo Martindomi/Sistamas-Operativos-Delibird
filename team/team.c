@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
 
 
 
-	t_config *config = config_create("./team.config");
+	t_config *config = config_creatxe("./team.config");
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 	ip_team = config_get_string_value(config, "IP_TAEM");
