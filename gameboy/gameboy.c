@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 		// TODO SUSCRIPCION
 		printf("ip %s puerto %s\n", ip_gameboy, puerto_gameboy);
 		crear_hilo_escucha(ip_gameboy, puerto_gameboy);
-		realizar_suscripcion(cola_destino, (uint32_t) argv[3]);
+		realizar_suscripcion(cola_destino, atoi(argv[3]));
 		sleep(30000);
 
 	} else if ((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc != 4)) {
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	log_destroy(logger_gameboy);
+	//log_destroy(logger_gameboy);
 	//config_destroy(config);
 	return 0;
 }
@@ -160,7 +160,7 @@ void inicializar_datos(t_config* config) {
 	ACK = "ACK";
 }
 
-void realizar_suscripcion(uint32_t cola_destino, uint32_t tiempo_suscripto) {
+void realizar_suscripcion(uint32_t cola_destino, int tiempo_suscripto) {
 	char* ip_puerto_gameboy = malloc(strlen(ip_gameboy) + strlen(puerto_gameboy) + strlen(":") + 2);
 	strcpy(ip_puerto_gameboy, ip_gameboy);
 	strcat(ip_puerto_gameboy, ":");
