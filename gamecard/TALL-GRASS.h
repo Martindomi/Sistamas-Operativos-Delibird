@@ -11,12 +11,13 @@
 #include <commons/log.h>
 #include <commons/bitarray.h>
 #include <sys/stat.h>
+#include "gamecard.h"
 
 #define PUERTO "PUERTO"
 #define IP "IP"
 #define PTO_MONTAJE "PTO_MONTAJE"
 #define CONFIG_FIELDS_N_ 3
-#define configuracionFS "../gamecard.config"
+#define configuracionFS "/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config"
 
 /*
 #define BLOCK_SIZE "BLOCK_SIZE"
@@ -45,7 +46,6 @@ int blocks;
 char* magic_number;
 
 
-t_log *logger;
 t_bitarray* bitmap;
 t_configFS* configTG;
 t_config*config;

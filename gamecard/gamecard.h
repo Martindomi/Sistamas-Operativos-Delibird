@@ -4,4 +4,15 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <commons/bitarray.h>
-//#include "TALL-GRASS.c"
+#include<conexiones.h>
+
+#include "TALL-GRASS.h"
+
+char* ip_broker;
+char* puerto_broker;
+char* ip_gamecard;
+char* puerto_gamecard;
+char* ptoMontaje;
+int block_size;
+int blocks;
+t_log *logger;
