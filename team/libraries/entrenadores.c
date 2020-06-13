@@ -23,7 +23,7 @@ void* main_entrenador(t_entrenador* entrenador){
 			printf("Entrenador %d: me quedan pokemons, vuelvo a ready\n", entrenador->id);
 		}else {
 			moverColas(cola_READY,cola_EXIT, entrenador);
-			printf("Entrenador %d: no me quedan pokemons, me suicido\n", entrenador->id);
+			printf("Entrenador %d: no me quedan pokemons, me cierro\n", entrenador->id);
 		}
 		sem_post(&(sem_cpu));
 	}
