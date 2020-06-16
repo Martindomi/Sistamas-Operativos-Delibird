@@ -712,7 +712,7 @@ void send_message_localized_pokemon(char* nombre,uint32_t quant_pokemon,t_list* 
 	memcpy(stream + tamanio, &(quant_pokemon), sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
 
-	for(int i=0; i<quant_pokemon;i++){
+	for(int i=0; i<quant_pokemon*2;i++){
 
 		uint32_t* coord = list_get(coords,i);
 
@@ -765,7 +765,7 @@ puntero_mensaje recibir_localized_pokemon( int socket, uint32_t* paquete_size){
 	memcpy(&quant_pokemon, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	for(int i=0; i<quant_pokemon;i++){
+	for(int i=0; i<quant_pokemon*2;i++){
 
 		uint32_t* coord;
 		memcpy(&coord, buffer + desplazamiento, sizeof(uint32_t));

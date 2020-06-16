@@ -18,13 +18,7 @@
 t_list* lista_objetivo;
 
 
-t_list *cola_NEW;
-t_list *cola_READY;
-t_list *cola_EXEC;
-t_list *cola_BLOQUED_terminadoOK;
-//t_list *cola_BLOQUED_terminadoDeadlock; Y esto?
-//t_list *cola_BLOQUED_noTerminado; Y esto?
-t_list *cola_EXIT;
+
 /*
 
 

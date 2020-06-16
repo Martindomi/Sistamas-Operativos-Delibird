@@ -20,6 +20,13 @@
 #include <stdint.h>
 #include <semaphore.h>
 
+
+t_list *cola_NEW;
+t_list *cola_READY;
+t_list *cola_EXEC;
+t_list *cola_BLOQUED;
+t_list *cola_EXIT;
+
 typedef struct {
 	int x,y;
 	char* especie;
@@ -56,7 +63,7 @@ typedef struct {
 	pthread_t th;
 	t_pokemon* pokemonCapturando;
 	sem_t sem_entrenador;
-
+	int id_catch;
 
 }t_entrenador;
 
@@ -75,6 +82,16 @@ typedef struct {
 	double distancia;
 } t_distancia;
 
+
+typedef enum {
+	FAIL=0,
+	OK=1
+} resultado_catch;
+
+typedef struct {
+	uint32_t idCorrelativo;
+	resultado_catch atrapado;
+} t_caught;
 
 
 #endif /* LIBRARIES_LIBRERIASCOMUNES_H_ */

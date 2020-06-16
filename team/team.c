@@ -10,11 +10,15 @@ int main(int argc, char *argv[]){
 	//t_config *config = config_create("./team2.config");
 	t_list * lista_entrenadores = list_create();
 	int andaBroker = 1;
+	listaPokemonsRecibidos = list_create();
+	listaPokemonesCaught= list_create();
+
 
 	cola_NEW=list_create();
 	cola_READY=list_create();
 	cola_EXEC=list_create();
 	cola_EXIT=list_create();
+	cola_BLOQUED=list_create();
 	char* path_log;
 	char* ip_broker;
 	char* puerto_broker;
@@ -23,13 +27,65 @@ int main(int argc, char *argv[]){
 
 
 	sem_init(&(sem_cpu),0,1);
+	sem_init(&(sem_caught),0,0);
+	sem_init(&(sem_recibidos),0,0);
+	sem_init(&(mutex_caught),0,1);
+	sem_init(&(mutex_recibidos),0,1);
+
+	pthread_t hiloRecibidos, hiloCaught;
+	pthread_create(&hiloRecibidos,NULL,(void*)main_planificacion_recibidos,NULL);
+	pthread_create(&hiloCaught,NULL,(void*)main_planificacion_caught,NULL);
 
 	initListaPokemonsNecesitados();
 	inicializar_entrenadores(lista_entrenadores);
 	crear_hilo_entrenadores(lista_entrenadores);
 
+
+	t_list *posicionesPikachu = list_create();
+	int *i=malloc(sizeof(int));
+	*i=3;
+	list_add(posicionesPikachu,i);
+	i=malloc(sizeof(int));
+	*i=8;
+	list_add(posicionesPikachu,i);
+	i=malloc(sizeof(int));
+	*i=9;
+	list_add(posicionesPikachu,i);
+	 i=malloc(sizeof(int));
+	*i=9;
+	list_add(posicionesPikachu,i);
+	i=malloc(sizeof(int));
+	*i=1;
+	list_add(posicionesPikachu,i);
+	i=malloc(sizeof(int));
+	*i=1;
+	list_add(posicionesPikachu,i);
+
 	//Espero un appear o broker desconecta entonces cierro
 
+
+	printf("imprimo NEW: \n");
+	imprimirListaEntrenadores(cola_NEW);
+	printf("Imprimo Ready: \n");
+	imprimirListaEntrenadores(cola_READY);
+
+	puntero_mensaje_localized_pokemon pokemonloco = malloc(sizeof(puntero_mensaje_localized_pokemon));
+	pokemonloco->name_size=8;
+	pokemonloco->name_pokemon=malloc(sizeof(char)*pokemonloco->name_size);
+	memcpy(pokemonloco->name_pokemon,"Pikachu",8);
+	pokemonloco->quant_pokemon=3;
+	pokemonloco->coords = posicionesPikachu;
+
+	procesar_localized(pokemonloco);
+	sleep(10);
+	printf("imprimo NEW: \n");
+	imprimirListaEntrenadores(cola_NEW);
+	printf("Imprimo Ready: \n");
+	imprimirListaEntrenadores(cola_READY);
+
+	//t_list* coords;
+
+   // procesar_localized();
 
 /*
 	do {
@@ -91,7 +147,7 @@ int main(int argc, char *argv[]){
  *
  *
  */
-
+/*
 	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 	ip_team = config_get_string_value(config, "IP_TEAM");
 	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
@@ -112,7 +168,7 @@ int main(int argc, char *argv[]){
 	sleep(5);
 	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);
 
-	/*sleep(5);
+	sleep(5);
 	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
 	sleep(5);
 	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);*/
@@ -189,21 +245,59 @@ void aplica_funcion_escucha(int * socket){
 
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
+
 	puntero_mensaje mensajeRecibido;
 	uint32_t size;
-
-	mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
+	bool encontre;
 
 	bool encuentra_mensaje_propio(void* elemento) {
 		char* el = (char*) elemento;
 		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
-	bool encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
-	// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
-	if(encontre) {
-		printf("id:%d\n", mensajeRecibido->id_correlativo);
+	switch(cod_op){
+	case APPEARED_POKEMON://apeared
+		mensajeRecibido = recibir_appeared_pokemon(*socket, size);
+		puntero_mensaje_appeared_pokemon appearedRecibido = mensajeRecibido->mensaje_cuerpo;
+		procesar_appeared(appearedRecibido);
+
+		break;
+
+
+	case CAUGHT_POKEMON:
+		mensajeRecibido = recibir_caught_pokemon(*socket, size);
+		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
+		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
+
+			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
+			if(encontre) {
+				printf("id:%d\n", mensajeRecibido->id_correlativo);
+				procesar_caught(caughtRecibido, mensajeRecibido ->id_correlativo);
+
+			}
+
+		break;
+
+	case LOCALIZED_POKEMON:
+
+		mensajeRecibido = recibir_localized_pokemon(*socket, size);
+		puntero_mensaje_localized_pokemon localizedRecibido = mensajeRecibido->mensaje_cuerpo;
+
+		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
+
+			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
+			if(encontre) {
+				printf("id:%d\n", mensajeRecibido->id_correlativo);
+				procesar_localized(localizedRecibido);
+
+			}
+
+		break;
 	}
+
+
+
+
 
 	//liberar_conexion(*socket);
 	//free(mensajeRecibido);
@@ -211,3 +305,63 @@ void aplica_funcion_escucha(int * socket){
 	/*sleep(10);
 	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);*/
 }
+
+
+void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido){
+	int cantidad = localizedRecibido->quant_pokemon * 2;
+
+	t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
+	int j = 0;
+	for(int i=0;i<cantidad && j<poke->cantidad;i=i+2){
+
+		t_pokemon *pokemon = malloc(sizeof(t_pokemon));
+		pokemon->especie=malloc(sizeof(char)*localizedRecibido->name_size);
+		memcpy(pokemon->especie,localizedRecibido->name_pokemon,localizedRecibido->name_size);
+		pokemon->x=*((int*)(list_get(localizedRecibido->coords,i)));
+		pokemon->y=*((int*)(list_get(localizedRecibido->coords,i+1)));
+		printf("adentro de localized\n");
+		sem_wait(&mutex_recibidos);
+		list_add(listaPokemonsRecibidos,pokemon);
+		sem_post(&mutex_recibidos);
+		sem_post(&sem_recibidos);
+		j++;
+	}
+
+
+}
+
+void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idCorrelativo){
+
+	t_caught *caughts=malloc(sizeof(t_caught));
+	caughts->idCorrelativo = idCorrelativo;
+	switch(caughtRecibido->caught_size){
+	case 3:
+		caughts->atrapado=OK;
+		break;
+	case 5:
+		caughts->atrapado=FAIL;
+		break;
+	}
+	sem_wait(&mutex_caught);
+	list_add(listaPokemonesCaught,caughts);
+	sem_post(&mutex_caught);
+	sem_post(&sem_caught);
+}
+
+void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
+	t_pokemon *pokemon = malloc(sizeof(t_pokemon));
+	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
+	pokemon->x=appearedRecibido->pos_x;
+	pokemon->y=appearedRecibido->pos_y;
+
+	t_pokemonObjetivo *poke = buscarPokemon(appearedRecibido->name_pokemon);
+	if(poke->cantidad <= 0){
+		return;
+	}
+
+	sem_wait(&mutex_recibidos);
+	list_add(listaPokemonsRecibidos,pokemon);
+	sem_post(&mutex_recibidos);
+	sem_post(&sem_recibidos);
+}
+

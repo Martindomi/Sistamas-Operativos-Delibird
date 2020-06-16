@@ -119,12 +119,12 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 	}
 
-	imprimirListaObjetivo();
+//	imprimirListaObjetivo();
 
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
 
-	imprimirListaObjetivo();
+//	imprimirListaObjetivo();
 
 
 
