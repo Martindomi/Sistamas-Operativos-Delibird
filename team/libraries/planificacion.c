@@ -35,12 +35,14 @@ void main_planificacion_recibidos(){
 
 			if(distancia_new->distancia < distancia_bloqued->distancia){
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
+				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: NEW -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_new->entrenador->id);
 				printf("voy a buscar un pokemon\n");
 				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
-				pokemonsito->cantidad=pokemonsito->cantidad -1;
+				pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
 
 			}else{
 				moverColas(cola_BLOQUED,cola_READY,distancia_bloqued->entrenador);
+				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: BLOCK -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_bloqued->entrenador->id);
 			}
 
 		}

@@ -49,11 +49,11 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	char ** posiciones;
 	t_entrenador *unEntrenador;
 
-	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
+	//t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 
-	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
-	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
-	char** read_objetivos= config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
+	char** read_posiciones= configData->posicionesEntrenadores;//config_get_array_value(config,"POSICIONES_ENTRENADORES");
+	char** read_pokemones= configData->pokemonesEntrenadores;//config_get_array_value(config,"POKEMON_ENTRENADORES");
+	char** read_objetivos= configData->objetivosEntrenadores;//config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
 	int id = 0;
 	crearListaObjetivo();
 
@@ -132,7 +132,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	liberarArrayDeStrings(read_pokemones);
 	liberarArrayDeStrings(read_posiciones);
 
-	config_destroy(config);
+	//config_destroy(config);
 
 }
 

@@ -3,9 +3,40 @@
 #include "libraries/libreriascomunes.h"
 
 
+/*
+ *  ANOTACIONES:
+ *
+ * 	*********************   CREADOS   *********************
+ *
+ * 	libreriascomunes 	-> data_config  (estructura para sacar todos los datos del team.config) configData (variable tipo data_config)
+ * 						-> configTEAM (config global para no estar abriendo y cerrando)(solo se usa una vez para crear el configData)
+ * 						-> logTEAM (log global para no estar abriendo y cerrando)
+ *
+ *  utils: 	-> funciones para inicializar los de arriba
+ *			-> enviar mensaje GET (sin probar)(falta proceso 'default')
+ *			-> enviar mensaje CATCH (sin probar)(falta proceso 'default')
+ *
+ *  probe inicializar entrenadores sin crear el config adentro de la funcion y pasandole los datos de configData (pruebas ok)
+ *
+ *  todos los config y logs fueron comentadas (por las dudas) y usados los globales
+ *
+ *	*********************   CONSULTAS   *********************
+ *
+ *	Esta bien tener el log global? el config podria no serlo ya que se abre y cierra
+ *
+ *	Habria que pasarle el path del config por parametro a team para que sepa cual usar? ej ./team /home/utnso/tp/team/team.config y asi poder tener varios
+ *	procesos team y cada uno podra ejecutar un config diferente.
+ *
+ *
+ *  *********************   NOTA   *********************
+ *
+ *  habria que probar todo bien, tambien lo que dije que ya probe :)
+ */
 
 
 int main(int argc, char *argv[]){
+
+	inicializar_config_data();
 
 	//t_config *config = config_create("./team2.config");
 	t_list * lista_entrenadores = list_create();
@@ -288,7 +319,7 @@ void aplica_funcion_escucha(int * socket){
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 			if(encontre) {
 				printf("id:%d\n", mensajeRecibido->id_correlativo);
-				procesar_localized(localizedRecibido);
+				procesar_localized(localizedRecibido, mensajeRecibido->id_correlativo);
 
 			}
 
@@ -307,9 +338,8 @@ void aplica_funcion_escucha(int * socket){
 }
 
 
-void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido){
+void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, int id_correlativo){
 	int cantidad = localizedRecibido->quant_pokemon * 2;
-
 	t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
 	int j = 0;
 	for(int i=0;i<cantidad && j<poke->cantidad;i=i+2){
@@ -320,6 +350,9 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido){
 		pokemon->x=*((int*)(list_get(localizedRecibido->coords,i)));
 		pokemon->y=*((int*)(list_get(localizedRecibido->coords,i+1)));
 		printf("adentro de localized\n");
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: LOCALIZED. Contenido: ID Correalitvo=%d Posicion X=%d Posicion Y=%d",id_correlativo, pokemon->x, pokemon->y);
+
+
 		sem_wait(&mutex_recibidos);
 		list_add(listaPokemonsRecibidos,pokemon);
 		sem_post(&mutex_recibidos);
@@ -337,9 +370,13 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 	switch(caughtRecibido->caught_size){
 	case 3:
 		caughts->atrapado=OK;
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
+
 		break;
 	case 5:
 		caughts->atrapado=FAIL;
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
+
 		break;
 	}
 	sem_wait(&mutex_caught);
@@ -353,7 +390,7 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
 	pokemon->x=appearedRecibido->pos_x;
 	pokemon->y=appearedRecibido->pos_y;
-
+	log_info(loggerTEAM,"Mensaje recibido; Tipo: APPEARED. Contenido: Especie=%s, Posicion X=%d, Posicion Y=%d", pokemon->especie, pokemon->x, pokemon ->y);
 	t_pokemonObjetivo *poke = buscarPokemon(appearedRecibido->name_pokemon);
 	if(poke->cantidad <= 0){
 		return;

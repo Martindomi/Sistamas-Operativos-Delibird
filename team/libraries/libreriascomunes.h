@@ -32,6 +32,31 @@ typedef struct {
 	char* especie;
 } t_pokemon;
 
+typedef struct {
+
+	char** posicionesEntrenadores;
+	char** pokemonesEntrenadores;
+	char** objetivosEntrenadores;
+	int tiempoReconexion;
+	int retardoCicloCPU;
+	char* algoritmoPlanificacion;
+	int quantum;
+	float alpha;
+	float estmacionInicial;
+	char* ipBroker;
+	char* puertoBroker;
+	char* logFile;
+	char* ipTeam;
+	char* puertoTeam;
+	//char* id;
+
+} data_config;
+
+typedef data_config* puntero_data_config;
+
+t_log* loggerTEAM;
+t_config* configTEAM;
+puntero_data_config configData;
 
 typedef enum
 {
