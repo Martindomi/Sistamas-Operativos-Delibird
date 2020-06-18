@@ -45,7 +45,7 @@ void liberar_config_data();
 void inicializar_config_data();
 void inicializar_log_team();
 void inicializar_config_team(char* pathConfig);
-
+bool esRR();
 void comprobarConexion();
 
 

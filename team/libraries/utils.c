@@ -258,7 +258,7 @@ void inicializar_config_team(char* pathConfig){
 void inicializar_log_team(){
 
 
-	if((loggerTEAM= log_create(configData->logFile, "TEAM", true, LOG_LEVEL_INFO))==NULL){
+	if((loggerTEAM= log_create(configData->logFile, "TEAM", false, LOG_LEVEL_INFO))==NULL){
 		printf("No se pudo crear log\n");
 		exit(3);
 	}
@@ -268,9 +268,11 @@ void inicializar_config_data(){
 
 	inicializar_config_team("./team.config");
 	configData = malloc(sizeof(data_config));
+	configData->algoritmoPlanificacion = malloc(7);
 
 	configData->alpha=config_get_double_value(configTEAM,"ALPHA");
-	configData->algoritmoPlanificacion = config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION");
+	strcpy(configData->algoritmoPlanificacion,config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"));
+	//config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION");
 	//puts(configData->algoritmoPlanificacion);
 	configData->posicionesEntrenadores= config_get_array_value(configTEAM,"POSICIONES_ENTRENADORES");
 	puts(configData->posicionesEntrenadores[0]);
@@ -318,3 +320,6 @@ void liberar_config_data(){
 
 }
 
+bool esRR() {
+	return strcmp(configData->algoritmoPlanificacion,"RR") == 0;
+}

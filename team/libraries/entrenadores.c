@@ -6,20 +6,16 @@
 //NEW/
 //READY/E1
 //EXEC/ E2
-void* main_entrenador(t_entrenador* entrenador){
+void main_entrenador(t_entrenador* entrenador){
 	while(1) {
 		sem_wait(&(entrenador->sem_entrenador));
-		int xDestino =  entrenador->pokemonCapturando->x;
-		int yDestino =  entrenador->pokemonCapturando->y;
-		printf("Entrenador iniciado: %d\n", entrenador->id);
-		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,xDestino, yDestino);
-		entrenador->x = xDestino;
-		entrenador->y = yDestino;
-		capturoPokemon(entrenador);
-		printf("Capturo pokemon\n");
+		moverColas(cola_READY, cola_EXEC, entrenador);
+		moverEntrenador(entrenador);
+		analizarCaptura(entrenador);
+		//TODO
+		//Ak hay q comparar si tiene todos los de el, o no objs == capturados
 		if(list_size(entrenador->pokemonesObjetivo)!=list_size(entrenador->pokemonesCapturados)){
 			//Ak tiene q ir a block
-			moverColas(cola_EXEC,cola_NEW, entrenador);
 			printf("Entrenador %d: me quedan pokemons, vuelvo a ready\n", entrenador->id);
 		}else {
 			moverColas(cola_READY,cola_EXIT, entrenador);
@@ -29,6 +25,7 @@ void* main_entrenador(t_entrenador* entrenador){
 	}
 }
 
+//cuando recibe caught esto
 void capturoPokemon(t_entrenador* entrenador){
 	bool _filterPokemon(char* pokemonNombre){
 		return !strcmp(entrenador->pokemonCapturando->especie,pokemonNombre);
@@ -136,28 +133,12 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 }
 
-
 void liberarArrayDeStrings(char** options){
 	int j=0;
 	while(options[j]!=NULL){
 		free(options[j]);
 		j++;
 	}free(options);
-}
-
-
-int sizeVectorString(char **lista){
-
-	int i = 0;
-	char** aux = lista;
-
-	while(*(aux + i) != NULL){
-		i++;
-	}
-
-	//printf("%d\n",i);
-	return i;
-
 }
 
 void imprimirListaEntrenadores(t_list* entrenadores_list){
@@ -198,11 +179,6 @@ void imprimirListaObjetivo(){
 	printf("------------\n");
 }
 
-
-
-
-
-
 void crearListaObjetivo(){
 
 	if(lista_objetivo==NULL){
@@ -226,8 +202,6 @@ void cargarObjetivosGlobales(t_list* pokemones){
 
 	}*/
 }
-
-
 
 void agregarPokemonALista(char* pokemon){
 
@@ -274,6 +248,7 @@ void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list){
 }
 
 }
+
 void quitarPokemonDeLista(char* pokemon){
 
 	t_pokemonObjetivo *pokemonBuscado = buscarPokemon(pokemon);
@@ -295,6 +270,44 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 
 }
 
+void moverEntrenador(t_entrenador* entrenador) {
+	int xDestino =  entrenador->pokemonCapturando->x;
+	int yDestino =  entrenador->pokemonCapturando->y;
+	int cantidadAMoverseX = xDestino - entrenador->x;
+	int cantidadAMoverseY = yDestino - entrenador->y;
+	bool esRRo = esRR();
+	int cantDeMovs;
+	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
+	//Si entrenador->movsDisponibles != 0 entonces es RR
+	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
+	for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo); cantDeMovs++){
+		if(xDestino != entrenador->x) {
+			int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
+			entrenador->x = entrenador->x + direccionEnX;
+		}else if(yDestino != entrenador->y) {
+			int direccionEnY = cantidadAMoverseY/abs(cantidadAMoverseY);
+			entrenador->y = entrenador->y + direccionEnY;
+		}else {
+			//Llego, no deberia entrar ak, hay algo mal
+			exit(6);
+		}
+		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
+		sleep(configData->retardoCicloCPU);
+	}
 
+}
+
+void analizarCaptura(t_entrenador* entrenador) {
+	if(entrenador->x == entrenador->pokemonCapturando->x && entrenador->y == entrenador->pokemonCapturando->y){
+		//lo capturo
+		//mando catch de ak?, y paso a block
+		capturoPokemon(entrenador);
+	}else {
+		printf("termino RR, vuelve a ready\n");
+		moverColas(cola_EXEC,cola_READY,entrenador);
+		sem_post(&sem_colas_no_vacias);
+	}
+
+}
 
 

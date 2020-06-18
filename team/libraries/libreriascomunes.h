@@ -89,7 +89,8 @@ typedef struct {
 	t_pokemon* pokemonCapturando;
 	sem_t sem_entrenador;
 	int id_catch;
-
+	int movsDisponibles;
+	int seMovioEnTime;
 }t_entrenador;
 
 

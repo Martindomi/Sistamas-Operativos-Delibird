@@ -36,15 +36,16 @@ void main_planificacion_recibidos(){
 			if(distancia_new->distancia < distancia_bloqued->distancia){
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
 				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: NEW -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_new->entrenador->id);
-				printf("voy a buscar un pokemon\n");
+				//printf("voy a buscar un pokemon\n");
 				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
 				pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
-
+				distancia_new->entrenador->pokemonCapturando = pokemon;
 			}else{
 				moverColas(cola_BLOQUED,cola_READY,distancia_bloqued->entrenador);
+				distancia_bloqued->entrenador->pokemonCapturando = pokemon;
 				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: BLOCK -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_bloqued->entrenador->id);
 			}
-
+			sem_post(&(sem_colas_no_vacias));
 		}
 
 		list_remove(listaPokemonsRecibidos,i);
@@ -81,7 +82,26 @@ void main_planificacion_caught(){
 	}
 }
 
+void main_planificacion_corto_plazo() {
 
+	//1 semaforo espera recibidos
+	//1 semaforo espera q el entrenador lo desbloquee
+	while(1) {
+		sem_wait(&(sem_cpu));
+		sem_wait(&(sem_colas_no_vacias));
+		t_entrenador* entrenadorACorrer ;
+		if(!esRR()) {
+			printf("calculo entrenador por fifo\n");
+			entrenadorACorrer = planificacionFifo(cola_READY);
+		}else {
+			printf("calculo entrenador por RR\n");
+			entrenadorACorrer = planificacionRR(cola_READY);
+		}
+
+		sem_post(&entrenadorACorrer->sem_entrenador);
+	}
+
+}
 t_list *buscar_entrenadores_bloqueados_disponibles(){
 
 	t_list *lista_libres;
@@ -113,7 +133,12 @@ void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
 			break;
 		}
 	}
+	sem_wait(&mutex_mov_colas_time);
+	movimientoTime++;
+	entrenador->seMovioEnTime = movimientoTime;
+	sem_post(&mutex_mov_colas_time);
 	list_add(destino, entrenador);
+
 }
 
 void agregarAColas(t_list* lista, t_entrenador* entrenador) {
@@ -121,10 +146,18 @@ void agregarAColas(t_list* lista, t_entrenador* entrenador) {
 }
 
 t_entrenador* planificacionFifo(t_list* colaReady){
-	t_entrenador* proximoAEjecutar = list_get(colaReady,0);
+	t_entrenador* proximoAEjecutarReady = list_get(colaReady,0);
 
+	return proximoAEjecutarReady;
+}
+
+t_entrenador* planificacionRR(t_list* colaReady){
+	t_entrenador* proximoAEjecutar = planificacionFifo(colaReady); //la lista la saca igual q fifo
+
+	proximoAEjecutar->movsDisponibles = configData->quantum;
 	return proximoAEjecutar;
 }
+
 
 void initListaPokemonsNecesitados() {
 	//con esto simulamos el almacenamiento del gamecard

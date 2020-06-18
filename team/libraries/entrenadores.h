@@ -52,7 +52,6 @@ void imprimirEntrenador(t_entrenador* entrenador);
 /*
  * LISTA OBJETIVO
  */
-
 void imprimirListaObjetivo();
 void crearListaObjetivo();
 void cargarObjetivosGlobales();
