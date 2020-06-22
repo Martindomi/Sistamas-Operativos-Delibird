@@ -35,6 +35,7 @@ t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadore
 double calcularDistancia(t_entrenador* entrenador, t_pokemon* pokemon);
 t_entrenador* planificacionFifo(t_list* colaReady);
 t_entrenador* planificacionRR(t_list* colaReady);
+t_list *buscar_entrenadores_new_disponibles();
 t_list *buscar_entrenadores_bloqueados_disponibles();
 t_list *buscar_entrenadores_bloqueados_NOdisponibles();
 void main_planificacion_corto_plazo() ;

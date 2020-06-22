@@ -30,7 +30,7 @@ void main_planificacion_recibidos(){
 		}else if(pokemonsObjetivo->cantidad==0){
 
 		}else{
-			distancia_new = entrenadorMasCerca(pokemon, cola_NEW);
+			distancia_new = entrenadorMasCerca(pokemon, buscar_entrenadores_new_disponibles());
 			distancia_bloqued = entrenadorMasCerca(pokemon,buscar_entrenadores_bloqueados_disponibles());
 
 			if(distancia_new->distancia < distancia_bloqued->distancia){
@@ -69,6 +69,7 @@ void main_planificacion_caught(){
 		sem_wait(&sem_caught);
 		entrenadores_esperando_caught = buscar_entrenadores_bloqueados_NOdisponibles();
 		caught = list_get(listaPokemonesCaught,0);
+		list_remove(listaPokemonesCaught,0);
 		entrenador = list_find(entrenadores_esperando_caught,(void*)_filterEntrenadorCaught);
 		if(entrenador!=NULL){
 			entrenador->id_catch=0;
@@ -102,12 +103,24 @@ void main_planificacion_corto_plazo() {
 	}
 
 }
+
+t_list *buscar_entrenadores_new_disponibles(){
+
+	t_list *lista_libres;
+
+		bool filtrado_NEW(t_entrenador *entrenador){
+			return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
+		}
+	lista_libres = list_filter(cola_NEW,(void*)filtrado_NEW);
+	return lista_libres;
+}
+
 t_list *buscar_entrenadores_bloqueados_disponibles(){
 
 	t_list *lista_libres;
 
 		bool filtrado_bloqueados(t_entrenador *entrenador){
-			return entrenador->id_catch == 0;
+			return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
 		}
 	lista_libres = list_filter(cola_BLOQUED,(void*)filtrado_bloqueados);
 	return lista_libres;

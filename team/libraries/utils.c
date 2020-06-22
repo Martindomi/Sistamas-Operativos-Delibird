@@ -204,19 +204,35 @@ void enviar_mensaje_appeared_pokemon2(t_log* logger, char* ip, char* puerto) {
 		liberar_conexion(conexion);
 }
 
+void enviar_get_objetivos(){
+
+	int size = list_size(lista_objetivo);
+	t_pokemonObjetivo* especieObjetivo;
+
+	for(int i = 0 ; i < size; i ++){
+
+		especieObjetivo = list_get(lista_objetivo,i);
+
+		if(especieObjetivo->cantidad > 0){
+			enviar_mensaje_get_pokemon(especieObjetivo->pokemon);
+		}
+	}
+}
+
 void enviar_mensaje_get_pokemon(char* especiePokemon){
 
-	char*mensaje;
+	char* mensaje;
 	int conexion;
 
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
-		// accion default (loggear)
+		log_info(loggerTEAM,"GET: Inicio de operacion por Default -> 'Pokemon sin locaciones'");
+		log_info(loggerTEAM,"Mensaje recibido: Tipo: LOCALIZED, contenido: No existen locaciones para %s", especiePokemon);
 		hilo_reconexion();
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	mensaje=client_recibir_mensaje(conexion);
-	log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %d",mensaje);
+	log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %s",mensaje);
 	list_add(ids_mensajes_enviados, mensaje);
 
 	liberar_conexion(conexion);
@@ -225,19 +241,35 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 
 }
 
-void enviar_mensaje_catch_pokemon(char* especiePokemon, int posX, int posY){
+
+
+void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon, int posX, int posY){
 
 	char*mensaje;
 	int conexion;
+	t_pokemon *pokemon;
+
+	bool _filterPokemon(t_pokemonObjetivo *element){
+		return !strcmp(element->pokemon,pokemon->especie);
+	}
 
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
-		// accion default (loggear) -> podria ser que lo atrapa igual
 		hilo_reconexion();
+		log_info(loggerTEAM,"CATCH: Inicio de operacion por Default -> 'Pokemon caputrado con exito'");
+		list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
+		entrenador->id_catch=0;
+		pokemon = entrenador->pokemonCapturando;
+		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
+		pokemonCapturado->cantidad=pokemonCapturado->cantidad -1;
+		log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
+
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
+		printf("Envio catch pokemon %s\n",especiePokemon);
 		mensaje=client_recibir_mensaje(conexion);
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %d",mensaje);
+		entrenador->id_catch = atoi(mensaje);
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %s",mensaje);
 		list_add(ids_mensajes_enviados, mensaje);
 
 		liberar_conexion(conexion);
@@ -258,7 +290,7 @@ void inicializar_config_team(char* pathConfig){
 void inicializar_log_team(){
 
 
-	if((loggerTEAM= log_create(configData->logFile, "TEAM", false, LOG_LEVEL_INFO))==NULL){
+	if((loggerTEAM= log_create(configData->logFile, "TEAM", true, LOG_LEVEL_INFO))==NULL){
 		printf("No se pudo crear log\n");
 		exit(3);
 	}
@@ -268,10 +300,21 @@ void inicializar_config_data(){
 
 	inicializar_config_team("./team.config");
 	configData = malloc(sizeof(data_config));
-	configData->algoritmoPlanificacion = malloc(7);
+	int sizeALG, sizeIPB, sizePB, sizeIPT, sizePT;
+	sizeALG = strlen(config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"))+1;
+	configData->algoritmoPlanificacion = malloc(sizeALG);
+	sizeIPB = strlen(config_get_string_value(configTEAM,"IP_BROKER"))+1;
+	configData->ipBroker = malloc(sizeIPB);
+	sizePB = strlen(config_get_string_value(configTEAM,"PUERTO_BROKER"))+1;
+	configData->puertoBroker = malloc(sizePB);
+	sizeIPT = strlen(config_get_string_value(configTEAM,"IP_TEAM"))+1;
+	configData->ipTeam= malloc(sizeIPT);
+	sizePT = strlen(config_get_string_value(configTEAM,"PUERTO_TEAM"))+1;
+	configData->puertoTeam= malloc(sizePT);
+
 
 	configData->alpha=config_get_double_value(configTEAM,"ALPHA");
-	strcpy(configData->algoritmoPlanificacion,config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"));
+	memcpy(configData->algoritmoPlanificacion,config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"),sizeALG);
 	//config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION");
 	//puts(configData->algoritmoPlanificacion);
 	configData->posicionesEntrenadores= config_get_array_value(configTEAM,"POSICIONES_ENTRENADORES");
@@ -279,11 +322,11 @@ void inicializar_config_data(){
 	configData->pokemonesEntrenadores= config_get_array_value(configTEAM,"POKEMON_ENTRENADORES");
 	configData->objetivosEntrenadores= config_get_array_value(configTEAM,"OBJETIVOS_ENTRENADORES");
 	configData->estmacionInicial=config_get_double_value(configTEAM,"ESTIMACION_INICIAL");
-	configData->ipBroker=config_get_string_value(configTEAM,"IP_BROKER");
-	configData->ipTeam=config_get_string_value(configTEAM,"IP_TEAM");
+	memcpy(configData->ipBroker,config_get_string_value(configTEAM,"IP_BROKER"),sizeIPB);
+	memcpy(configData->ipTeam,config_get_string_value(configTEAM,"IP_TEAM"),sizeIPT);
 	configData->logFile=config_get_string_value(configTEAM,"LOG_FILE");
-	configData->puertoBroker=config_get_string_value(configTEAM, "PUERTO_BROKER");
-	configData->puertoTeam=config_get_string_value(configTEAM, "PUERTO_TEAM");
+	memcpy(configData->puertoBroker,config_get_string_value(configTEAM, "PUERTO_BROKER"),sizePB);
+	memcpy(configData->puertoTeam,config_get_string_value(configTEAM, "PUERTO_TEAM"),sizePT);
 	configData->quantum=config_get_int_value(configTEAM,"QUANTUM");
 	configData->retardoCicloCPU=config_get_int_value(configTEAM,"RETARDO_CICLO_CPU");
 	configData->tiempoReconexion=config_get_int_value(configTEAM,"TIEMPO_RECONEXION");
@@ -295,6 +338,7 @@ void inicializar_config_data(){
 void liberar_config_data(){
 
 	int i =0;
+
 	free(configData->algoritmoPlanificacion);
 	free(configData->ipBroker);
 	free(configData->ipTeam);

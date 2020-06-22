@@ -121,7 +121,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
 
-//	imprimirListaObjetivo();
+	imprimirListaObjetivo();
 
 
 
@@ -291,17 +291,21 @@ void moverEntrenador(t_entrenador* entrenador) {
 			//Llego, no deberia entrar ak, hay algo mal
 			exit(6);
 		}
+
 		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
 		sleep(configData->retardoCicloCPU);
+
+
 	}
-
 }
-
 void analizarCaptura(t_entrenador* entrenador) {
 	if(entrenador->x == entrenador->pokemonCapturando->x && entrenador->y == entrenador->pokemonCapturando->y){
+		enviar_mensaje_catch_pokemon(entrenador, entrenador->pokemonCapturando->especie,entrenador->x ,entrenador->y);
+		moverColas(cola_EXEC,cola_BLOQUED,entrenador);
+		//wait()
 		//lo capturo
 		//mando catch de ak?, y paso a block
-		capturoPokemon(entrenador);
+		//capturoPokemon(entrenador);
 	}else {
 		printf("termino RR, vuelve a ready\n");
 		moverColas(cola_EXEC,cola_READY,entrenador);
