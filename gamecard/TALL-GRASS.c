@@ -27,7 +27,8 @@ void actualizar_bitmap(bool valor, int pos){
 	fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
 	fclose(bitmap_f);
 }
-char* generar_path_bloque(char*bloque){
+char* generar_path_bloque(char* bloque){
+
 	char* pathBloque = string_new();
 		string_append(&pathBloque,ptoMontaje);
 		string_append(&pathBloque,"/Blocks");
@@ -47,7 +48,11 @@ int tam_ocupado_en_el_block(char*path){
 	 int tam;
 	 FILE* block = fopen(path,"r");
 	 fseek(block,0,SEEK_END);
-	 tam = ftell(block);
+	 if(ftell(block)== NULL){
+		 tam =0;
+	 } else {
+		 tam = ftell(block);
+	 };
 	 fclose(block);
 	 return tam;
 }
@@ -63,7 +68,7 @@ int tam_disponible_en_el_block(char*path,int size){
 	return tamDisponible;
 }
 
-int calcular_tamanio_archivo(char*path){
+/*int calcular_tamanio_archivo(char*path){
 	int i;
 	int tamanio=0;
 	char** blocks = obtener_array_de_bloques(path);
@@ -78,24 +83,56 @@ int calcular_tamanio_archivo(char*path){
 		}
 	}
 	return tamanio;
+}*/
+int buscar_block_disponible(int tam){
+	int i;
+	log_info(logger, "buscando espacio disponible");
+	for(i=0;i<blocks;i++){
+		if(bitarray_test_bit(bitmap,i)==1)
+		{
+		log_info(logger,"no hay bloque disponible");
+	}else {
+		log_info(logger,string_from_format("el bloque disponible es %i",i));
+		return i;
+	}
+	}
+		return i;
 }
+/*int bloque_libre(int tam, char* pathPokemon){
+	int i;
+	int block;
+
+	log_info(logger, "buscando espacio disponible");
+		for(i=0;i>=blocks;i++){
+		block=i;
+		int tamanioBloque = tam_ocupado_en_el_block(block);
+		char* pathBlock = generar_path_bloque(string_itoa(block));
+		if(tamanioBloque /= 0){
+			char** bloquesPokemon = obtener_array_de_bloques(pathPokemon);
+			if(pertenece_al_array(bloquesPokemon,block) && tam <tam_disponible_en_el_block(pathBlock,tam)){
+				return block;
+				log_info(logger,string_from_format("el bloque disponible es %i",block));
+				}else if (tam >tam_disponible_en_el_block(pathBlock,tam)){
+					log_info(logger,string_from_format("No hay suficiente espacio en el bloque %i",block));
+				}else{
+					log_info(logger,string_from_format("El bloque %i esta ocupado por otro pokemon",block));
+				}return -1;
+			}
+		}return block;
+	}*/
+
 int crear_block (){
 	log_debug(logger,"crear nuevo block");
 
 	int i;
-	for (i = 0; i< bitmap->size /block_size; i++){
-		if(bitarray_test_bit(bitmap,i)==0){
-			FILE* f = fopen(string_from_format("%s/Blocks/%d.bin", ptoMontaje ,i),"w");
-			if(f == NULL)
-				return 1;
-			fclose (f);
-			actualizar_bitmap(true, i);
+	for (i = 0; i< blocks; i++){
+
+		FILE* f = fopen(string_from_format("%s/Blocks/%d.bin", ptoMontaje ,i),"w");
+		fclose (f);
 			log_debug(logger, "se creo el nuevo block: int %d",i);
-			return i;
-		}
 	}
 	log_debug(logger, "No se pudo crear el bloque");
-	return -1;
+	return 1;
 }
 
 void liberar_blocks(char** blockArr){
@@ -182,12 +219,42 @@ void iniciar_bitmap(){
 
 		bitmap = bitarray_create_with_mode(data,stats.st_size,LSB_FIRST);
 	} else {
-	bitmap = bitarray_create_with_mode(string_repeat('\0',sizeBitarray),sizeBitarray,LSB_FIRST);
+	bitmap = bitarray_create_with_mode(string_repeat('0',sizeBitarray),sizeBitarray,LSB_FIRST);
 
 	FILE* bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje),"w");
 	fwrite(bitmap->bitarray,sizeBitarray,1,bitmap_f);
 	fclose(bitmap_f);
 	}
+}
+
+char leer_ultima_pos_archivo (char*path){
+	FILE*archivo = fopen(path,"rb");
+	fseek(archivo,-1,SEEK_END);
+	char ultimo = fgetc(archivo);
+	fclose(archivo);
+	return ultimo;
+}
+int archivo_abierto(char* path){
+	if((leer_ultima_pos_archivo(path))=='Y'){
+		return true;
+	}else return false;
+}
+
+void abrir_archivo(char*path){
+	FILE*archivo = fopen(path,"r+b");
+	char* valor = "Y";
+		fseek(archivo,-1,SEEK_END);
+		fprintf(archivo,valor);
+		fclose(archivo);
+		return;
+}
+void cerrar_archivo(char*path){
+	FILE*archivo = fopen(path,"r+b");
+		char* valor = "N";
+			fseek(archivo,-1,SEEK_END);
+			fprintf(archivo,valor);
+			fclose(archivo);
+			return;
 }
 
 void iniciar_files_dir(){
@@ -197,7 +264,8 @@ void iniciar_files_dir(){
 
 void iniciar_blocks_dir(){
 	crear_directorio(string_from_format("%s/Blocks",ptoMontaje));
-	crear_metadata_directorio(string_from_format("%s/Blocks",ptoMontaje));
+	//crear_metadata_directorio(string_from_format("%s/Blocks",ptoMontaje));
+	crear_block();
 }
 
 void iniciar_metadata_dir(){
@@ -254,41 +322,39 @@ t_configFS* crear_config(int argc, char* argv[]){
 	}
 	return configTG;
 }
-/*bool archivo_abierto(char* pokemon){
-	FILE* archivo = buscar_archivo(pokemon);
-	FILE* puntero = &(fseek(archivo,0L,SEEK_END)-1);
-	if (*puntero == 'y') return true;
-	else return false;
-}*/
 
-/*FILE* buscar_archivo(char* pokemon){}*/
+void escribir_bloque(char* path, char*mensaje){
+	FILE*archivo = fopen(path, "a");
+	fseek(archivo,0,SEEK_END);
+	fprintf(archivo, mensaje);
+	fclose(archivo);
+	return;
+}
 
-/*bool es_directorio(char*path){
-	char* subCarpeta = string_substring_untill(path,string_pos_char(path, '/'));
-	if (subCarpeta == NULL) {
-		return true;
-		log_debug(logger, "%s es un directorio",path);
-	} else return false;
-	log_info(logger, "%s es un archivo", path);
-}*/
-
-void crear_files_metadata(char*pokemon){
-	int posPrimerBloque = crear_block();
+void crear_files_metadata(char*pokemon, char* mensaje){
+	int tamanioMensaje =strlen(mensaje);
+	int bloquePokemon = buscar_block_disponible(tamanioMensaje);
 	char* pathPokemon = crear_path_archivos(pokemon);
+	char*pathBloque =generar_path_bloque(string_itoa(bloquePokemon));
+
+	escribir_bloque(pathBloque, mensaje);
+	actualizar_bitmap(1,bloquePokemon);
 	crear_directorio(pathPokemon);
 
 	FILE* archivo = fopen(string_from_format("%s/Metadata.bin", pathPokemon),"a");
-	fprintf(archivo, string_from_format("DIRECTORY=%s\n","N"));
-	char* blocks = string_from_format("BLOCKS=[%d]\n", posPrimerBloque);
-	fprintf(archivo, blocks);
-	char* pathPokemonMetadata = string_from_format("%s/Metadata.bin", pathPokemon);
-	fprintf(archivo, string_from_format("SIZE=%s\n", tam_ocupado_en_el_block(generar_path_bloque(string_itoa(posPrimerBloque)))));
-	fprintf(archivo, string_from_format("OPEN=%s\n","N"));
+		fprintf(archivo, string_from_format("DIRECTORY=%s\n","N"));
+	char* blocks = string_from_format("BLOCKS=[%d]\n", bloquePokemon);
+		fprintf(archivo, blocks);
+	//char* pathPokemonMetadata = string_from_format("%s/Metadata.bin", pathPokemon);
+		fprintf(archivo, string_from_format("SIZE=%i\n", (tam_ocupado_en_el_block(pathBloque))));
+		fprintf(archivo, string_from_format("OPEN=%s","N"));
 	fclose(archivo);
 
+	log_info(logger,string_from_format("El archivo se ha creado exitosamente"));
+	return;
+	}
 
-	log_debug(logger,"El archivo se ha creado exitosamente");
-	return ;
-}
+
+
 
 

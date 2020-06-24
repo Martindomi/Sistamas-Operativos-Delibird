@@ -43,10 +43,20 @@ int main (int argc, char *argv[]) {
 	iniciar_filesystem();
 
 	char* pokemon = "pikachu";
-	crear_files_metadata(pokemon);
+	char*mensaje= "pikachu es mi primer pokemon";
+	crear_files_metadata(pokemon,mensaje);
+
+	char*pokemon2 ="delibird";
+	char*mensaje2="delibird de deberia escribirse en el segundo mensaje";
+	crear_files_metadata(pokemon2,mensaje2);
+
+	char archivoEstado = leer_ultima_pos_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
+	printf ("estado archivo = %c", archivoEstado);
+	abrir_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
 
 	//log_destroy(logger);
 	//liberar_conexion(conexion);
+
 
 }
 
