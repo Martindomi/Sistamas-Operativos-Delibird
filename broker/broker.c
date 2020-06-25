@@ -3,42 +3,32 @@
 
 int main(int argc, char *argv[]){
 
-	char * configPath = "../broker.config";
-	char * ipconfig= "IP_BROKER";
-	char * puertocofing= "PUERTO_BROKER";
 	const int lista_colas[6] = {NEW_POKEMON, APPEARED_POKEMON, CATCH_POKEMON, CAUGHT_POKEMON, GET_POKEMON, LOCALIZED_POKEMON };
+
+	leer_archivo_config();
 
 	inicializar_datos();
 
 	creacion_hilos_distribucion(lista_colas);
 
-
-
-	iniciar_servidor(configPath, ipconfig, puertocofing);
+	iniciar_servidor();
 
 	return EXIT_SUCCESS;
 
 }
 
-void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
+void iniciar_servidor()
 {
 	int socket_servidor;
-	char* ip;
-	char* puerto;
+
     struct addrinfo hints, *servinfo, *p;
-	t_config* config;
-
-	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config");
-
-	ip = config_get_string_value(config, ip_config);
-	puerto = config_get_string_value(config, port_config);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(ip, puerto, &hints, &servinfo);
+    getaddrinfo(ipBroker, puertoBroker, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
     {
@@ -52,8 +42,6 @@ void iniciar_servidor(char* path_config, char* ip_config, char* port_config)
 	guard(listen(socket_servidor, SOMAXCONN), "Listen failed");
 
     freeaddrinfo(servinfo);
-
-	//config_destroy(config);
 
     while(1)
     	esperar_cliente(socket_servidor);
@@ -82,9 +70,7 @@ void serve_client(int* socket)
 
 void process_request(int cod_op, int socket) {
 	uint32_t size;
-	t_mensaje_completo* mensaje_completo = malloc(sizeof(t_mensaje_completo));
-	mensaje_completo->suscriptores_ack = list_create();
-	mensaje_completo->suscriptores_enviados = list_create();
+	t_mensaje* mensaje_completo = malloc(sizeof(t_mensaje));
 	switch (cod_op) {
 		case MESSAGE: {
 			void* msg;
@@ -92,16 +78,18 @@ void process_request(int cod_op, int socket) {
 			msg = "1";
 			size = sizeof(4);
 			devolver_mensaje(msg, size, socket);
-			log_info(logger_broker, "MESSAGE");
-			log_info(logger_broker, msg);
+			log_info(loggerBroker, "MESSAGE");
+			log_info(loggerBroker, msg);
 			free(msg);
 			break;
 		}
 		case NEW_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_new_pokemon(socket, &size);
+			mensaje_completo = recibir_new_pokemon(socket, &size);
 
 			asignar_y_devolver_id(mensaje_completo, socket);
+
+			//asignar_memoria(mensaje_completo);
 
 			list_add(new_pokemon->mensajes, mensaje_completo);
 
@@ -110,11 +98,13 @@ void process_request(int cod_op, int socket) {
 		}
 		case APPEARED_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_appeared_pokemon(socket, &size);
+			mensaje_completo = recibir_appeared_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, appeared_pokemon)) {
+			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, appeared_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(appeared_pokemon->mensajes, mensaje_completo);
 			} else {
@@ -127,7 +117,7 @@ void process_request(int cod_op, int socket) {
 		}
 		case CATCH_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_catch_pokemon(socket, &size);
+			mensaje_completo = recibir_catch_pokemon(socket, &size);
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
@@ -138,10 +128,10 @@ void process_request(int cod_op, int socket) {
 		}
 		case CAUGHT_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_caught_pokemon(socket, &size);
+			mensaje_completo = recibir_caught_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
+			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
 
 				list_add(caught_pokemon->mensajes, mensaje_completo);
@@ -155,7 +145,7 @@ void process_request(int cod_op, int socket) {
 		}
 		case GET_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_get_pokemon(socket, &size);
+			mensaje_completo = recibir_get_pokemon(socket, &size);
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
@@ -166,10 +156,10 @@ void process_request(int cod_op, int socket) {
 		}
 		case LOCALIZED_POKEMON: {
 
-			mensaje_completo->mensaje = recibir_localized_pokemon(socket, &size);
+			mensaje_completo = recibir_localized_pokemon(socket, &size);
 
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
-			if(mensaje_completo->mensaje->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
+			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
 
 				list_add(localized_pokemon->mensajes, mensaje_completo);
@@ -184,7 +174,7 @@ void process_request(int cod_op, int socket) {
 		case SUSCRIBE: {
 			puntero_suscripcion_cola mensaje_suscripcion;
 
-			mensaje_suscripcion = recibir_suscripcion(socket, &size, logger_broker);
+			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
 			agregar_suscriptor_cola(mensaje_suscripcion);
 			sem_post(&mutexLista[mensaje_suscripcion->cola]);
@@ -232,7 +222,7 @@ void* distribuir_mensajes(void* puntero_cola) {
 }
 
 void distribuir_mensajes_cola(int cola) {
-	puntero_mensaje_completo puntero_mensaje_completo;
+	puntero_mensaje puntero_mensaje;
 	t_cola_mensaje* cola_mensajes = selecciono_cola(cola);
 	char* suscriptor;
 	// TODO Mejorar manejo de error
@@ -242,26 +232,28 @@ void distribuir_mensajes_cola(int cola) {
 
 	// RECORRO TODOS LOS MENSAJES DE LA COLA
 	for(int i = 0; i < list_size(cola_mensajes->mensajes); i++) {
-		puntero_mensaje_completo = list_get(cola_mensajes->mensajes, i);
+		puntero_mensaje = list_get(cola_mensajes->mensajes, i);
 
 		// OBTENGO CADA SUSCRIPTOR DE UN MENSAJE
 		for(int j = 0; j < list_size(cola_mensajes->suscriptores) ;j++) {
 			suscriptor = list_get(cola_mensajes->suscriptores, j);
 
+			punteroParticion punteroParticionMensaje = buscar_particion_mensaje(puntero_mensaje->id);
+
 			bool encuentra_suscriptor(void* elemento) {
 				return strcmp((char*)elemento, suscriptor) == 0;
 			}
 			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
-			bool encontre = list_any_satisfy(puntero_mensaje_completo->suscriptores_ack, (void*)encuentra_suscriptor);
+			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			if (!encontre) {
-				printf("MENSAJE %s\n", suscriptor);
-				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje_completo);
+				printf("Distribucion a %s\n", suscriptor);
+				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje);
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
-				bool enviado = list_any_satisfy(puntero_mensaje_completo->suscriptores_enviados, (void*)encuentra_suscriptor);
+				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 				// SI NO ESTA, LO AGREGO
 				if(!enviado) {
-					list_add(puntero_mensaje_completo->suscriptores_enviados, suscriptor);
+					list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor);
 				}
 				break;
 			}
@@ -270,7 +262,16 @@ void distribuir_mensajes_cola(int cola) {
 	}
 }
 
-void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje_completo puntero_mensaje_completo) {
+punteroParticion buscar_particion_mensaje(uint32_t idMensaje) {
+	bool obtener_particion_id(void* elemento) {
+		punteroParticion punteroParticionElemento = (punteroParticion) elemento;
+		return punteroParticionElemento->id == idMensaje;
+	}
+	// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+	return list_find(particiones, (void*)obtener_particion_id);
+}
+
+void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje puntero_mensaje_completo) {
 	int conexion;
 	char* ip_suscriptor;
 	char* puerto_suscriptor;
@@ -280,13 +281,13 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 	ip_suscriptor = aux[0];
 	puerto_suscriptor = aux[1];
 
-	printf("SUS %s", suscriptor);
+	printf("Suscriptor %s\n", suscriptor);
 	conexion = crear_conexion(ip_suscriptor, puerto_suscriptor);
-	uint32_t id = puntero_mensaje_completo->mensaje->id;
-	uint32_t id_correlativo = puntero_mensaje_completo->mensaje->id_correlativo;
+	uint32_t id = puntero_mensaje_completo->id;
+	uint32_t id_correlativo = puntero_mensaje_completo->id_correlativo;
 	switch(cola) {
 		case NEW_POKEMON: {
-			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* nombre = puntero_mensaje->name_pokemon;
 			uint32_t posx = puntero_mensaje->pos_x;
@@ -297,7 +298,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case LOCALIZED_POKEMON: {
-			puntero_mensaje_localized_pokemon puntero_mensaje = ((puntero_mensaje_localized_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_localized_pokemon puntero_mensaje = ((puntero_mensaje_localized_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* nombre = puntero_mensaje->name_pokemon;
 			t_list* coords = puntero_mensaje->coords;
@@ -307,7 +308,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case GET_POKEMON: {
-			puntero_mensaje_get_pokemon puntero_mensaje = ((puntero_mensaje_get_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_get_pokemon puntero_mensaje = ((puntero_mensaje_get_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* nombre = puntero_mensaje->name_pokemon;
 
@@ -316,18 +317,23 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case APPEARED_POKEMON: {
-			puntero_mensaje_appeared_pokemon puntero_mensaje = ((puntero_mensaje_appeared_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_appeared_pokemon puntero_mensaje = ((puntero_mensaje_appeared_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* nombre = puntero_mensaje->name_pokemon;
 			uint32_t posx = puntero_mensaje->pos_x;
 			uint32_t posy = puntero_mensaje->pos_y;
-			printf("APPEARED con %d id %d\n", conexion, id);
+			printf("APPEARED conex %d\n", conexion);
+			printf("APPEARED id %d\n", id);
+			printf("APPEARED idCorre %d\n", id_correlativo);
+			printf("APPEARED posx %d\n", posx);
+			printf("APPEARED posy %d\n", posy);
+			printf("APPEARED nombre %s\n", nombre);
 			send_message_appeared_pokemon(nombre, posx, posy, id, id_correlativo, conexion);
 
 			break;
 		}
 		case CATCH_POKEMON: {
-			puntero_mensaje_catch_pokemon puntero_mensaje = ((puntero_mensaje_catch_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_catch_pokemon puntero_mensaje = ((puntero_mensaje_catch_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* nombre = puntero_mensaje->name_pokemon;
 			uint32_t posx = puntero_mensaje->pos_x;
@@ -338,7 +344,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case CAUGHT_POKEMON: {
-			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			char* caughtPokemon = puntero_mensaje->caught_pokemon;
 
@@ -353,7 +359,8 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 	printf("RECIBE %s\n", mensaje_recibido);
 	// TODO que hago si no recibo el ACK?
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
-		list_add(puntero_mensaje_completo->suscriptores_ack, suscriptor);
+		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(puntero_mensaje_completo->id);
+		list_add(punteroParticionEncontrado->suscriptores_ack, suscriptor);
 	}
 
 	free(mensaje_recibido);
@@ -397,7 +404,19 @@ void inicializar_datos() {
 
 	cantidad_mensajes = 1;
 
-	logger_broker =log_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.log", "BROKER", false, LOG_LEVEL_INFO);
+	punteroMemoriaPrincipal = malloc(tamanoMemoria);
+	printf("Direccion de memoria del puntero: %p\n", punteroMemoriaPrincipal);
+	particiones = list_create();
+	punteroParticion particionInicial = malloc(sizeof(t_particion));
+	particionInicial->colaMensaje = NULL;
+	particionInicial->id = NULL;
+	particionInicial->idCorrelativo = NULL;
+	particionInicial->ocupada = false;
+	particionInicial->punteroMemoria = punteroMemoriaPrincipal;
+	particionInicial->tamanoMensaje = tamanoMemoria;
+	particionInicial->suscriptores_ack = list_create();
+	particionInicial->suscriptores_enviados = list_create();
+	list_add(particiones, particionInicial);
 }
 
 t_cola_mensaje* selecciono_cola(int cola) {
@@ -434,10 +453,10 @@ void creacion_hilos_distribucion(int lista_colas[]) {
     }
 }
 
-void asignar_y_devolver_id(t_mensaje_completo* mensaje_completo, int socket) {
+void asignar_y_devolver_id(t_mensaje* mensaje_completo, int socket) {
 	sem_wait(&mutexIds);
 
-	mensaje_completo->mensaje->id = cantidad_mensajes;
+	mensaje_completo->id = cantidad_mensajes;
 	char* id_mensaje = string_itoa(cantidad_mensajes);
 	devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
 
@@ -446,12 +465,12 @@ void asignar_y_devolver_id(t_mensaje_completo* mensaje_completo, int socket) {
 	sem_post(&mutexIds);
 }
 
-bool fue_respondido(t_mensaje_completo* mensaje_completo, t_cola_mensaje* cola_mensaje) {
-	uint32_t id_correlativo = mensaje_completo->mensaje->id_correlativo;
+bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje) {
+	uint32_t id_correlativo = mensaje_completo->id_correlativo;
 	bool encuentra_id_correlativo(void* elemento) {
-		t_mensaje_completo* mensaje = (t_mensaje_completo*)elemento;
+		t_mensaje* mensaje = (t_mensaje*)elemento;
 
-		return mensaje->mensaje->id_correlativo == id_correlativo;
+		return mensaje->id_correlativo == id_correlativo;
 	}
 	// CHEQUEO SI ESTA EL ID CORRELATIVO DEL MENSAJE RECIBIDO EN LA COLA DE MENSAJES
 	return list_any_satisfy(cola_mensaje->mensajes, (void*)encuentra_id_correlativo);
@@ -459,4 +478,212 @@ bool fue_respondido(t_mensaje_completo* mensaje_completo, t_cola_mensaje* cola_m
 
 void aplica_funcion_escucha(int * socket){
 
+}
+
+void leer_archivo_config() {
+	configBroker = guard_lectura_string_config(config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config"));
+
+	ipBroker = obtener_string_config(configBroker, "IP_BROKER");
+	puertoBroker = obtener_string_config(configBroker, "PUERTO_BROKER");
+	logFile = obtener_string_config(configBroker, "LOG_FILE");
+	tamanoMemoria = obtener_int_config(configBroker, "TAMANO_MEMORIA");
+	tamanoMinimoParticion = obtener_int_config(configBroker, "TAMANO_MINIMO_PARTICION");
+	algoritmoMemoria = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_MEMORIA"), "PARTICIONES", "BS");
+	algoritmoReemplazo = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_REEMPLAZO"), "FIFO", "LRU");
+	algoritmoParticionLibre = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_PARTICION_LIBRE"), "FF", "BF");
+	frecuenciaCompactacion = obtener_int_config(configBroker, "FRECUENCIA_COMPACTACION");
+
+	loggerBroker =log_create(logFile, "BROKER", false, LOG_LEVEL_INFO);
+
+}
+
+void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
+	printf("Asignar Memoria\n");
+	void* posMemoria = buscar_memoria_libre(mensajeCompleto, 3);
+	printf("Encontro memoria\n");
+
+	memcpy(posMemoria, mensajeCompleto->mensaje_cuerpo, mensajeCompleto->size_mensaje_cuerpo);
+	printf("Asigno memoria\n");
+}
+
+void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	if(strcmp(algoritmoParticionLibre, "FF") == 0) {
+		buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
+	} else if (strcmp(algoritmoParticionLibre, "BF") == 0) {
+		return buscar_memoria_libre_best_fit(mensajeCompleto, colaMensaje);
+	}
+}
+
+void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	printf("First fit\n");
+	// RECORRE LAS PARTICIONES EN BUSCA DE UNA LIBRE Y DONDE ENTRE EL MENSAJE
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticionObtenido = list_get(particiones, i);
+		if(!punteroParticionObtenido->ocupada){
+			if(punteroParticionObtenido->tamanoMensaje
+					> (mensajeCompleto->size_mensaje_cuerpo)) {
+				punteroParticion nuevaParticion = malloc(sizeof(t_particion));
+				nuevaParticion->colaMensaje = NULL;
+				nuevaParticion->id = NULL;
+				nuevaParticion->idCorrelativo = NULL;
+				nuevaParticion->ocupada = false;
+				nuevaParticion->punteroMemoria = punteroParticionObtenido->punteroMemoria
+						+ mensajeCompleto->size_mensaje_cuerpo + 1;
+				nuevaParticion->tamanoMensaje = punteroParticionObtenido->tamanoMensaje
+						- mensajeCompleto->size_mensaje_cuerpo;
+				nuevaParticion->suscriptores_ack = list_create();
+				nuevaParticion->suscriptores_enviados = list_create();
+				list_add(particiones, nuevaParticion);
+				printf("Posicion particion nueva: %p\n", nuevaParticion->punteroMemoria);
+				printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
+
+				punteroParticionObtenido->colaMensaje = colaMensaje;
+				punteroParticionObtenido->id = mensajeCompleto->id;
+				punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
+				punteroParticionObtenido->ocupada = true;
+				punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+
+				printf("Posicion Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
+				printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+				return punteroParticionObtenido->punteroMemoria;
+			}
+		}
+	}
+	printf("No encontro memoria libre\n");
+	// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
+	cantidadBusquedasFallidas ++;
+	printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
+	if(frecuenciaCompactacion == 1 || frecuenciaCompactacion == 0 || frecuenciaCompactacion == -1 ||
+			cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
+		compactar_memoria();
+		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
+	} else {
+		eliminar_particion();
+		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
+	}
+
+}
+
+void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+
+}
+
+void compactar_memoria() {
+	printf("Compacta memoria\n");
+	punteroParticion punteroParticionDesocupada;
+	punteroParticion punteroParticionOcupada;
+
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticionRecorrer = list_get(particiones, i);
+		if(punteroParticionDesocupada != NULL){
+			if(!punteroParticionRecorrer->ocupada) {
+				printf("Encuentra particion desocupada\n");
+				punteroParticionDesocupada = list_get(particiones, i);
+			}
+		} else {
+			if(punteroParticionRecorrer->ocupada) {
+				printf("Encuentra particion ocupada\n");
+				punteroParticionOcupada = list_get(particiones, i);
+				break;
+			}
+		}
+	}
+
+	if(punteroParticionDesocupada != NULL && punteroParticionOcupada != NULL) {
+		printf("Encontro ambas particiones para intercambiar\n");
+		intercambio_particiones(punteroParticionDesocupada, punteroParticionOcupada);
+		compactar_memoria();
+	} else {
+		printf("No encontro particiones para compactar\n");
+		return;
+	}
+
+}
+
+void eliminar_particion() {
+	printf("Eliminar particion\n");
+	int indexEliminado;
+	if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
+		indexEliminado = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
+	} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
+		indexEliminado = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
+	}
+	consolidar(indexEliminado);
+}
+
+int eliminar_particion_fifo() {
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticion = list_get(particiones, i);
+		if(punteroParticion->ocupada){
+			printf("Encuentra una particion para eliminar\n");
+			punteroParticion->ocupada = false;
+			return i;
+		}
+	}
+	return -1;
+}
+
+int eliminar_particion_lru() {
+
+}
+
+void intercambio_particiones(punteroParticion punteroParticionDesocupada,
+		punteroParticion punteroParticionOcupada) {
+	memcpy(punteroParticionDesocupada->punteroMemoria,
+			punteroParticionOcupada->punteroMemoria, punteroParticionOcupada->tamanoMensaje);
+
+	punteroParticionOcupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria;
+
+	punteroParticionDesocupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria
+			+ punteroParticionOcupada->tamanoMensaje;
+
+	printf("Realiza el intercambio de las particiones\n");
+
+}
+
+void consolidar(int indexEliminado) {
+	punteroParticion punteroParticionEliminada = list_get(particiones, indexEliminado);
+
+
+	bool encuentro_particion_anterior(void* elemento) {
+		punteroParticion particion = (punteroParticion*)elemento;
+		return particion->punteroMemoria + particion->tamanoMensaje
+				== punteroParticionEliminada->punteroMemoria;
+	}
+	// COMPRUEBO SI TIENE ALGUNA PARTICION A IZQUIERA DESOCUPADA PARA UNIRLA
+	punteroParticion particionAnterior = list_find(particiones, (void*)encuentro_particion_anterior);
+	if(particionAnterior != NULL) {
+		if(!particionAnterior->ocupada) {
+			particionAnterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
+			list_remove(particiones, indexEliminado);
+			consolidar(guard(obtener_index_particion(particionAnterior->punteroMemoria), "No se encontro memoria anterior\n"));
+		}
+	} else {
+		// SI NO TIENE A IZQUIERDA, BUSCO A DERECHA
+		bool encuentro_particion_posterior(void* elemento) {
+			punteroParticion particion = (punteroParticion*)elemento;
+			return particion->punteroMemoria
+					== punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje;
+		}
+		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
+		if(particionPosterior != NULL) {
+			if(!particionPosterior->ocupada) {
+				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
+				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
+				list_remove(particiones, indexEliminado);
+				consolidar(guard(obtener_index_particion(particionPosterior->punteroMemoria), "No se encontro memoria posterior\n"));
+			}
+		}
+	}
+
+}
+
+int obtener_index_particion(int* punteroMemoria) {
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion puntero = list_get(particiones, i);
+		if(puntero->punteroMemoria == punteroMemoria) {
+			return i;
+		}
+	}
+	return -1;
 }

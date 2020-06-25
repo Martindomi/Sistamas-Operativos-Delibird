@@ -331,6 +331,7 @@ puntero_mensaje recibir_new_pokemon( int socket, uint32_t* paquete_size){
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(&quant_pokemon, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	mensaje_recibido->name_size = name_size;
 	mensaje_recibido->name_pokemon = name_pokemon;
@@ -340,6 +341,7 @@ puntero_mensaje recibir_new_pokemon( int socket, uint32_t* paquete_size){
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -424,6 +426,7 @@ puntero_mensaje recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	mensaje_recibido->name_size = name_size;
 	mensaje_recibido->name_pokemon = name_pokemon;
@@ -432,6 +435,7 @@ puntero_mensaje recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -516,6 +520,7 @@ puntero_mensaje recibir_catch_pokemon( int socket, uint32_t* paquete_size){
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(&pos_y, buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	mensaje_recibido->name_size = name_size;
 	mensaje_recibido->name_pokemon = name_pokemon;
@@ -524,6 +529,7 @@ puntero_mensaje recibir_catch_pokemon( int socket, uint32_t* paquete_size){
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -593,12 +599,14 @@ puntero_mensaje recibir_caught_pokemon( int socket, uint32_t* paquete_size){
 
 	caught_pokemon = malloc(caught_size);
 	memcpy(caught_pokemon, buffer + desplazamiento, caught_size);
+	desplazamiento += caught_size;
 
 	mensaje_recibido->caught_size = caught_size;
 	mensaje_recibido->caught_pokemon = caught_pokemon;
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -669,12 +677,14 @@ puntero_mensaje recibir_get_pokemon( int socket, uint32_t* paquete_size){
 
 	name_pokemon = malloc(name_size);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	desplazamiento += name_size;
 
 	mensaje_recibido->name_size = name_size;
 	mensaje_recibido->name_pokemon = name_pokemon;
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -782,6 +792,7 @@ puntero_mensaje recibir_localized_pokemon( int socket, uint32_t* paquete_size){
 
 	mensaje->id = id;
 	mensaje->id_correlativo = id_correlacional;
+	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
 	free(buffer);
@@ -908,12 +919,12 @@ void* hilo_escucha(int* socket_servidor){
 		int socket_cliente = accept(socketser, (void*) &dir_cliente, &tam_direccion);
 
 		if (socket_cliente == -1) {
-				printf("No pending connections; sleeping for one second.\n");
+				//printf("No pending connections; sleeping for one second.\n");
 				sleep(1);
 
 		} else {
 			int socket = socket_cliente;
-			printf("Got a connection; writing 'hello' then closing.\n");
+			printf("Got a connection\n");
 			aplica_funcion_escucha(&socket);
 		}
 	}
@@ -944,3 +955,38 @@ t_log* inicializar_log(char* pathConfig, char* nombreModulo){
 	return logger;
 }
 
+
+char* guard_lectura_string_config(char* string) {
+	if(!string) {
+		printf("Archivo de config mal configurado.\n");
+		exit(4);
+	} else {
+		return string;
+	}
+}
+
+char* obtener_string_config(t_config* config, char *key) {
+	return guard_lectura_string_config(config_get_string_value(config, key));
+}
+
+char* validar_string_binario(char* valorObtenido, char* opcion1, char* opcion2) {
+	if(strcmp(valorObtenido, opcion1) || strcmp(valorObtenido, opcion2)) {
+		return valorObtenido;
+	} else {
+		printf("Valor ingresado incorrecto: %s\n", valorObtenido);
+		exit(5);
+	}
+}
+
+int guard_lectura_int_config(int integer) {
+	if(!integer) {
+		printf("Archivo de config mal configurado.\n");
+		exit(4);
+	} else {
+		return integer;
+	}
+}
+
+int obtener_int_config(t_config* config, char *key) {
+	return guard_lectura_int_config(config_get_int_value(config, key));
+}

@@ -52,16 +52,10 @@ typedef struct
 typedef struct {
 	uint32_t id;
 	uint32_t id_correlativo;
+	uint32_t size_mensaje_cuerpo;
 	void* mensaje_cuerpo;
 } t_mensaje;
 typedef t_mensaje* puntero_mensaje;
-
-typedef struct {
-	t_mensaje* mensaje;
-	t_list* suscriptores_enviados;
-	t_list* suscriptores_ack;
-} t_mensaje_completo;
-typedef t_mensaje_completo* puntero_mensaje_completo;
 
 typedef struct {
 	uint32_t name_size;
@@ -128,7 +122,7 @@ t_log* logger_global;
 // Server
 
 void* recibir_buffer(int*, int);
-void iniciar_servidor(char* path_config, char* ip_config, char* port_config);
+void iniciar_servidor();
 void esperar_cliente(int);
 void* server_recibir_mensaje(int socket_cliente, uint32_t* size);
 int recibir_operacion(int);
