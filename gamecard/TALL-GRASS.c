@@ -18,7 +18,7 @@
 		buffer = string_substring_untill(buffer,tamBlock);
 	return buffer;
 }*/
-void actualizar_bitmap(bool valor, int pos){
+void actualizar_bitmap(bool valor, uint pos){
 	if(valor)
 		bitarray_set_bit(bitmap,pos);
 	else
@@ -57,69 +57,114 @@ int tam_ocupado_en_el_block(char*path){
 	 return tam;
 }
 
-int block_completo(char*path, int size){
-	 if(tam_ocupado_en_el_block(path)<size) return false;
+int block_completo(char*path){
+	 if(tam_ocupado_en_el_block(path)< block_size) return false;
 	 else return true;
 }
-int tam_disponible_en_el_block(char*path,int size){
+int tam_disponible_en_el_block(char*path){
 	int tamDisponible;
+	int size = block_size;
 	int tamOcupado = tam_ocupado_en_el_block(path);
-	tamDisponible = size-tamOcupado;
-	return tamDisponible;
-}
+	int tamDisponiblePrevio = size-tamOcupado;
 
-/*int calcular_tamanio_archivo(char*path){
+	if (tamDisponiblePrevio <= 0){
+
+		 tamDisponible = 0;
+		log_debug(logger,"no tiene espacio disponible");
+	}else{
+		tamDisponible = tamDisponiblePrevio;
+		log_debug(logger,string_from_format("el bloque tiene %i bytes disponibles",tamDisponible));
+	}
+return  tamDisponible;
+}
+int calcular_tamanio_archivo(char*path){
 	int i;
 	int tamanio=0;
 	char** blocks = obtener_array_de_bloques(path);
 
 	for(i=0; i<(sizeof(blocks));i++)
 	{
-		char* pathBlock = generar_path_bloque(blocks[i]);
-		if (block_completo(pathBlock,block_size)){
+		int numBloque = (i/block_size);
+		char* pathBlock = generar_path_bloque(blocks[numBloque]);
+		if (block_completo(pathBlock)){
 			tamanio=tamanio+block_size;
 		}else {
 			tamanio = tamanio + tam_ocupado_en_el_block(pathBlock);
 		}
 	}
 	return tamanio;
-}*/
-int buscar_block_disponible(int tam){
-	int i;
-	log_info(logger, "buscando espacio disponible");
-	for(i=0;i<blocks;i++){
-		if(bitarray_test_bit(bitmap,i)==1)
-		{
-		log_info(logger,"no hay bloque disponible");
-	}else {
-		log_info(logger,string_from_format("el bloque disponible es %i",i));
-		return i;
-	}
-	}
-		return i;
 }
-/*int bloque_libre(int tam, char* pathPokemon){
-	int i;
+
+int buscar_block_disponible(int tam){
+	int bloqueLibre;
+	log_info(logger, "buscando espacio disponible");
+	for(bloqueLibre=0;bitarray_test_bit(bitmap,bloqueLibre)&& (bloqueLibre<blocks); bloqueLibre++){
+		log_info(logger,"el bloque disponible es %i",bloqueLibre);
+	}
+	if (bloqueLibre>=blocks) return NO_MORE_BLOCKS;
+	return bloqueLibre;
+}
+void actualizar_tamanio_archivo(int tam,char*path){
+	t_config* configuracion = config_create(path);
+	int tamanio = config_get_int_value(configuracion,"SIZE");
+
+	tamanio += tam;
+
+	config_set_value(configuracion,"SIZE",string_itoa(tamanio));
+	config_save(configuracion);
+	config_destroy(configuracion);
+}
+void agregar_block_al_metadata(int block,char* pathPokemon){
+	t_config* configuracion = config_create(pathPokemon);
+	char* bloques = string_new();
+	string_append(&bloques,config_get_string_value(configuracion,"BLOCKS"));
+
+	bloques[strlen(bloques)-1]='\0';
+	string_append(&bloques,",");
+	string_append(&bloques,string_itoa(block));
+	string_append(&bloques,"]");
+
+	config_set_value(configuracion,"BLOCKS",bloques);
+	config_save(configuracion);
+	config_destroy(configuracion);
+	free(bloques);
+	return;
+}
+
+char* valor_ultima_posicion(char** bloquesPokemon, int ofsett){
+	int numBloque = (ofsett/block_size);
+	return bloquesPokemon[numBloque];
+}
+
+int bloque_espacio_en_blocks_libre(int tamEntrada, char* pathPokemon){
+	uint i;
 	int block;
+	char** bloquesPokemon = obtener_array_de_bloques(pathPokemon);
 
 	log_info(logger, "buscando espacio disponible");
-		for(i=0;i>=blocks;i++){
-		block=i;
-		int tamanioBloque = tam_ocupado_en_el_block(block);
-		char* pathBlock = generar_path_bloque(string_itoa(block));
-		if(tamanioBloque /= 0){
-			char** bloquesPokemon = obtener_array_de_bloques(pathPokemon);
-			if(pertenece_al_array(bloquesPokemon,block) && tam <tam_disponible_en_el_block(pathBlock,tam)){
-				return block;
-				log_info(logger,string_from_format("el bloque disponible es %i",block));
-				}else if (tam >tam_disponible_en_el_block(pathBlock,tam)){
-					log_info(logger,string_from_format("No hay suficiente espacio en el bloque %i",block));
-				}else{
-					log_info(logger,string_from_format("El bloque %i esta ocupado por otro pokemon",block));
-				}return -1;
+
+	for(i=0;i<=sizeof(bloquesPokemon);i++){
+		char*pathBloque = generar_path_bloque(bloquesPokemon[i]);
+		int tamBloque =tam_disponible_en_el_block(pathBloque) ;
+
+		if(tamEntrada > tamBloque){
+			log_info(logger,string_from_format("el bloque %s no tiene espacio disponible",bloquesPokemon[i]));
+			char* info1 = bloquesPokemon[i];
+			char* info2 = valor_ultima_posicion(bloquesPokemon, sizeof(bloquesPokemon));
+			if((strcmp(info1,info2)) == 0){
+				block =buscar_block_disponible(tamEntrada);
+				actualizar_bitmap(1,block);
+				agregar_block_al_metadata(block,pathPokemon);
+				 log_info(logger,string_from_format("se genero el nuevo bloque",block));
+				 return block;
+				}
+		}else{
+			return block = atoi(bloquesPokemon[i]);
+			log_info(logger,string_from_format("El bloque %s tiene espacio disponible para la nueva entrada",bloquesPokemon[i]));
 			}
-		}return block;
-	}*/
+	}
+	return block;
+}
 
 int crear_block (){
 	log_debug(logger,"crear nuevo block");
@@ -219,7 +264,7 @@ void iniciar_bitmap(){
 
 		bitmap = bitarray_create_with_mode(data,stats.st_size,LSB_FIRST);
 	} else {
-	bitmap = bitarray_create_with_mode(string_repeat('0',sizeBitarray),sizeBitarray,LSB_FIRST);
+	bitmap = bitarray_create_with_mode(string_repeat('\0',sizeBitarray),sizeBitarray,LSB_FIRST);
 
 	FILE* bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje),"w");
 	fwrite(bitmap->bitarray,sizeBitarray,1,bitmap_f);
@@ -354,6 +399,26 @@ void crear_files_metadata(char*pokemon, char* mensaje){
 	return;
 	}
 
+char* generar_linea_de_entrada_mensaje(int posX, int posY, int cant){
+	char* entradaMensaje = string_new();
+			string_append(&entradaMensaje,string_from_format("%i",posX));
+			string_append(&entradaMensaje,"-");
+			string_append(&entradaMensaje,string_from_format("%i",posY));
+			string_append(&entradaMensaje,"=");
+			string_append(&entradaMensaje,string_from_format("%i",cant));
+			string_append(&entradaMensaje,"\n");
+			return entradaMensaje;
+}
+
+void agregar_mensaje_NEW_POKEMON(int posX, int posY, int cant,char*pokemon){
+char* pokemonPath = string_from_format("%s/Metadata.bin",crear_path_archivos(pokemon));
+char* entradaMensaje = generar_linea_de_entrada_mensaje(posX,posY,cant);
+int tamEntrada = strlen (entradaMensaje);
+char*pathBloque = generar_path_bloque(string_from_format("%i", bloque_espacio_en_blocks_libre(tamEntrada,pokemonPath)));
+actualizar_tamanio_archivo(tamEntrada,pokemonPath);
+escribir_bloque(pathBloque,entradaMensaje);
+return;
+}
 
 
 
