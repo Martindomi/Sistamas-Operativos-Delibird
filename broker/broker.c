@@ -503,7 +503,7 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 	printf("Encontro memoria\n");
 
 	memcpy(posMemoria, mensajeCompleto->mensaje_cuerpo, mensajeCompleto->size_mensaje_cuerpo);
-	printf("Asigno memoria\n");
+	printf("Asigno memoria!!!!!\n");
 }
 
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
@@ -612,15 +612,40 @@ void eliminar_particion() {
 }
 
 int eliminar_particion_fifo() {
+	punteroParticion punteroParticionMenorId;
+
+	bool primer_puntero_ocupado(void* elemento) {
+		punteroParticion particion = (punteroParticion*)elemento;
+		return particion->ocupada;
+	}
+	punteroParticionMenorId = list_find(particiones, (void*)primer_puntero_ocupado);
+	int index = -1;
+	// BUSCO PARTICION CON MENOR ID => MENSAJE MAS VIEJO EN MEMORIA
 	for(int i = 0; i < list_size(particiones); i++) {
-		punteroParticion punteroParticion = list_get(particiones, i);
-		if(punteroParticion->ocupada){
-			printf("Encuentra una particion para eliminar\n");
-			punteroParticion->ocupada = false;
-			return i;
+		punteroParticion punteroParticionEncontrado = list_get(particiones, i);
+		if(punteroParticionMenorId->id >= punteroParticionEncontrado->id && punteroParticionEncontrado->ocupada) {
+			punteroParticionMenorId = punteroParticionEncontrado;
+			index = i;
 		}
 	}
-	return -1;
+	if(index != -1) {
+		printf("Encuentra una particion para eliminar\n");
+		punteroParticionMenorId->ocupada = false;
+
+		t_cola_mensaje* cola = selecciono_cola(punteroParticionMenorId->colaMensaje);
+		for(int j = 0 ; j< list_size(cola->mensajes); j++) {
+			bool mensaje_con_id(void* elemento) {
+				puntero_mensaje mensaje = (puntero_mensaje*)elemento;
+				return mensaje->id == punteroParticionMenorId->id;
+			}
+			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
+			if(punteroMensaje != NULL) {
+				free(list_get(cola->mensajes, j));
+				list_remove(cola->mensajes, j);
+			}
+		}
+	}
+	return index;
 }
 
 int eliminar_particion_lru() {
@@ -642,8 +667,8 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 }
 
 void consolidar(int indexEliminado) {
+	printf("Entra consolidar\n");
 	punteroParticion punteroParticionEliminada = list_get(particiones, indexEliminado);
-
 
 	bool encuentro_particion_anterior(void* elemento) {
 		punteroParticion particion = (punteroParticion*)elemento;
@@ -653,6 +678,7 @@ void consolidar(int indexEliminado) {
 	// COMPRUEBO SI TIENE ALGUNA PARTICION A IZQUIERA DESOCUPADA PARA UNIRLA
 	punteroParticion particionAnterior = list_find(particiones, (void*)encuentro_particion_anterior);
 	if(particionAnterior != NULL) {
+		printf("Encontro una particion libre a izquierda\n");
 		if(!particionAnterior->ocupada) {
 			particionAnterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 			list_remove(particiones, indexEliminado);
@@ -663,10 +689,13 @@ void consolidar(int indexEliminado) {
 		bool encuentro_particion_posterior(void* elemento) {
 			punteroParticion particion = (punteroParticion*)elemento;
 			return particion->punteroMemoria
-					== punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje;
+					== punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje + 1;
 		}
+		printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
 		if(particionPosterior != NULL) {
+			printf("Encontro una particion libre a derecha\n");
+
 			if(!particionPosterior->ocupada) {
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
@@ -675,7 +704,7 @@ void consolidar(int indexEliminado) {
 			}
 		}
 	}
-
+	printf("No hay mas particiones libres ni a izq ni a der\n");
 }
 
 int obtener_index_particion(int* punteroMemoria) {
