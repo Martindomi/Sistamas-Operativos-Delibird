@@ -64,7 +64,7 @@ int main(int argc, char *argv[]){
 	sem_init(&(mutex_caught),0,1);
 	sem_init(&(mutex_recibidos),0,1);
 	sem_init(&mutex_mov_colas_time,0,1);
-
+	sem_init(&(mutex_reconexion),0,1);
 	movimientoTime = 0;//sirve como timestamp de los movs de las colas
 
 	pthread_t hiloRecibidos, hiloCaught, hiloCortoPlazo;
@@ -156,10 +156,10 @@ int main(int argc, char *argv[]){
 	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);
 */	suscribirse_a_colas();
 	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
-	bool conexionOK = suscribirse_a_colas();
+/*	bool conexionOK = suscribirse_a_colas();
 	if(!conexionOK){
 		hilo_reconexion();
-	}
+	}*/
 /*	sleep(10);
 	suscribirse_cola(LOCALIZED_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
 	suscribirse_cola(CAUGHT_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
@@ -252,7 +252,7 @@ void aplica_funcion_escucha(int * socket){
 	printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	printf("recibio");
+	printf("recibio cod op \n");
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
 
@@ -332,6 +332,7 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 		log_info(loggerTEAM,"Mensaje recibido; Tipo: LOCALIZED. Contenido: ID Correalitvo=%u Posicion X=%d Posicion Y=%d",id_correlativo, pokemon->x, pokemon->y);
 
 
+
 		sem_wait(&mutex_recibidos);
 		list_add(listaPokemonsRecibidos,pokemon);
 		sem_post(&mutex_recibidos);
@@ -349,12 +350,12 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 	switch(caughtRecibido->caught_size){
 	case 3:
 		caughts->atrapado=OK;
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%s Atrapado=OK",idCorrelativo);
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
 
 		break;
 	case 5:
 		caughts->atrapado=FAIL;
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%s Atrapado=FAIL",idCorrelativo);
+		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
 
 		break;
 	}

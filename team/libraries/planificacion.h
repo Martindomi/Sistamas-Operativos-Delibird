@@ -23,6 +23,7 @@ sem_t sem_caught;
 sem_t mutex_caught;
 sem_t sem_colas_no_vacias;
 sem_t mutex_mov_colas_time;
+sem_t mutex_reconexion;
 
 int movimientoTime;
 

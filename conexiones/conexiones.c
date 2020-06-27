@@ -222,7 +222,7 @@ char* client_recibir_mensaje(int socket_cliente)
 	char * buffer = malloc(buffer_size);
 	recv(socket_cliente, buffer, buffer_size, 0);
 
-
+	puts(buffer);
 	return buffer;
 
 }
@@ -549,10 +549,10 @@ void send_message_caught_pokemon(char* caught_pokemon, uint32_t id, uint32_t id_
 	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
 
-	memcpy(stream, &(caught_size), sizeof(uint32_t));
+	memcpy(stream + tamanio, &(caught_size), sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
 
-	memcpy(stream, caught_pokemon, caught_size);
+	memcpy(stream + tamanio, caught_pokemon, caught_size);
 
 	buffer->stream = stream;
 
@@ -588,7 +588,7 @@ puntero_mensaje recibir_caught_pokemon( int socket, uint32_t* paquete_size){
 	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&caught_size, buffer, sizeof(uint32_t));
+	memcpy(&caught_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	caught_pokemon = malloc(caught_size);
@@ -908,12 +908,12 @@ void* hilo_escucha(int* socket_servidor){
 		int socket_cliente = accept(socketser, (void*) &dir_cliente, &tam_direccion);
 
 		if (socket_cliente == -1) {
-				printf("No pending connections; sleeping for one second.\n");
+		//		printf("No pending connections; sleeping for one second.\n");
 				sleep(1);
 
 		} else {
 			int socket = socket_cliente;
-			printf("Got a connection; writing 'hello' then closing.\n");
+		//	printf("Got a connection; writing 'hello' then closing.\n");
 			aplica_funcion_escucha(&socket);
 		}
 	}

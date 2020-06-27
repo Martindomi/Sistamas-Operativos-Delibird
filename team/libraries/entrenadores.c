@@ -51,8 +51,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	char** read_posiciones= configData->posicionesEntrenadores;//config_get_array_value(config,"POSICIONES_ENTRENADORES");
 	char** read_pokemones= configData->pokemonesEntrenadores;//config_get_array_value(config,"POKEMON_ENTRENADORES");
 	char** read_objetivos= configData->objetivosEntrenadores;//config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
-	int id = 0;
+	int id = 0, no_hay_mas = 0;
 	crearListaObjetivo();
+
 
 	while(read_posiciones[i]!= NULL){
 		id++;
@@ -68,8 +69,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		//printf("%d\n",unEntrenador->y);
 		unEntrenador->pokemonesCapturados = list_create();
 		unEntrenador->pokemonesObjetivo = list_create();
-		if(strcmp(read_pokemones[i],"")==0){
-			//printf("NO HAY\n");
+		if(read_pokemones[i]==NULL || no_hay_mas == 1){
+			printf("NO HAY\n");
+			no_hay_mas = 1;
 		} else {
 			char** tempCapt = string_split(read_pokemones[i], "|");
 			int capturadosContador = 0;

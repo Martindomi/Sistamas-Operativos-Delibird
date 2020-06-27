@@ -71,17 +71,25 @@ void main_planificacion_caught(){
 		caught = list_get(listaPokemonesCaught,0);
 		list_remove(listaPokemonesCaught,0);
 		entrenador = list_find(entrenadores_esperando_caught,(void*)_filterEntrenadorCaught);
+		printf("se encontre entrenador %d esperando caught\n", entrenador->id);
 		if(entrenador!=NULL){
 			entrenador->id_catch=0;
 			if(caught->atrapado==OK){
+				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
 				pokemonCaputrado->cantidad=pokemonCaputrado->cantidad -1;
+				entrenador->espacioLibre--;
+				printf("\nPokemon capturado!\n");
+				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
+				log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
 			}
 		}
 
 	}
 }
+
+
 
 void main_planificacion_corto_plazo() {
 

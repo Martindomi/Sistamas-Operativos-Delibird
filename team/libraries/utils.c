@@ -89,7 +89,7 @@ void hilo_reconexion(){
 
 
 void reintentar_conexion(int tiempo){
-
+	sem_wait(&mutex_reconexion);
 	//t_config* config = inicializar_config("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 	//t_log *logger= inicializar_log("/home/utnso/tp-2020-1c-Elite-Four/team/team.config","TEAM");
 	bool conexionOK = false;
@@ -97,6 +97,7 @@ void reintentar_conexion(int tiempo){
 
 	//log_info(logger,"Inicio de proceso de reintento de comunicacion con el Broker");
 	log_info(loggerTEAM,"Inicio de proceso de reintento de comunicacion con el Broker");
+
 	while(!conexionOK){
 		if(count != 0){
 			//log_info(logger,"Reintento de comunicacion con el broker: FALLIDO; intento numero: %d", (count+1));
@@ -111,6 +112,7 @@ void reintentar_conexion(int tiempo){
 
 //	log_info(logger,"Reintento de comunicacion con el broker: EXITO; cantidad de intentos: %d", count);
 	log_info(loggerTEAM,"Reintento de comunicacion con el broker EXITOSO, cantidad de intentos: %d", count);
+	sem_post(&mutex_reconexion);
 
 	//config_destroy(config);
 	//log_destroy(logger);
@@ -262,7 +264,8 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		pokemon = entrenador->pokemonCapturando;
 		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonCapturado->cantidad=pokemonCapturado->cantidad -1;
-		log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
+		//log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
+		log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
 
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
