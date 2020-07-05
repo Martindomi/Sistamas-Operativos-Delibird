@@ -27,6 +27,16 @@ t_list *cola_EXEC;
 t_list *cola_BLOQUED;
 t_list *cola_EXIT;
 
+uint32_t ciclosCPU;
+uint32_t deadlocksProducidos;
+uint32_t deadlocksResueltos;
+uint32_t contextSwitch;
+sem_t mutex_ciclos;
+sem_t mutex_deadlockProd;
+sem_t mutex_deadlockRes;
+sem_t mutex_conSwitch;
+
+
 typedef struct {
 	int x,y;
 	char* especie;
@@ -81,6 +91,7 @@ typedef struct {
 	int id;
 	int x;
 	int y;
+	int ciclos;
 	t_list* pokemonesCapturados;
 	t_list* pokemonesObjetivo;
 	int espacioLibre;
@@ -91,6 +102,7 @@ typedef struct {
 	int id_catch;
 	int movsDisponibles;
 	int seMovioEnTime;
+	void* entrenadorDeadlock;
 }t_entrenador;
 
 

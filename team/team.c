@@ -37,25 +37,20 @@
 int main(int argc, char *argv[]){
 
 	inicializar_config_data();
-//	liberar_config_data();
-	//t_config *config = config_create("./team2.config");
+
 	t_list * lista_entrenadores = list_create();
 	int andaBroker = 1;
 	listaPokemonsRecibidos = list_create();
 	listaPokemonesCaught= list_create();
 	ids_mensajes_enviados = list_create();
 	ACK = "ACK";
-
+	printf("%d\n",list_is_empty(lista_entrenadores));
 	cola_NEW=list_create();
 	cola_READY=list_create();
 	cola_EXEC=list_create();
 	cola_EXIT=list_create();
 	cola_BLOQUED=list_create();
-//	char* path_log;
-//	char* ip_broker;
-//	char* puerto_broker;
-//	char* ip_team;
-//	char* puerto_team;
+
 
 	sem_init(&(sem_colas_no_vacias),0,0);
 	sem_init(&(sem_cpu),0,1);
@@ -64,16 +59,35 @@ int main(int argc, char *argv[]){
 	sem_init(&(mutex_caught),0,1);
 	sem_init(&(mutex_recibidos),0,1);
 	sem_init(&mutex_mov_colas_time,0,1);
+	sem_init(&sem_exit,0,0);
 	sem_init(&(mutex_reconexion),0,1);
+	sem_init(&(sem_fin),0,1);
+
+	sem_init(&sem_deadlcok,0,0);
+
+	sem_init((&mutex_ciclos),0,1);
+	sem_init((&mutex_deadlockProd),0,1);
+	sem_init((&mutex_deadlockRes),0,1);
+	sem_init((&mutex_conSwitch),0,1);
+
+
+	ciclosCPU = 0;
+	deadlocksProducidos= 0;
+	deadlocksResueltos= 0;
+	contextSwitch= 0;
+
 	movimientoTime = 0;//sirve como timestamp de los movs de las colas
 
-	pthread_t hiloRecibidos, hiloCaught, hiloCortoPlazo;
+	pthread_t hiloRecibidos, hiloCaught, hiloCortoPlazo, hiloDeadlock, hiloExit;
 	pthread_create(&hiloRecibidos,NULL,(void*)main_planificacion_recibidos,NULL);
 	pthread_create(&hiloCaught,NULL,(void*)main_planificacion_caught,NULL);
 	pthread_create(&hiloCortoPlazo,NULL,(void*)main_planificacion_corto_plazo,NULL);
-
-	initListaPokemonsNecesitados();
+	pthread_create(&hiloDeadlock,NULL,(void*)detectar_deadlock,NULL);
+	pthread_create(&hiloExit,NULL,(void*)main_exit,NULL);
+	//initListaPokemonsNecesitados();
 	inicializar_entrenadores(lista_entrenadores);
+
+	printf("%d\n",list_is_empty(lista_entrenadores));
 	crear_hilo_entrenadores(lista_entrenadores);
 
 	enviar_get_objetivos();

@@ -29,7 +29,10 @@ bool suscribirse_a_colas();
 void hilo_reconexion();
 void reintentar_conexion(int tiempo);
 void funcionGenerica(int *socket);
-
+void tarda(int ciclos);
+void contar_deadlock_producido();
+void contar_deadlock_resuelto();
+void contar_context_switch();
 
 
 //void suscribirse_cola(op_code codigo_cola, char* ip_broker, char* puerto_broker, char *ip_team, char* puerto_team, t_log* logger);
@@ -47,7 +50,8 @@ void inicializar_config_data();
 void inicializar_log_team();
 void inicializar_config_team(char* pathConfig);
 bool esRR();
+bool esSJFconDesalojo();
+bool esSJFsinDesalojo();
 void comprobarConexion();
-
 
 #endif /* LIBRARIES_UTILS_H_ */

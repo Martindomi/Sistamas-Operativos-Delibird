@@ -10,19 +10,54 @@ void main_entrenador(t_entrenador* entrenador){
 	while(1) {
 		sem_wait(&(entrenador->sem_entrenador));
 		moverColas(cola_READY, cola_EXEC, entrenador);
-		moverEntrenador(entrenador);
-		analizarCaptura(entrenador);
-		//TODO
-		//Ak hay q comparar si tiene todos los de el, o no objs == capturados
+
+		contar_context_switch();
+
 		if(list_size(entrenador->pokemonesObjetivo)!=list_size(entrenador->pokemonesCapturados)){
-			//Ak tiene q ir a block
-			printf("Entrenador %d: me quedan pokemons, vuelvo a ready\n", entrenador->id);
+			moverEntrenador(entrenador, entrenador->pokemonCapturando->x,entrenador->pokemonCapturando->y);
+			analizarCaptura(entrenador);
 		}else {
-			moverColas(cola_READY,cola_EXIT, entrenador);
-			printf("Entrenador %d: no me quedan pokemons, me cierro\n", entrenador->id);
+			t_entrenador* entrenadorDeadlock = (t_entrenador*) (entrenador->entrenadorDeadlock);
+
+			moverEntrenador(entrenador, entrenadorDeadlock->x,entrenadorDeadlock->y);
+			realizarIntercambio(entrenador,entrenadorDeadlock);
+
+			if(tiene_otro_pokemon(entrenador) || tiene_otro_pokemon(entrenadorDeadlock)){
+				moverColas(cola_EXEC,cola_BLOQUED,entrenador);
+				sem_post(&sem_deadlcok);
+			}
+
+			if(!tiene_otro_pokemon(entrenador)){
+				moverColas(cola_EXEC,cola_EXIT,entrenador);
+				printf("entrenador %d se fue a EXIT \n", entrenador->id);
+				sem_post(&sem_exit);
+			}
+
+			if(!tiene_otro_pokemon(entrenadorDeadlock)){
+				moverColas(cola_BLOQUED,cola_EXIT,entrenador->entrenadorDeadlock);
+				printf("entrenador %d se fue a EXIT \n", entrenadorDeadlock->id);
+				sem_post(&sem_exit);
+			}
+
 		}
+
 		sem_post(&(sem_cpu));
 	}
+}
+
+void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock){
+
+	char* pokemonACambiar1 = sacar_pokemon_de_mas(entrenador);
+	char* pokemonACambiar2 = sacar_pokemon_de_mas(entrenadorDeadlock);
+	tarda(5);
+	list_add(entrenador->pokemonesCapturados,pokemonACambiar2);
+	list_add(entrenadorDeadlock->pokemonesCapturados,pokemonACambiar1);
+	log_info(loggerTEAM,"Entrenador: %d recibe pokemon %s",entrenador->id, pokemonACambiar2);
+	log_info(loggerTEAM,"Entrenador: %d recibe pokemon %s",entrenadorDeadlock->id, pokemonACambiar1);
+	contar_ciclos_entrenador(entrenador, 5);
+	contar_deadlock_resuelto();
+
+
 }
 
 //cuando recibe caught esto
@@ -64,6 +99,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		posiciones = string_split(read_posiciones[i], "|");
 		unEntrenador->x = atoi(*(posiciones));
 		unEntrenador->y = atoi(*(posiciones+1));
+		unEntrenador->ciclos = 0;
 
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
@@ -272,9 +308,7 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 
 }
 
-void moverEntrenador(t_entrenador* entrenador) {
-	int xDestino =  entrenador->pokemonCapturando->x;
-	int yDestino =  entrenador->pokemonCapturando->y;
+void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	int cantidadAMoverseX = xDestino - entrenador->x;
 	int cantidadAMoverseY = yDestino - entrenador->y;
 	bool esRRo = esRR();
@@ -295,11 +329,18 @@ void moverEntrenador(t_entrenador* entrenador) {
 		}
 
 		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
-		sleep(configData->retardoCicloCPU);
-
+		tarda(1);
+		contar_ciclos_entrenador(entrenador, 1);
 
 	}
 }
+
+void contar_ciclos_entrenador(t_entrenador * entrenador, int ciclos){
+
+	entrenador->ciclos+= ciclos;
+
+}
+
 void analizarCaptura(t_entrenador* entrenador) {
 	if(entrenador->x == entrenador->pokemonCapturando->x && entrenador->y == entrenador->pokemonCapturando->y){
 		enviar_mensaje_catch_pokemon(entrenador, entrenador->pokemonCapturando->especie,entrenador->x ,entrenador->y);

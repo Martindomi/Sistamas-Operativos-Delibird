@@ -59,9 +59,10 @@ void agregarPokemonALista(char* pokemon);
 t_pokemonObjetivo* buscarPokemon(char* pokemon);
 void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list);
 void quitarPokemonDeLista(char* pokemon);
-
-
-
+void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino);
+void analizarCaptura(t_entrenador* entrenador);
+void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock);
+void contar_ciclos_entrenador(t_entrenador * entrenador, int ciclos);
 
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */

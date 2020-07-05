@@ -51,6 +51,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 	int conexion;
 
 	//crear conexion
+	tarda(1);
 	conexion = crear_conexion(ip_broker, puerto_broker);
 	if(conexion == -1){
 		//log_info(logger, "Conexion Broker: FALSE");
@@ -225,7 +226,7 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 
 	char* mensaje;
 	int conexion;
-
+	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		log_info(loggerTEAM,"GET: Inicio de operacion por Default -> 'Pokemon sin locaciones'");
@@ -254,7 +255,7 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	bool _filterPokemon(t_pokemonObjetivo *element){
 		return !strcmp(element->pokemon,pokemon->especie);
 	}
-
+	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		hilo_reconexion();
@@ -262,8 +263,12 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 		entrenador->id_catch=0;
 		pokemon = entrenador->pokemonCapturando;
+		entrenador->espacioLibre--;
 		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonCapturado->cantidad=pokemonCapturado->cantidad -1;
+		if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
+			sem_post(&sem_deadlcok);
+		}
 		//log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
 		log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
 
@@ -278,6 +283,40 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		liberar_conexion(conexion);
 
 	}
+
+}
+
+void tarda(int ciclos){
+
+	sem_wait(&mutex_ciclos);
+	ciclosCPU += ciclos;
+	sem_post(&mutex_ciclos);
+
+	sleep(configData->retardoCicloCPU * ciclos);
+
+}
+
+void contar_deadlock_producido(){
+
+	sem_wait(&mutex_deadlockProd);
+	deadlocksProducidos += 1;
+	sem_post(&mutex_deadlockProd);
+
+}
+
+void contar_deadlock_resuelto(){
+
+	sem_wait(&mutex_deadlockRes);
+	deadlocksResueltos += 1;
+	sem_post(&mutex_deadlockRes);
+
+}
+
+void contar_context_switch(){
+
+	sem_wait(&mutex_conSwitch);
+	contextSwitch += 1;
+	sem_post(&mutex_conSwitch);
 
 }
 
@@ -369,4 +408,12 @@ void liberar_config_data(){
 
 bool esRR() {
 	return strcmp(configData->algoritmoPlanificacion,"RR") == 0;
+}
+
+bool esSJFconDesalojo() {
+	return strcmp(configData->algoritmoPlanificacion,"SJF-CD") == 0;
+}
+
+bool esSJFsinDesalojo() {
+	return strcmp(configData->algoritmoPlanificacion,"SJF-SD") == 0;
 }

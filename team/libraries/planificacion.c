@@ -83,6 +83,9 @@ void main_planificacion_caught(){
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
+				if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
+					sem_post(&sem_deadlcok);
+				}
 			}
 		}
 
@@ -252,3 +255,202 @@ double calcularDistancia(t_entrenador* entrenador, t_pokemon* pokemon) {
 	double distanciaY2 = pow(entrenador->y - pokemon->y,2);
 	return distanciaX2 + distanciaY2;
 }
+
+void detectar_deadlock(){
+	while(1){
+		printf("esperando deadlock\n");
+		sem_wait(&sem_deadlcok);
+		printf("analizando deadlock\n");
+		if(todos_bloqueados() && todos_sin_espacio()){
+			printf("estan bloqueados\n");
+			if(list_any_satisfy(cola_BLOQUED, tiene_otro_pokemon)){
+				contar_deadlock_producido();
+				log_info(loggerTEAM,"DEADLOCK; Se detecta deadlock");
+				main_deadlock();
+			}
+		}
+	}
+}
+
+bool todos_bloqueados(){
+	return list_is_empty(cola_READY) && list_is_empty(cola_NEW) && !list_is_empty(cola_BLOQUED) && list_is_empty(cola_EXEC);
+}
+
+bool todos_sin_espacio(){
+	int size = list_size(cola_BLOQUED);
+	t_entrenador * entrenador ;
+
+	for(int i=0; i<size;i++){
+		entrenador = list_get(cola_BLOQUED,i);
+		if(entrenador->espacioLibre != 0)
+			return false;
+	}
+
+	return true;
+}
+
+bool tiene_otro_pokemon(t_entrenador * entrenador){
+
+	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
+	char* pokemonCapturado;
+	int size = list_size(entrenador->pokemonesCapturados);
+
+
+	bool _filterPokemon(char* element){
+			return !strcmp(element,pokemonCapturado);
+		}
+
+	for(int i = 0; i < size; i++){
+		pokemonCapturado = list_get(entrenador->pokemonesCapturados, i);
+		list_remove_by_condition(pokemonesObjetivos,_filterPokemon);
+	}
+
+	return !list_is_empty(pokemonesObjetivos) && entrenador->espacioLibre == 0;
+
+
+}
+
+t_list* crear_lista_deadlock(t_list* lista){
+
+	t_list* listaNueva = list_create();
+	int size = list_size(lista);
+	for (int i = 0; i < size; i++){
+		char* poke = malloc(strlen(list_get(lista,i))+1);
+		poke = (char*)list_get(lista,i);
+		list_add(listaNueva,poke);
+	}
+
+	return listaNueva;
+}
+
+char* pokemon_de_mas(t_entrenador* entrenador){
+	char* pokemonObjetivo, *pokemon ;
+	int size = list_size(entrenador->pokemonesObjetivo);
+
+
+	bool _filterPokemon(char* element){
+			return strcmp(element,pokemonObjetivo);
+		}
+
+	for(int i = 0; i < size; i++){
+		pokemonObjetivo= list_get(entrenador->pokemonesObjetivo, i);
+		pokemon = list_find(entrenador->pokemonesCapturados,_filterPokemon);
+
+		if(pokemon != NULL){
+			break;
+		}
+	}
+
+	return pokemon;
+}
+char* sacar_pokemon_de_mas(t_entrenador* entrenador){
+	char* pokemonObjetivo, *pokemon ;
+	int size = list_size(entrenador->pokemonesObjetivo);
+
+
+	bool _filterPokemon(char* element){
+			return strcmp(element,pokemonObjetivo);
+		}
+
+	for(int i = 0; i < size; i++){
+		pokemonObjetivo= list_get(entrenador->pokemonesObjetivo, i);
+		pokemon = list_remove_by_condition(entrenador->pokemonesCapturados,_filterPokemon);
+
+		if(pokemon != NULL){
+			break;
+		}
+	}
+
+	return pokemon;
+}
+
+
+void main_deadlock(){
+	//sem_wait(&sem_deadlcok);
+	t_entrenador* unEntrenador,*otroEntrenador;
+	unEntrenador = list_get(cola_BLOQUED,0);
+	char* pokemonDeMas = pokemon_de_mas(unEntrenador);
+	otroEntrenador = busca_entrenador_que_necesita(pokemonDeMas);
+	unEntrenador->entrenadorDeadlock = otroEntrenador;
+	moverColas(cola_BLOQUED,cola_READY,unEntrenador);
+	sem_post(&unEntrenador->sem_entrenador);
+
+}
+
+bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
+	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
+	char* pokemonCapturado;
+	int size = list_size(entrenador->pokemonesCapturados);
+
+
+	bool _filterPokemon(char* element){
+			return !strcmp(element,pokemonCapturado);
+		}
+
+	for(int i = 0; i < size; i++){
+		pokemonCapturado = list_get(entrenador->pokemonesCapturados, i);
+		list_remove_by_condition(pokemonesObjetivos,_filterPokemon);
+	}
+
+	pokemonCapturado = pokemon;
+	return list_any_satisfy(pokemonesObjetivos,_filterPokemon);
+}
+
+t_entrenador* busca_entrenador_que_necesita(char* pokemon){
+
+	int size= list_size(cola_BLOQUED);
+	t_entrenador* entrenador;
+	for(int i = 0; i < size; i++){
+
+		entrenador = list_get(cola_BLOQUED,i);
+		if(necesita_pokemon(entrenador,pokemon))
+			break;
+
+	}
+
+	return entrenador;
+}
+
+void main_exit(){
+
+	while(1){
+		sem_wait(&sem_exit);
+		if(todos_terminados()){
+			finalizar();
+		}
+	}
+
+
+}
+
+bool todos_terminados(){
+	return list_is_empty(cola_READY) && list_is_empty(cola_NEW) && list_is_empty(cola_BLOQUED) && list_is_empty(cola_EXEC) && !list_is_empty(cola_EXIT);
+}
+
+void finalizar(){
+	sem_wait(&sem_fin);
+	t_entrenador * entrenador;
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	log_info(loggerTEAM,"+                                                                     +");
+	log_info(loggerTEAM,"+                HAS ATRAPADO A TODOS LOS POKEMONES!!!                +");
+	log_info(loggerTEAM,"+                                                                     +");
+	log_info(loggerTEAM,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM," - Cantidad de ciclos de CPU totales: %d", ciclosCPU);
+	log_info(loggerTEAM," - Cantidad de cambios de contexto realizados: %d", contextSwitch);
+	log_info(loggerTEAM," - Cantidad de ciclos de CPU realizados por entrenador:");
+	for(int i = 0; i < list_size(cola_EXIT); i++){
+		entrenador = list_get(cola_EXIT,i);
+		log_info(loggerTEAM,"     · Entrenador %d => Ciclos: %d", entrenador->id, entrenador->ciclos);
+	}
+	log_info(loggerTEAM," - Cantidad de Deadlocks producidos: %d", deadlocksProducidos);
+	log_info(loggerTEAM," - Cantidad de Deadlocks resueltos: %d", deadlocksResueltos);
+
+	free(entrenador);
+
+
+}
+
+
+

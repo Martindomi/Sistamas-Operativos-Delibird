@@ -24,12 +24,18 @@ sem_t mutex_caught;
 sem_t sem_colas_no_vacias;
 sem_t mutex_mov_colas_time;
 sem_t mutex_reconexion;
+sem_t sem_deadlcok;
+sem_t sem_exit;
+sem_t sem_fin;
+
 
 int movimientoTime;
 
 void main_entrenador(t_entrenador*);
 void main_planificacion_caught();
 void main_planificacion_recibidos();
+void main_deadlock();
+void main_exit();
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador);
 void agregarAColas(t_list* lista, t_entrenador* entrenador);
 t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadores);
@@ -40,7 +46,15 @@ t_list *buscar_entrenadores_new_disponibles();
 t_list *buscar_entrenadores_bloqueados_disponibles();
 t_list *buscar_entrenadores_bloqueados_NOdisponibles();
 void main_planificacion_corto_plazo() ;
-
+bool tiene_otro_pokemon(t_entrenador * entrenador);
+t_list* crear_lista_deadlock(t_list* lista);
+char* sacar_pokemon_de_mas(t_entrenador* entrenador);
+char* pokemon_de_mas(t_entrenador* entrenador);
+bool todos_bloqueados();
+bool todos_sin_espacio();
+bool todos_terminados();
+t_entrenador* busca_entrenador_que_necesita(char* pokemon);
+void detectar_deadlock();
 
 
 #endif /* LIBRARIES_PLANIFICACION_H_ */
