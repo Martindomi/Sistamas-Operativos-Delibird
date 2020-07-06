@@ -265,7 +265,7 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		pokemon = entrenador->pokemonCapturando;
 		entrenador->espacioLibre--;
 		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
-		pokemonCapturado->cantidad=pokemonCapturado->cantidad -1;
+		pokemonCapturado->cantidad--;
 		if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
 			sem_post(&sem_deadlcok);
 		}
@@ -416,4 +416,9 @@ bool esSJFconDesalojo() {
 
 bool esSJFsinDesalojo() {
 	return strcmp(configData->algoritmoPlanificacion,"SJF-SD") == 0;
+}
+
+bool esSJF(){
+	return esSJFconDesalojo() || esSJFsinDesalojo();
+
 }

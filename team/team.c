@@ -34,7 +34,7 @@
  */
 
 
-int main(int argc, char *argv[]){
+ int main(int argc, char *argv[]){
 
 	inicializar_config_data();
 
@@ -380,6 +380,7 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 }
 
 void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
+
 	t_pokemon *pokemon = malloc(sizeof(t_pokemon));
 	pokemon->especie=malloc(appearedRecibido->name_size);
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);

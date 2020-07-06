@@ -34,13 +34,19 @@ void main_planificacion_recibidos(){
 			distancia_bloqued = entrenadorMasCerca(pokemon,buscar_entrenadores_bloqueados_disponibles());
 
 			if(distancia_new->distancia < distancia_bloqued->distancia){
+				if(esSJF()){
+					calcular_rafaga(distancia_new->entrenador);
+					}
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
 				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: NEW -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_new->entrenador->id);
 				//printf("voy a buscar un pokemon\n");
 				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
-				pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
+				//pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
 				distancia_new->entrenador->pokemonCapturando = pokemon;
 			}else{
+				if(esSJF()){
+					calcular_rafaga(distancia_bloqued->entrenador);
+					}
 				moverColas(cola_BLOQUED,cola_READY,distancia_bloqued->entrenador);
 				distancia_bloqued->entrenador->pokemonCapturando = pokemon;
 				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: BLOCK -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_bloqued->entrenador->id);
@@ -78,7 +84,7 @@ void main_planificacion_caught(){
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
-				pokemonCaputrado->cantidad=pokemonCaputrado->cantidad -1;
+				pokemonCaputrado->cantidad--;
 				entrenador->espacioLibre--;
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
@@ -102,7 +108,13 @@ void main_planificacion_corto_plazo() {
 		sem_wait(&(sem_cpu));
 		sem_wait(&(sem_colas_no_vacias));
 		t_entrenador* entrenadorACorrer ;
-		if(!esRR()) {
+		if(esSJFsinDesalojo()){
+			printf("caclulo entrenador por SJF SIN desalojo \n");
+			entrenadorACorrer = planificacionSJFSD(cola_READY);
+		}else if(esSJFconDesalojo()){
+			printf("caclulo entrenador por SJF CON desalojo \n");
+			entrenadorACorrer = planificacionSJFCD(cola_READY);
+		}else if(!esRR()) {
 			printf("calculo entrenador por fifo\n");
 			entrenadorACorrer = planificacionFifo(cola_READY);
 		}else {
@@ -182,6 +194,42 @@ t_entrenador* planificacionRR(t_list* colaReady){
 	return proximoAEjecutar;
 }
 
+void calcular_rafaga(t_entrenador * entrenador){
+	float a = configData->alpha;
+	entrenador->estimacion = (entrenador->rafagaReal)*a + (entrenador->estimacion)*(1-a);
+	entrenador->estimacionRestante = entrenador->estimacion;
+	printf("-----------------------entrenador:%d rafaga: %f\n",entrenador->id,entrenador->estimacion);
+}
+
+
+t_entrenador* buscar_entrenador_con_rafaga_mas_corta(){
+
+		t_entrenador* proximoEntrenador;
+
+		bool comparar_rafagas(t_entrenador * entrenador, t_entrenador * entrenador2){
+
+			return entrenador->estimacion <= entrenador2->estimacion;
+		}
+		if(list_size(cola_READY)>1){
+			list_sort(cola_READY, comparar_rafagas);
+		}
+		proximoEntrenador = list_get(cola_READY,0);
+		printf("------------------ejecuto a %d que tiene estimacion de %f\n", proximoEntrenador->id, proximoEntrenador->estimacion);
+		return proximoEntrenador;
+
+}
+
+t_entrenador* planificacionSJFSD(t_list* colaReady){
+
+	return buscar_entrenador_con_rafaga_mas_corta();
+
+}
+
+t_entrenador* planificacionSJFCD(t_list* colaReady){
+
+	return buscar_entrenador_con_rafaga_mas_corta();
+
+}
 
 void initListaPokemonsNecesitados() {
 	//con esto simulamos el almacenamiento del gamecard
@@ -246,6 +294,7 @@ t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadore
 	}
 	//log despues sacar o modificar
 	printf("Distancia Menor: %f \n",distanciaResultado->distancia);
+
 
 	return distanciaResultado;
 }

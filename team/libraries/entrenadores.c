@@ -8,6 +8,7 @@
 //EXEC/ E2
 void main_entrenador(t_entrenador* entrenador){
 	while(1) {
+
 		sem_wait(&(entrenador->sem_entrenador));
 		moverColas(cola_READY, cola_EXEC, entrenador);
 
@@ -100,7 +101,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		unEntrenador->x = atoi(*(posiciones));
 		unEntrenador->y = atoi(*(posiciones+1));
 		unEntrenador->ciclos = 0;
-
+		unEntrenador->estimacion = configData->estmacionInicial;
+		unEntrenador->rafagaReal = configData->estmacionInicial;
+		unEntrenador->estimacionRestante = configData->estmacionInicial;
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
 		unEntrenador->pokemonesCapturados = list_create();
@@ -154,7 +157,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 	}
 
-//	imprimirListaObjetivo();
+	imprimirListaObjetivo();
 
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
@@ -316,21 +319,57 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
 	//Si entrenador->movsDisponibles != 0 entonces es RR
 	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
-	for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo); cantDeMovs++){
-		if(xDestino != entrenador->x) {
-			int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
-			entrenador->x = entrenador->x + direccionEnX;
-		}else if(yDestino != entrenador->y) {
-			int direccionEnY = cantidadAMoverseY/abs(cantidadAMoverseY);
-			entrenador->y = entrenador->y + direccionEnY;
-		}else {
-			//Llego, no deberia entrar ak, hay algo mal
-			exit(6);
+
+	if(esSJF()){
+		entrenador->rafagaReal=0;
+		t_entrenador* entrenadorAComparar;
+		for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)); cantDeMovs++){
+			if(xDestino != entrenador->x) {
+				int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
+				entrenador->x = entrenador->x + direccionEnX;
+
+			}else if(yDestino != entrenador->y) {
+				int direccionEnY = cantidadAMoverseY/abs(cantidadAMoverseY);
+				entrenador->y = entrenador->y + direccionEnY;
+			}else {
+				//Llego, no deberia entrar ak, hay algo mal
+				exit(6);
+			}
+
+			entrenador->rafagaReal++;
+			entrenador->estimacionRestante--;
+			printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
+			tarda(1);
+			contar_ciclos_entrenador(entrenador, 1);
+
+			if(esSJFconDesalojo() && list_size(cola_READY)>0){
+
+				entrenadorAComparar = buscar_entrenador_con_rafaga_mas_corta();
+
+				if(entrenador->estimacionRestante > entrenadorAComparar->estimacion){
+					break;
+				}
+
+			}
 		}
 
-		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
-		tarda(1);
-		contar_ciclos_entrenador(entrenador, 1);
+	}else{
+		for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo); cantDeMovs++){
+			if(xDestino != entrenador->x) {
+				int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
+				entrenador->x = entrenador->x + direccionEnX;
+			}else if(yDestino != entrenador->y) {
+				int direccionEnY = cantidadAMoverseY/abs(cantidadAMoverseY);
+				entrenador->y = entrenador->y + direccionEnY;
+			}else {
+				//Llego, no deberia entrar ak, hay algo mal
+				exit(6);
+			}
+
+			printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
+			tarda(1);
+			contar_ciclos_entrenador(entrenador, 1);
+		}
 
 	}
 }
@@ -350,11 +389,12 @@ void analizarCaptura(t_entrenador* entrenador) {
 		//mando catch de ak?, y paso a block
 		//capturoPokemon(entrenador);
 	}else {
-		printf("termino RR, vuelve a ready\n");
+		printf("termino RR o Hay entrenador con rafaga mas corta, vuelve a ready\n");
 		moverColas(cola_EXEC,cola_READY,entrenador);
 		sem_post(&sem_colas_no_vacias);
 	}
 
 }
+
 
 

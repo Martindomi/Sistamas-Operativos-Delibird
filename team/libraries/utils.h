@@ -52,6 +52,7 @@ void inicializar_config_team(char* pathConfig);
 bool esRR();
 bool esSJFconDesalojo();
 bool esSJFsinDesalojo();
+bool esSJF();
 void comprobarConexion();
 
 #endif /* LIBRARIES_UTILS_H_ */

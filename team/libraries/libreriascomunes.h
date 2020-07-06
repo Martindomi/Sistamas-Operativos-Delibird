@@ -103,6 +103,9 @@ typedef struct {
 	int movsDisponibles;
 	int seMovioEnTime;
 	void* entrenadorDeadlock;
+	float estimacion;
+	float estimacionRestante;
+	float rafagaReal;
 }t_entrenador;
 
 
