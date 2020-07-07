@@ -38,7 +38,7 @@
 
 	inicializar_config_data();
 
-	t_list * lista_entrenadores = list_create();
+	lista_entrenadores = list_create();
 	int andaBroker = 1;
 	listaPokemonsRecibidos = list_create();
 	listaPokemonesCaught= list_create();
@@ -343,7 +343,7 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 		pokemon->x=*((int*)(list_get(localizedRecibido->coords,i)));
 		pokemon->y=*((int*)(list_get(localizedRecibido->coords,i+1)));
 		printf("adentro de localized\n");
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: LOCALIZED. Contenido: ID Correalitvo=%u Posicion X=%d Posicion Y=%d",id_correlativo, pokemon->x, pokemon->y);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo=%u Posicion X=%d Posicion Y=%d",id_correlativo, pokemon->x, pokemon->y);
 
 
 
@@ -364,12 +364,12 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 	switch(caughtRecibido->caught_size){
 	case 3:
 		caughts->atrapado=OK;
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
 
 		break;
 	case 5:
 		caughts->atrapado=FAIL;
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
 
 		break;
 	}
@@ -386,7 +386,7 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
 	pokemon->x=appearedRecibido->pos_x;
 	pokemon->y=appearedRecibido->pos_y;
-	log_info(loggerTEAM,"Mensaje recibido; Tipo: APPEARED. Contenido: Especie=%s, Posicion X=%d, Posicion Y=%d", pokemon->especie, pokemon->x, pokemon ->y);
+	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. Contenido: Especie=%s, Posicion X=%d, Posicion Y=%d", pokemon->especie, pokemon->x, pokemon ->y);
 	t_pokemonObjetivo *poke = buscarPokemon(appearedRecibido->name_pokemon);
 	if(poke->cantidad <= 0){
 		return;

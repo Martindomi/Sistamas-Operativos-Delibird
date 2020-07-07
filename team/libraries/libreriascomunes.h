@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <semaphore.h>
 
-
+t_list * lista_entrenadores;
 t_list *cola_NEW;
 t_list *cola_READY;
 t_list *cola_EXEC;

@@ -55,7 +55,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 	conexion = crear_conexion(ip_broker, puerto_broker);
 	if(conexion == -1){
 		//log_info(logger, "Conexion Broker: FALSE");
-		log_info(loggerTEAM, "Conexion Broker; Resultado: FAIL, Conexion por: SUSCRIPCION, Default: Intento de reconexion y suscripcion");
+		log_info(loggerTEAM, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
 		return conexion;
 	}
 	//log_info(logger, "conexion creada -> SUSCRIPCION ; CONEXION: %d",conexion);
@@ -65,7 +65,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 	mensaje = client_recibir_mensaje(conexion);
 	//loguear mensaje recibido
 	//log_info(logger, "suscripcion recibido %d", codigo_operacion);
-	log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE. Contenido: %s", mensaje); // no estoy seguro que sea mensaje.
+	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje); // no estoy seguro que sea mensaje.
 	//log_info(logger, mensaje);
 	free(mensaje);
 
@@ -97,12 +97,12 @@ void reintentar_conexion(int tiempo){
 	int count = 0;
 
 	//log_info(logger,"Inicio de proceso de reintento de comunicacion con el Broker");
-	log_info(loggerTEAM,"Inicio de proceso de reintento de comunicacion con el Broker");
+	log_info(loggerTEAM,"RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker");
 
 	while(!conexionOK){
 		if(count != 0){
 			//log_info(logger,"Reintento de comunicacion con el broker: FALLIDO; intento numero: %d", (count+1));
-			log_info(loggerTEAM,"Reintento de comunicacion con el broke FALLIDO, cantidad de intentos: %d. Se realiza un nuevo intento", (count+1));
+			log_info(loggerTEAM,"RECONEXION; FALLIDA, se realiza un nuevo intento");
 		}
 
 
@@ -112,7 +112,7 @@ void reintentar_conexion(int tiempo){
 	}
 
 //	log_info(logger,"Reintento de comunicacion con el broker: EXITO; cantidad de intentos: %d", count);
-	log_info(loggerTEAM,"Reintento de comunicacion con el broker EXITOSO, cantidad de intentos: %d", count);
+	log_info(loggerTEAM,"RECONEXION; EXITOSA, cantidad de intentos: %d", count);
 	sem_post(&mutex_reconexion);
 
 	//config_destroy(config);
@@ -229,13 +229,12 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
-		log_info(loggerTEAM,"GET: Inicio de operacion por Default -> 'Pokemon sin locaciones'");
-		log_info(loggerTEAM,"Mensaje recibido: Tipo: LOCALIZED, contenido: No existen locaciones para %s", especiePokemon);
+		log_info(loggerTEAM,"OPERACION POR DEFAULT; GET-> 'Pokemon %s sin locaciones'", especiePokemon);
 		hilo_reconexion();
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	mensaje=client_recibir_mensaje(conexion);
-	log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %s",mensaje);
+	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE, Contenido: [id del mensaje enviado es] %s",mensaje);
 	list_add(ids_mensajes_enviados, mensaje);
 
 	liberar_conexion(conexion);
@@ -259,25 +258,26 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		hilo_reconexion();
-		log_info(loggerTEAM,"CATCH: Inicio de operacion por Default -> 'Pokemon caputrado con exito'");
+		log_info(loggerTEAM,"OPERACION POR DEFAULT; CATCH-> 'Entrenador %d captura pokemon %s con exito'",entrenador->id,especiePokemon);
 		list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 		entrenador->id_catch=0;
 		pokemon = entrenador->pokemonCapturando;
 		entrenador->espacioLibre--;
 		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonCapturado->cantidad--;
-		if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
+		t_list* entrenadores_no_disponibles = buscar_entrenadores_bloqueados_NOdisponibles();
+		if(list_is_empty(entrenadores_no_disponibles)){
 			sem_post(&sem_deadlcok);
 		}
+		list_destroy(entrenadores_no_disponibles);
 		//log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
-		log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
-
+		log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
 		printf("Envio catch pokemon %s\n",especiePokemon);
 		mensaje=client_recibir_mensaje(conexion);
 		entrenador->id_catch = atoi(mensaje);
-		log_info(loggerTEAM,"Mensaje recibido; Tipo: MENSAJE, Contenido: id del mensaje enviado es: %s",mensaje);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE, Contenido: [id del mensaje enviado es] %s",mensaje);
 		list_add(ids_mensajes_enviados, mensaje);
 
 		liberar_conexion(conexion);
@@ -340,7 +340,7 @@ void inicializar_log_team(){
 }
 void inicializar_config_data(){
 
-	inicializar_config_team("./team.config");
+	inicializar_config_team("../team.config");
 	configData = malloc(sizeof(data_config));
 	int sizeALG, sizeIPB, sizePB, sizeIPT, sizePT;
 	sizeALG = strlen(config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"))+1;
@@ -379,32 +379,95 @@ void inicializar_config_data(){
 // no se si sirve
 void liberar_config_data(){
 
-	int i =0;
 
 	free(configData->algoritmoPlanificacion);
 	free(configData->ipBroker);
 	free(configData->ipTeam);
-	free(configData->logFile);
-	while(configData->objetivosEntrenadores[i]!=NULL){
-		free(configData->objetivosEntrenadores[i]);
-		i++;
-	}
-	i = 0;
-	while(configData->pokemonesEntrenadores[i]!=NULL){
-		free(configData->pokemonesEntrenadores[i]);
-		i++;
-	}
-	i = 0;
-	while(configData->posicionesEntrenadores[i]!=NULL){
-		free(configData->posicionesEntrenadores[i]);
-		i++;
-	}
 	free(configData->puertoBroker);
 	free(configData->puertoTeam);
 	free(configData);
-	i = 0;
+
 
 }
+
+void pokemonObjetivo_destroyer(t_pokemonObjetivo* pokemon){
+
+	free(pokemon->pokemon);
+	free(pokemon);
+}
+
+void liberar_lista_objetivos(){
+
+	list_destroy_and_destroy_elements(lista_objetivo,pokemonObjetivo_destroyer);
+
+}
+
+
+void pokemon_destroyer(t_pokemon* pokemon){
+
+	//free(pokemon->especie);
+	free(pokemon);
+}
+
+void liberar_lista_pokemons_recibidos(){
+
+	list_destroy_and_destroy_elements(listaPokemonsRecibidos,pokemonObjetivo_destroyer);
+
+}
+
+void caught_destroyer(t_caught* caught){
+
+	free(caught);
+}
+
+void liberar_lista_pokemons_caught(){
+
+	list_destroy_and_destroy_elements(listaPokemonesCaught,pokemonObjetivo_destroyer);
+}
+
+void entrenador_destroyer(t_entrenador* entrenador){
+
+	list_clean_and_destroy_elements(entrenador->pokemonesCapturados, mensaje_destroyer);
+	list_clean_and_destroy_elements(entrenador->pokemonesObjetivo, mensaje_destroyer);
+	pokemon_destroyer(entrenador->pokemonCapturando);
+	free(entrenador);
+}
+
+void liberar_entrenadores_de_lista(t_list* unaLista){
+
+	list_destroy_and_destroy_elements(unaLista,entrenador_destroyer);
+}
+
+void mensaje_destroyer(char* mensaje){
+	free(mensaje);
+}
+
+void liberar_ids_mensajes_enviados(){
+	list_destroy_and_destroy_elements(ids_mensajes_enviados, mensaje_destroyer);
+}
+
+void finalizar_y_liberar(){
+
+	printf("Deberian haber 8 procesos\n");
+	sleep(60);
+
+	log_destroy(loggerTEAM);
+	liberar_config_data();
+	liberar_lista_objetivos();
+	liberar_lista_pokemons_caught();
+	liberar_lista_pokemons_recibidos();
+	liberar_ids_mensajes_enviados();
+	liberar_entrenadores_de_lista(cola_EXIT);
+	list_destroy(cola_EXEC);
+	list_destroy(cola_BLOQUED);
+	list_destroy(cola_NEW);
+	list_destroy(cola_READY);
+	list_destroy(lista_entrenadores);
+
+	exit(0);
+
+}
+
 
 bool esRR() {
 	return strcmp(configData->algoritmoPlanificacion,"RR") == 0;

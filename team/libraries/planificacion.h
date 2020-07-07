@@ -58,6 +58,7 @@ bool todos_sin_espacio();
 bool todos_terminados();
 t_entrenador* busca_entrenador_que_necesita(char* pokemon);
 void detectar_deadlock();
-
+void mover_bloqueados_a_exit();
+void finalizar_y_liberar();
 
 #endif /* LIBRARIES_PLANIFICACION_H_ */

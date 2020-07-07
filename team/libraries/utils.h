@@ -54,5 +54,6 @@ bool esSJFconDesalojo();
 bool esSJFsinDesalojo();
 bool esSJF();
 void comprobarConexion();
+void mensaje_destroyer(char* mensaje);
 
 #endif /* LIBRARIES_UTILS_H_ */

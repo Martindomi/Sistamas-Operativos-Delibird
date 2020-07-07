@@ -38,7 +38,7 @@ void main_planificacion_recibidos(){
 					calcular_rafaga(distancia_new->entrenador);
 					}
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
-				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: NEW -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_new->entrenador->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: NEW -> READY. Motivo: Entrenador se prepara para moverse a la posicion del pokemon a capturar", distancia_new->entrenador->id);
 				//printf("voy a buscar un pokemon\n");
 				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
 				//pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
@@ -49,9 +49,12 @@ void main_planificacion_recibidos(){
 					}
 				moverColas(cola_BLOQUED,cola_READY,distancia_bloqued->entrenador);
 				distancia_bloqued->entrenador->pokemonCapturando = pokemon;
-				log_info(loggerTEAM,"Entrenador %d; Cambio de cola: BLOCK -> READY. Motivo: Listo para movilizarse hacia ubicacion de pokemon a atrapar", distancia_bloqued->entrenador->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCK -> READY. Motivo: Entrenador se prepara para moverse a la posicion del pokemon a capturar", distancia_bloqued->entrenador->id);
 			}
 			sem_post(&(sem_colas_no_vacias));
+
+			free(distancia_new);
+			free(distancia_bloqued);
 		}
 
 		list_remove(listaPokemonsRecibidos,i);
@@ -88,7 +91,7 @@ void main_planificacion_caught(){
 				entrenador->espacioLibre--;
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
-				log_info(loggerTEAM,"ENTRENADOR %d ATRAPO POKEMON %s",entrenador->id,entrenador->pokemonCapturando->especie);
+				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 				if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
 					sem_post(&sem_deadlcok);
 				}
@@ -218,7 +221,19 @@ t_entrenador* buscar_entrenador_con_rafaga_mas_corta(){
 		return proximoEntrenador;
 
 }
+/*
+void desalojar_por_rafaga_mas_corta(t_entrenador* entrenadorReady){
+	t_entrenador *entrenadorExec = list_get(cola_EXEC,0);
 
+
+	if(entrenadorReady->estimacion < entrenadorExec->estimacionRestante){
+		moverColas(cola_EXEC,cola_READY,entrenadorExec);
+		moverColas(cola_READY,cola_EXEC,entrenadorReady);
+
+	}
+
+}
+*/
 t_entrenador* planificacionSJFSD(t_list* colaReady){
 
 	return buscar_entrenador_con_rafaga_mas_corta();
@@ -230,7 +245,7 @@ t_entrenador* planificacionSJFCD(t_list* colaReady){
 	return buscar_entrenador_con_rafaga_mas_corta();
 
 }
-
+/*
 void initListaPokemonsNecesitados() {
 	//con esto simulamos el almacenamiento del gamecard
 	listaPokemons = list_create();
@@ -268,7 +283,7 @@ void initListaPokemonsNecesitados() {
 t_pokemon* simularLlegadaPokemon() {
 	return list_remove(listaPokemons,0);
 }
-
+*/
 t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadores) {
 	//busco cual es el entrenador mas cerca
 	//y lo devuelvo
@@ -312,12 +327,29 @@ void detectar_deadlock(){
 		printf("analizando deadlock\n");
 		if(todos_bloqueados() && todos_sin_espacio()){
 			printf("estan bloqueados\n");
+			log_info(loggerTEAM,"DEADLOCK; Inicio de algoritmo de deteccion de Deadlock");
 			if(list_any_satisfy(cola_BLOQUED, tiene_otro_pokemon)){
 				contar_deadlock_producido();
-				log_info(loggerTEAM,"DEADLOCK; Se detecta deadlock");
+				log_info(loggerTEAM,"DEADLOCK; Se detecta un deadlock y se procede a resolverlo");
 				main_deadlock();
+			}else{
+				log_info(loggerTEAM,"DEADLOCK; NO se detectan deadlocks");
+				mover_bloqueados_a_exit();
 			}
 		}
+	}
+}
+
+void mover_bloqueados_a_exit(){
+	int size = list_size(cola_BLOQUED);
+	t_entrenador * entrenador;
+	for(int i = 0; i < size; i ++){
+		entrenador = list_get(cola_BLOQUED,0);
+		moverColas(cola_BLOQUED,cola_EXIT,entrenador);
+		printf("entrenador %d se fue a EXIT \n", entrenador->id);
+		log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Entrenador cumple su objetivo!", entrenador->id);
+		sem_post(&sem_exit);
+
 	}
 }
 
@@ -343,7 +375,7 @@ bool tiene_otro_pokemon(t_entrenador * entrenador){
 	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
 	char* pokemonCapturado;
 	int size = list_size(entrenador->pokemonesCapturados);
-
+	bool result;
 
 	bool _filterPokemon(char* element){
 			return !strcmp(element,pokemonCapturado);
@@ -354,7 +386,10 @@ bool tiene_otro_pokemon(t_entrenador * entrenador){
 		list_remove_by_condition(pokemonesObjetivos,_filterPokemon);
 	}
 
-	return !list_is_empty(pokemonesObjetivos) && entrenador->espacioLibre == 0;
+	result = !list_is_empty(pokemonesObjetivos);
+	limpiar_lista_deadlock(pokemonesObjetivos);
+
+	return  result && entrenador->espacioLibre == 0;
 
 
 }
@@ -370,6 +405,15 @@ t_list* crear_lista_deadlock(t_list* lista){
 	}
 
 	return listaNueva;
+}
+
+void limpiar_lista_deadlock(t_list* lista){
+
+		void chars_destroyer(char* chars){
+			free(chars);
+		}
+
+	list_destroy_and_destroy_elements(lista, chars_destroyer);
 }
 
 char* pokemon_de_mas(t_entrenador* entrenador){
@@ -422,6 +466,8 @@ void main_deadlock(){
 	otroEntrenador = busca_entrenador_que_necesita(pokemonDeMas);
 	unEntrenador->entrenadorDeadlock = otroEntrenador;
 	moverColas(cola_BLOQUED,cola_READY,unEntrenador);
+	log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> READY. Motivo: Entrenador se prepara para moverse a la posicion del entrenador %d para realizar intercambio", unEntrenador->id, otroEntrenador->id);
+
 	sem_post(&unEntrenador->sem_entrenador);
 
 }
@@ -430,7 +476,7 @@ bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
 	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
 	char* pokemonCapturado;
 	int size = list_size(entrenador->pokemonesCapturados);
-
+	bool result;
 
 	bool _filterPokemon(char* element){
 			return !strcmp(element,pokemonCapturado);
@@ -442,7 +488,12 @@ bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
 	}
 
 	pokemonCapturado = pokemon;
-	return list_any_satisfy(pokemonesObjetivos,_filterPokemon);
+	result = list_any_satisfy(pokemonesObjetivos,_filterPokemon);
+
+	limpiar_lista_deadlock(pokemonesObjetivos);
+
+	return result;
+
 }
 
 t_entrenador* busca_entrenador_que_necesita(char* pokemon){
@@ -479,26 +530,30 @@ bool todos_terminados(){
 void finalizar(){
 	sem_wait(&sem_fin);
 	t_entrenador * entrenador;
+
 	log_info(loggerTEAM,"");
-	log_info(loggerTEAM,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-	log_info(loggerTEAM,"+                                                                     +");
-	log_info(loggerTEAM,"+                HAS ATRAPADO A TODOS LOS POKEMONES!!!                +");
-	log_info(loggerTEAM,"+                                                                     +");
-	log_info(loggerTEAM,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	log_info(loggerTEAM,"=================================================================");
 	log_info(loggerTEAM,"");
-	log_info(loggerTEAM," - Cantidad de ciclos de CPU totales: %d", ciclosCPU);
-	log_info(loggerTEAM," - Cantidad de cambios de contexto realizados: %d", contextSwitch);
-	log_info(loggerTEAM," - Cantidad de ciclos de CPU realizados por entrenador:");
+	log_info(loggerTEAM,"					HAS ATRAPADO A TODOS LOS POKEMONES!!!");
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM,"=================================================================");
+	log_info(loggerTEAM,"=================================================================");
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM,"	RESULTADO DEL TEAM:");
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM,"		- Cantidad de ciclos de CPU totales: %d", ciclosCPU);
+	log_info(loggerTEAM,"		- Cantidad de cambios de contexto realizados: %d", contextSwitch);
+	log_info(loggerTEAM,"		- Cantidad de ciclos de CPU realizados por entrenador:");
 	for(int i = 0; i < list_size(cola_EXIT); i++){
 		entrenador = list_get(cola_EXIT,i);
-		log_info(loggerTEAM,"     · Entrenador %d => Ciclos: %d", entrenador->id, entrenador->ciclos);
+		log_info(loggerTEAM,"     		· Entrenador %d => Ciclos: %d", entrenador->id, entrenador->ciclos);
 	}
-	log_info(loggerTEAM," - Cantidad de Deadlocks producidos: %d", deadlocksProducidos);
-	log_info(loggerTEAM," - Cantidad de Deadlocks resueltos: %d", deadlocksResueltos);
+	log_info(loggerTEAM,"		- Cantidad de Deadlocks producidos: %d", deadlocksProducidos);
+	log_info(loggerTEAM,"		- Cantidad de Deadlocks resueltos: %d", deadlocksResueltos);
+	log_info(loggerTEAM,"");
+	log_info(loggerTEAM,"=================================================================");
 
-	free(entrenador);
-
-
+	finalizar_y_liberar();
 }
 
 
