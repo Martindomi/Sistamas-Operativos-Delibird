@@ -340,7 +340,7 @@ void inicializar_log_team(){
 }
 void inicializar_config_data(){
 
-	inicializar_config_team("../team.config");
+	inicializar_config_team("./team.config");
 	configData = malloc(sizeof(data_config));
 	int sizeALG, sizeIPB, sizePB, sizeIPT, sizePT;
 	sizeALG = strlen(config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"))+1;

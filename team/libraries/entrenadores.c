@@ -326,11 +326,12 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	//Si entrenador->movsDisponibles != 0 entonces es RR
 	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
 
+	int sizeAntes = list_size(cola_READY);
 
 	t_entrenador* entrenadorAComparar;
 	entrenador->rafagaReal=0;
 
-	for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo); cantDeMovs++){
+	for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo) ; cantDeMovs++){
 			if(xDestino != entrenador->x) {
 				int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
 				entrenador->x = entrenador->x + direccionEnX;
@@ -348,22 +349,39 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 			tarda(1);
 			contar_ciclos_entrenador(entrenador, 1);
 
-			if(esSJFconDesalojo() && list_size(cola_READY)>0){
-
-				entrenadorAComparar = buscar_entrenador_con_rafaga_mas_corta();
-
-				if(entrenador->estimacionRestante > entrenadorAComparar->estimacion){
-					break;
-				}
+			if(entrenador_tiene_menor_rafaga(entrenador,&sizeAntes)){
+				break;
 
 			}
+
+
 		}
-
-
 
 
 	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio a la posicion: X = %d Y = %d",entrenador->id, entrenador->x, entrenador->y);
 
+
+}
+
+
+bool entrenador_tiene_menor_rafaga(t_entrenador* entrenador, int *sizeAntes){
+
+
+
+	t_entrenador* entrenadorAComparar;
+
+	if(*sizeAntes < list_size(cola_READY) && esSJFconDesalojo()){
+
+		(*sizeAntes)++;
+		entrenadorAComparar = buscar_entrenador_con_rafaga_mas_corta();
+
+		if(entrenador->estimacionRestante > entrenadorAComparar->estimacion){
+			return true;
+		}
+
+	}
+
+	return false;
 
 }
 

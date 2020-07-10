@@ -217,7 +217,8 @@ t_entrenador* buscar_entrenador_con_rafaga_mas_corta(){
 			list_sort(cola_READY, comparar_rafagas);
 		}
 		proximoEntrenador = list_get(cola_READY,0);
-		printf("------------------ejecuto a %d que tiene estimacion de %f\n", proximoEntrenador->id, proximoEntrenador->estimacion);
+		printf("--------------------------------------------------------------entrenador %d que tiene estimacion de %f\n", proximoEntrenador->id, proximoEntrenador->estimacion);
+
 		return proximoEntrenador;
 
 }
