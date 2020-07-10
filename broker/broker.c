@@ -499,7 +499,32 @@ void leer_archivo_config() {
 
 void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 	printf("Asignar Memoria\n");
-	void* posMemoria = buscar_memoria_libre(mensajeCompleto, 3);
+	void* posMemoria = buscar_memoria_libre(mensajeCompleto, (uint32_t) colaMensaje);
+
+	// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
+	while(posMemoria == NULL) {
+		cantidadBusquedasFallidas ++;
+		printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
+		if(frecuenciaCompactacion == 0) {
+			compactar_memoria();
+			posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+		} else if(frecuenciaCompactacion == -1) {
+			vaciar_memoria();
+			compactar_memoria();
+			posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+		} else if(frecuenciaCompactacion == 1) {
+			eliminar_particion();
+			compactar_memoria();
+			posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+		} else if(cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
+			compactar_memoria();
+			posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+		} else {
+			eliminar_particion();
+			posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+		}
+	}
+
 	printf("Encontro memoria\n");
 
 	memcpy(posMemoria, mensajeCompleto->mensaje_cuerpo, mensajeCompleto->size_mensaje_cuerpo);
@@ -508,7 +533,7 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 	if(strcmp(algoritmoParticionLibre, "FF") == 0) {
-		buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
+		return buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
 	} else if (strcmp(algoritmoParticionLibre, "BF") == 0) {
 		return buscar_memoria_libre_best_fit(mensajeCompleto, colaMensaje);
 	}
@@ -536,36 +561,77 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				list_add(particiones, nuevaParticion);
 				printf("Posicion particion nueva: %p\n", nuevaParticion->punteroMemoria);
 				printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
-
+			}
+			if(punteroParticionObtenido->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
 				punteroParticionObtenido->colaMensaje = colaMensaje;
 				punteroParticionObtenido->id = mensajeCompleto->id;
 				punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
 				punteroParticionObtenido->ocupada = true;
 				punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+				punteroParticionObtenido->lruHora = time(NULL);
 
 				printf("Posicion Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
-				printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+				printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
 				return punteroParticionObtenido->punteroMemoria;
 			}
 		}
 	}
 	printf("No encontro memoria libre\n");
-	// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
-	cantidadBusquedasFallidas ++;
-	printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
-	if(frecuenciaCompactacion == 1 || frecuenciaCompactacion == 0 || frecuenciaCompactacion == -1 ||
-			cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
-		compactar_memoria();
-		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
-	} else {
-		eliminar_particion();
-		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
-	}
-
+	return NULL;
 }
 
 void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	printf("Best fit\n");
 
+	punteroParticion punteroMejorParticion = list_find(particiones, primer_puntero_desocupado);
+	// SI ENCUENTRO NINGUNO DESOCUPADO
+	if(punteroMejorParticion != NULL) {
+		// BUSCA LA PARTICION OPTIMA EN TAMAÑO PARA EL MENSAJE
+		for(int i = 0; i < list_size(particiones); i++) {
+			punteroParticion punteroParticionObtenido = list_get(particiones, i);
+			// SI ESTA DESOCUPADA, EL TAMAÑO DEL MENSAJE ENTRA Y TIENE UN TAMAÑO MENOR AL DE LA MEJOR
+			if(!punteroParticionObtenido->ocupada &&
+					punteroParticionObtenido->tamanoMensaje >=
+						mensajeCompleto->size_mensaje_cuerpo &&
+							punteroParticionObtenido->tamanoMensaje <
+								punteroMejorParticion->tamanoMensaje ){
+				punteroMejorParticion = punteroParticionObtenido;
+			}
+		}
+
+		if(punteroMejorParticion->tamanoMensaje
+							> (mensajeCompleto->size_mensaje_cuerpo)) {
+			punteroParticion nuevaParticion = malloc(sizeof(t_particion));
+			nuevaParticion->colaMensaje = NULL;
+			nuevaParticion->id = NULL;
+			nuevaParticion->idCorrelativo = NULL;
+			nuevaParticion->ocupada = false;
+			nuevaParticion->punteroMemoria = punteroMejorParticion->punteroMemoria
+					+ mensajeCompleto->size_mensaje_cuerpo + 1;
+			nuevaParticion->tamanoMensaje = punteroMejorParticion->tamanoMensaje
+					- mensajeCompleto->size_mensaje_cuerpo;
+			nuevaParticion->suscriptores_ack = list_create();
+			nuevaParticion->suscriptores_enviados = list_create();
+			list_add(particiones, nuevaParticion);
+			printf("Posicion particion nueva: %p\n", nuevaParticion->punteroMemoria);
+			printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
+		}
+		if(punteroMejorParticion->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
+			punteroMejorParticion->colaMensaje = colaMensaje;
+			punteroMejorParticion->id = mensajeCompleto->id;
+			punteroMejorParticion->idCorrelativo = mensajeCompleto->id_correlativo;
+			punteroMejorParticion->ocupada = true;
+			punteroMejorParticion->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+			punteroMejorParticion->lruHora = time(NULL);
+
+			printf("Posicion Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
+			printf("Tamanio Mensaje: %d\n", punteroMejorParticion->tamanoMensaje);
+			return punteroMejorParticion->punteroMemoria;
+		}
+	}
+
+	printf("No encontro memoria libre\n");
+	return NULL;
 }
 
 void compactar_memoria() {
@@ -602,22 +668,19 @@ void compactar_memoria() {
 
 void eliminar_particion() {
 	printf("Eliminar particion\n");
-	int indexEliminado;
+	int indexEliminar;
 	if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
-		indexEliminado = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
+		indexEliminar = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
 	} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
-		indexEliminado = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
+		indexEliminar = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
 	}
-	consolidar(indexEliminado);
+	eliminar_particion_seleccionada(indexEliminar);
+	consolidar(indexEliminar);
 }
 
 int eliminar_particion_fifo() {
 	punteroParticion punteroParticionMenorId;
 
-	bool primer_puntero_ocupado(void* elemento) {
-		punteroParticion particion = (punteroParticion*)elemento;
-		return particion->ocupada;
-	}
 	punteroParticionMenorId = list_find(particiones, (void*)primer_puntero_ocupado);
 	int index = -1;
 	// BUSCO PARTICION CON MENOR ID => MENSAJE MAS VIEJO EN MEMORIA
@@ -628,28 +691,42 @@ int eliminar_particion_fifo() {
 			index = i;
 		}
 	}
-	if(index != -1) {
-		printf("Encuentra una particion para eliminar\n");
-		punteroParticionMenorId->ocupada = false;
 
-		t_cola_mensaje* cola = selecciono_cola(punteroParticionMenorId->colaMensaje);
-		for(int j = 0 ; j< list_size(cola->mensajes); j++) {
-			bool mensaje_con_id(void* elemento) {
-				puntero_mensaje mensaje = (puntero_mensaje*)elemento;
-				return mensaje->id == punteroParticionMenorId->id;
-			}
-			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
-			if(punteroMensaje != NULL) {
-				free(list_get(cola->mensajes, j));
-				list_remove(cola->mensajes, j);
+	return index;
+}
+
+int eliminar_particion_lru() {
+	int index = -1;
+	punteroParticion punteroParticionLru = list_get(particiones, 0);
+	// BUSCO EL PUNTERO CON EL TIEMPO DE USO MAS LEJANO
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticion = list_get(particiones, i);
+		if(punteroParticion->ocupada) {
+			double seconds = difftime(punteroParticion->lruHora, punteroParticionLru->lruHora);
+			if(seconds <= 0) {
+				punteroParticionLru = punteroParticion;
+				index = i;
 			}
 		}
 	}
 	return index;
 }
 
-int eliminar_particion_lru() {
+void eliminar_particion_seleccionada(int index) {
+	printf("Encuentra una particion para eliminar\n");
+	punteroParticion punteroParticionEliminar = list_get(particiones, index);
+	punteroParticionEliminar->ocupada = false;
 
+	t_cola_mensaje* cola = selecciono_cola(punteroParticionEliminar->colaMensaje);
+	for(int j = 0 ; j< list_size(cola->mensajes); j++) {
+		puntero_mensaje punteroMensaje = list_get(cola->mensajes, j);
+
+		if(punteroParticionEliminar->id == punteroMensaje->id) {
+			free(list_get(cola->mensajes, j));
+			list_remove(cola->mensajes, j);
+			break;
+		}
+	}
 }
 
 void intercambio_particiones(punteroParticion punteroParticionDesocupada,
@@ -694,9 +771,10 @@ void consolidar(int indexEliminado) {
 		printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
 		if(particionPosterior != NULL) {
-			printf("Encontro una particion libre a derecha\n");
 
 			if(!particionPosterior->ocupada) {
+				printf("Encontro una particion libre a derecha\n");
+
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
 				list_remove(particiones, indexEliminado);
@@ -715,4 +793,37 @@ int obtener_index_particion(int* punteroMemoria) {
 		}
 	}
 	return -1;
+}
+
+bool primer_puntero_ocupado(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	return particion->ocupada;
+}
+
+bool primer_puntero_desocupado(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	return !particion->ocupada;
+}
+
+void desocupar_particion(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	particion->ocupada = false;
+}
+
+void vaciar_memoria() {
+	list_iterate(particiones, desocupar_particion);
+}
+
+char* hora_actual() {
+	time_t ahora;
+	char* ahora_string;
+
+	ahora = guard(time(NULL), "Failed to obtain current date");
+
+	ahora_string = ctime(&ahora);
+
+	if(ahora_string == NULL) {
+		exit(-1);
+	}
+	return ahora_string;
 }
