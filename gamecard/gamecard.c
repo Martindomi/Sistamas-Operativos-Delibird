@@ -54,26 +54,34 @@ int main (int argc, char *argv[]) {
 	char*mensaje3="charmander va en el block 3 hjkfjshdjajdjskfhncbahsjektmsmtnemak\n";
 	crear_files_metadata(pokemon3,mensaje3);
 
-	char archivoEstado = leer_ultima_pos_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
-	printf ("estado archivo = %c\n", archivoEstado);
-	abrir_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
+	//char archivoEstado = leer_ultima_pos_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
+	//printf ("estado archivo = %c\n", archivoEstado);
+	//abrir_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
 
-	char* ultimaPos = valor_ultima_posicion(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin"),sizeof(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin")));
-	printf("ultima pos = %s",ultimaPos);
+	//char* ultimaPos = valor_ultima_posicion(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin"),sizeof(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin")));
+	//printf("ultima pos = %s \n",ultimaPos);
 
-	//agregar_mensaje_NEW_POKEMON(1, 1, 10 ,pokemon);
-	agregar_mensaje_NEW_POKEMON(2,3,5,pokemon3);
-	//agregar_mensaje_NEW_POKEMON(2,3,5,pokemon2);
-	//agregar_mensaje_NEW_POKEMON(4, 3, 10 ,pokemon);
-	agregar_mensaje_NEW_POKEMON(1, 1, 10 ,pokemon3);
+	mensaje_new_pokemon(1, 1, 1 ,pokemon);
+	mensaje_new_pokemon(2,3,5,pokemon3);
+	mensaje_new_pokemon(2,3,5,pokemon2);
+	mensaje_new_pokemon(4, 3, 10 ,pokemon);
+	mensaje_new_pokemon(1, 1, 10 ,pokemon);
 
+	int value2 = verificar_existencia_posiciones(2,3,"/home/utnso/Escritorio/tall-grass/Files/charmander/Metadata.bin");
+	printf(string_from_format("%i\n",value2));
+
+	//int value = buscar_posicion_linea_en_bloque(1,1,"/home/utnso/Escritorio/tall-grass/Files/Blocks/0.bin");
+	//printf(string_from_format("%i\n",value));
+
+
+
+	char*pokemon4 ="pichi";
+	mensaje_new_pokemon(1, 1, 5 ,pokemon4);
+
+	abrir_archivo(generar_path_pokemon(pokemon));
 
 	//log_destroy(logger);
 	//liberar_conexion(conexion);
-
-}
-
-void aplica_funcion_escucha() {
 
 }
 
