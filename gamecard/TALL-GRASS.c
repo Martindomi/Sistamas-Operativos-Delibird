@@ -96,27 +96,28 @@ char* bloque_contenedor_linea(int posX,int posY,char* pathPokemon){
 void mensaje_new_pokemon(int posX,int posY,int cant,char* pokemon){
 
 	char*pathPokemon = generar_path_pokemon(pokemon);
-	char* mensaje =generar_linea_de_entrada_mensaje(posX,posY,cant);
 	if(validar_existencia_archivo(pathPokemon)){
 		//if(!archivo_abierto(pathPokemon)){
 		abrir_archivo(pathPokemon);
-			if(verificar_existencia_posiciones(posX,posY,pathPokemon)){
+		if(verificar_existencia_posiciones(posX,posY,pathPokemon)){
 
 			char* bloque = bloque_contenedor_linea(posX,posY,pathPokemon);
 			char*pathBloque= generar_path_bloque(bloque);
 			modificar_archivo_NEW_POKEMON(posX,posY,cant,pathBloque);
-			actualizar_tamanio_archivo(string_length(mensaje),pathPokemon);
+			//actualizar_tamanio_archivo(string_length(mensaje),pathPokemon);
 
 		}else{
 			agregar_mensaje_NEW_POKEMON(posX,posY,cant,pathPokemon);
 		}
 
-		}else{
-
-			crear_files_metadata(pokemon,mensaje);
-		} cerrar_archivo(pathPokemon);
-		return;
+	}else{
+		char* mensaje = generar_linea_de_entrada_mensaje(posX,posY,cant);
+		crear_files_metadata(pokemon,mensaje);
 	}
+
+	cerrar_archivo(pathPokemon);
+	return;
+}
 
 
 
@@ -592,12 +593,12 @@ void modificar_archivo_NEW_POKEMON(int posX, int posY, int cant,char* pathBloque
 
 	FILE*bloque = fopen(pathBloque,"r+b");
 	fseek(bloque,pos,SEEK_SET);
-	char buffer[tam_ocupado_en_el_block(pathBloque)-pos];
+	/*char buffer[tam_ocupado_en_el_block(pathBloque)-pos];
 	//fread(buffer,(tam_ocupado_en_el_block(pathBloque)-pos),1,bloque);
 	for(j=pos;buffer[j]!='\n'; j++);
-	int posCantidad = j;
+	int posCantidad = j;*/
 
-	fgets(linea,(posCantidad-pos),bloque);
+	fgets(linea, block_size, bloque);
 
 	int longitudMensaje = string_length(mensaje);
 	char* stringCantidad = string_substring_from(linea,longitudMensaje);
@@ -605,13 +606,46 @@ void modificar_archivo_NEW_POKEMON(int posX, int posY, int cant,char* pathBloque
 
 	int cantidadActualizada = cantidadActual + cant;
 
-	fseek(bloque,(pos+longitudMensaje),SEEK_SET);
+	int cantidadDigitosActualizada = cantidad_digitos(cantidadActualizada);
+	int cantidadDigitosActual = cantidad_digitos(cantidadActual);
 
-	fputs(string_from_format("%i",cantidadActualizada),bloque);
+	if(cantidadDigitosActualizada == cantidadDigitosActual) {
+		fseek(bloque,(pos+longitudMensaje),SEEK_SET);
+		fputs(string_from_format("%i",cantidadActualizada),bloque);
+	} else { // 1-1=1\n => 1-1=10\n
+		int posicionBusqueda = (tam_ocupado_en_el_block(pathBloque)-(pos + longitudMensaje + cantidadDigitosActual));
+		char buffer[posicionBusqueda];
+		fseek(bloque,-posicionBusqueda,SEEK_END);
+		//fseek(bloque, 0, SEEK_END);
+
+		fread(buffer, posicionBusqueda, 1, bloque);
+		printf("buffer %s", buffer);
+		fseek(bloque,(pos+longitudMensaje),SEEK_SET);
+		/*if(cantidadDigitosActualizada < cantidadDigitosActual) {
+			char* mensajeRepetir = string_repeat('\0', cantidadDigitosActual-cantidadDigitosActualizada);
+			printf("%s", mensajeRepetir);
+			fputs(string_from_format("%i%s%s",cantidadActualizada, buffer, mensajeRepetir),bloque);
+		} else {*/
+			fputs(string_from_format("%i%s",cantidadActualizada, buffer),bloque);
+		//}
+
+		printf("%s\n", pathBloque);
+
+	}
+
 	fclose(bloque);
 
 	return;
 
+}
+
+int cantidad_digitos(int numero) {
+	int count = 0;
+	while(numero != 0) {
+		numero /= 10;
+		++count;
+	}
+	return count;
 }
 
 

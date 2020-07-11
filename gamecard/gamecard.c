@@ -66,6 +66,10 @@ int main (int argc, char *argv[]) {
 	mensaje_new_pokemon(2,3,5,pokemon2);
 	mensaje_new_pokemon(4, 3, 10 ,pokemon);
 	mensaje_new_pokemon(1, 1, 10 ,pokemon);
+	mensaje_new_pokemon(2,3,8,pokemon3);
+	mensaje_new_pokemon(2,3,4,pokemon3);
+	mensaje_new_pokemon(5,8,6,pokemon);
+
 
 	int value2 = verificar_existencia_posiciones(2,3,"/home/utnso/Escritorio/tall-grass/Files/charmander/Metadata.bin");
 	printf(string_from_format("%i\n",value2));
