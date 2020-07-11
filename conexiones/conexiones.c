@@ -243,8 +243,27 @@ void send_message_new_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32
 	buffer->size = sizeof(uint32_t) * 6 + strlen(nombre) + 1;
 	void* stream = malloc(buffer->size);
 
-	uint32_t name_size = strlen(nombre) + 1;
+	guardar_mensaje_new(stream, nombre, posx, posy, quant, id, id_correlativo);
 
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+
+}
+
+void guardar_mensaje_new(void* stream, char* nombre, uint32_t posx, uint32_t posy, uint32_t quant, uint32_t id, uint32_t id_correlativo) {
+
+	uint32_t name_size = strlen(nombre) + 1;
 
 	int tamanio = 0;
 
@@ -268,20 +287,6 @@ void send_message_new_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint32
 
 	memcpy(stream + tamanio, &(quant), sizeof(uint32_t));
 
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket_cliente, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-
 }
 
 void* serializar_paquete(t_package* paquete, int *bytes) {
@@ -300,6 +305,14 @@ void* serializar_paquete(t_package* paquete, int *bytes) {
 
 puntero_mensaje recibir_new_pokemon( int socket, uint32_t* paquete_size){
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_new(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_new(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
 	uint32_t id;
 	uint32_t id_correlacional;
@@ -343,8 +356,6 @@ puntero_mensaje recibir_new_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->id_correlativo = id_correlacional;
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
-
-	free(buffer);
 	return mensaje;
 }
 
@@ -358,6 +369,26 @@ void send_message_appeared_pokemon(char* nombre, uint32_t posx, uint32_t posy, u
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	buffer->size = sizeof(uint32_t) * 5 + strlen(nombre) + 1;
 	void* stream = malloc(buffer->size);
+
+	guardar_mensaje_appeared(stream, nombre, posx, posy, id, id_correlativo);
+
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+
+}
+
+void guardar_mensaje_appeared(void* stream, char* nombre, uint32_t posx, uint32_t posy, uint32_t id, uint32_t id_correlativo) {
 
 	uint32_t name_size = strlen(nombre) + 1;
 
@@ -380,25 +411,19 @@ void send_message_appeared_pokemon(char* nombre, uint32_t posx, uint32_t posy, u
 
 	memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
 
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket_cliente, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-
 }
 
 puntero_mensaje recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_appeared(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_appeared(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
 	uint32_t id;
 	uint32_t id_correlacional;
@@ -437,8 +462,6 @@ puntero_mensaje recibir_appeared_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->id_correlativo = id_correlacional;
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
-
-	free(buffer);
 	return mensaje;
 }
 
@@ -452,6 +475,26 @@ void send_message_catch_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	buffer->size = sizeof(uint32_t) * 5 + strlen(nombre) + 1;
 	void* stream = malloc(buffer->size);
+
+	guardar_mensaje_catch(stream, nombre, posx, posy, id, id_correlativo);
+
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+
+}
+
+void guardar_mensaje_catch(void* stream, char* nombre, uint32_t posx, uint32_t posy, uint32_t id, uint32_t id_correlativo) {
 
 	uint32_t name_size = strlen(nombre) + 1;
 
@@ -474,25 +517,19 @@ void send_message_catch_pokemon(char* nombre, uint32_t posx, uint32_t posy, uint
 
 	memcpy(stream + tamanio, &(posy), sizeof(uint32_t));
 
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket_cliente, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-
 }
 
 puntero_mensaje recibir_catch_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_catch(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_catch(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
 	uint32_t id;
 	uint32_t id_correlacional;
@@ -531,8 +568,6 @@ puntero_mensaje recibir_catch_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->id_correlativo = id_correlacional;
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
-
-	free(buffer);
 	return mensaje;
 }
 
@@ -544,21 +579,10 @@ void send_message_caught_pokemon(char* caught_pokemon, uint32_t id, uint32_t id_
 
 	paquete->header = CAUGHT_POKEMON;
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	uint32_t caught_size = strlen(caught_pokemon) + 1;
-	buffer->size = caught_size + 3 * sizeof(uint32_t);
+	buffer->size = strlen(caught_pokemon) + 1 + 3 * sizeof(uint32_t);
 	void* stream = malloc(buffer->size);
 
-	int tamanio = 0;
-	memcpy(stream + tamanio, &id, sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream, &(caught_size), sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream, caught_pokemon, caught_size);
+	guardar_mensaje_caught(stream, caught_pokemon, id, id_correlativo);
 
 	buffer->stream = stream;
 
@@ -576,9 +600,33 @@ void send_message_caught_pokemon(char* caught_pokemon, uint32_t id, uint32_t id_
 
 }
 
+void guardar_mensaje_caught(void* stream, char* caught_pokemon, uint32_t id, uint32_t id_correlativo) {
+	uint32_t caught_size = strlen(caught_pokemon) + 1;
+
+	int tamanio = 0;
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream, &(caught_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream, caught_pokemon, caught_size);
+}
+
 puntero_mensaje recibir_caught_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_caught(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_caught(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
 	uint32_t id;
 	uint32_t id_correlacional;
@@ -608,8 +656,6 @@ puntero_mensaje recibir_caught_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->id_correlativo = id_correlacional;
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
-
-	free(buffer);
 	return mensaje;
 }
 
@@ -624,20 +670,7 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 	buffer->size = sizeof(uint32_t) * 3 + strlen(nombre) + 1;
 	void* stream = malloc(buffer->size);
 
-	uint32_t name_size = strlen(nombre) + 1;
-
-	int tamanio = 0;
-
-	memcpy(stream + tamanio, &id, sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
-	tamanio += sizeof(uint32_t);
-
-	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+	guardar_mensaje_get(stream, nombre, id, id_correlativo);
 
 	buffer->stream = stream;
 
@@ -655,9 +688,34 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 
 }
 
+void guardar_mensaje_get(void* stream, char* nombre, uint32_t id, uint32_t id_correlativo) {
+	uint32_t name_size = strlen(nombre) + 1;
+
+	int tamanio = 0;
+
+	memcpy(stream + tamanio, &id, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &id_correlativo, sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
+	tamanio += sizeof(uint32_t);
+
+	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+}
+
 puntero_mensaje recibir_get_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_get(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_get(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
 	uint32_t id;
 	uint32_t id_correlacional;
@@ -686,8 +744,6 @@ puntero_mensaje recibir_get_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->id_correlativo = id_correlacional;
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
-
-	free(buffer);
 	return mensaje;
 }
 
@@ -703,6 +759,25 @@ void send_message_localized_pokemon(char* nombre,uint32_t quant_pokemon,t_list* 
 	buffer->size = sizeof(uint32_t)*(2 + 2 * quant_pokemon) + strlen(nombre) + 1 + 2 * sizeof(uint32_t) ;
 	void* stream = malloc(buffer->size);
 
+	guardar_mensaje_localized(stream, nombre, quant_pokemon, coords, id, id_correlativo);
+
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+
+}
+
+void guardar_mensaje_localized(void* stream, char* nombre,uint32_t quant_pokemon,t_list* coords, uint32_t id, uint32_t id_correlativo) {
 	uint32_t name_size = strlen(nombre) + 1;
 
 	int tamanio = 0;
@@ -729,27 +804,21 @@ void send_message_localized_pokemon(char* nombre,uint32_t quant_pokemon,t_list* 
 		memcpy(stream + tamanio, &(coord), sizeof(uint32_t));
 		tamanio += sizeof(uint32_t);
 	}
-
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket_cliente, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-
 }
 
 puntero_mensaje recibir_localized_pokemon( int socket, uint32_t* paquete_size){
 
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
+
+	puntero_mensaje mensaje = obtener_mensaje_localized(buffer);
+
+	free(buffer);
+	return mensaje;
+}
+
+puntero_mensaje obtener_mensaje_localized(void* buffer) {
 	puntero_mensaje mensaje = malloc(sizeof(t_mensaje));
+
 	uint32_t id;
 	uint32_t id_correlacional;
 	puntero_mensaje_localized_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_localized_pokemon));
@@ -795,11 +864,8 @@ puntero_mensaje recibir_localized_pokemon( int socket, uint32_t* paquete_size){
 	mensaje->size_mensaje_cuerpo = desplazamiento;
 	mensaje->mensaje_cuerpo = mensaje_recibido;
 
-	free(buffer);
 	return mensaje;
 }
-
-
 
 //----------------------------------SUSCRIPCION-------------------------------------------------
 void enviar_mensaje_suscribir(op_code codigo_operacion, char* ip_puerto_cliente, int socket){

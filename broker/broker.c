@@ -89,7 +89,7 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
-			//asignar_memoria(mensaje_completo);
+			asignar_memoria(mensaje_completo, cod_op);
 
 			list_add(new_pokemon->mensajes, mensaje_completo);
 
@@ -121,6 +121,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			asignar_memoria(mensaje_completo, cod_op);
+
 			list_add(catch_pokemon->mensajes, mensaje_completo);
 
 			sem_post(&mutexLista[CATCH_POKEMON]);
@@ -133,6 +135,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(caught_pokemon->mensajes, mensaje_completo);
 			} else {
@@ -149,6 +153,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			asignar_memoria(mensaje_completo, cod_op);
+
 			list_add(get_pokemon->mensajes, mensaje_completo);
 
 			sem_post(&mutexLista[GET_POKEMON]);
@@ -161,6 +167,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(localized_pokemon->mensajes, mensaje_completo);
 			} else {
@@ -177,10 +185,13 @@ void process_request(int cod_op, int socket) {
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
 			agregar_suscriptor_cola(mensaje_suscripcion);
-			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
+
+			enviar_mensajes_memoria(mensaje_suscripcion);
+
+			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
 			free(mensaje_suscripcion);
 			break;
@@ -526,8 +537,47 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 	}
 
 	printf("Encontro memoria\n");
+	uint32_t id = mensajeCompleto->id;
+	uint32_t idCorrelativo = mensajeCompleto->id_correlativo;
 
-	memcpy(posMemoria, mensajeCompleto->mensaje_cuerpo, mensajeCompleto->size_mensaje_cuerpo);
+	switch(colaMensaje) {
+		case NEW_POKEMON: {
+			puntero_mensaje_new_pokemon punteroMensajeNew = (puntero_mensaje_new_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_new(posMemoria, punteroMensajeNew->name_pokemon, punteroMensajeNew->pos_x, punteroMensajeNew->pos_y,
+					punteroMensajeNew->quant_pokemon, id, idCorrelativo);
+			break;
+		}
+		case GET_POKEMON: {
+			puntero_mensaje_get_pokemon punteroMensajeGet = (puntero_mensaje_get_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_get(posMemoria, punteroMensajeGet->name_pokemon, id, idCorrelativo);
+			break;
+		}
+		case LOCALIZED_POKEMON: {
+			puntero_mensaje_localized_pokemon punteroMensajeLocalized = (puntero_mensaje_localized_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_localized(posMemoria, punteroMensajeLocalized->name_pokemon, punteroMensajeLocalized->quant_pokemon,
+					punteroMensajeLocalized->coords, id, idCorrelativo);
+			break;
+		}
+		case APPEARED_POKEMON: {
+			puntero_mensaje_appeared_pokemon punteroMensajeAppeared = (puntero_mensaje_appeared_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_appeared(posMemoria, punteroMensajeAppeared->name_pokemon, punteroMensajeAppeared->pos_x, punteroMensajeAppeared->pos_y,
+					id, idCorrelativo);
+			break;
+		}
+		case CAUGHT_POKEMON: {
+			puntero_mensaje_caught_pokemon punteroMensajeCaught = (puntero_mensaje_caught_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_caught(posMemoria, punteroMensajeCaught->caught_pokemon, id, idCorrelativo);
+			break;
+		}
+		case CATCH_POKEMON: {
+			puntero_mensaje_catch_pokemon punteroMensajeCatch = (puntero_mensaje_catch_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_catch(posMemoria, punteroMensajeCatch->name_pokemon, punteroMensajeCatch->pos_x, punteroMensajeCatch->pos_y,
+					id, idCorrelativo);
+			break;
+		}
+		case -1: exit(-1);
+		default: exit(-1);
+	}
 	printf("Asigno memoria!!!!!\n");
 }
 
@@ -783,6 +833,62 @@ void consolidar(int indexEliminado) {
 		}
 	}
 	printf("No hay mas particiones libres ni a izq ni a der\n");
+}
+
+void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion) {
+
+	bool misma_cola(void* elemento) {
+		punteroParticion particion = (punteroParticion*)elemento;
+		return particion->colaMensaje == mensajeSuscripcion->cola;
+	}
+	t_list* particionesCola = list_filter(particiones, misma_cola);
+
+	for(int i = 0; i < list_size(particionesCola); i++ ) {
+		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
+
+		bool encuentra_suscriptor(void* elemento) {
+			return strcmp((char*)elemento, mensajeSuscripcion->cliente) == 0;
+		}
+		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
+		if (!encontre) {
+			printf("Distribucion a %s\n", mensajeSuscripcion->cliente);
+
+			puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
+			distribuir_mensaje_sin_enviar_a(mensajeSuscripcion->cliente, mensajeSuscripcion->cola, punteroMensaje);
+			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
+			// SI NO ESTA, LO AGREGO
+			if(!enviado) {
+				list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
+			}
+		}
+	}
+}
+
+puntero_mensaje obtener_mensaje_memoria(punteroParticion particion) {
+	switch(particion->colaMensaje) {
+		case NEW_POKEMON: {
+			return obtener_mensaje_new(particion->punteroMemoria);
+		}
+		case APPEARED_POKEMON: {
+			return obtener_mensaje_appeared(particion->punteroMemoria);
+		}
+		case GET_POKEMON: {
+			return obtener_mensaje_get(particion->punteroMemoria);
+		}
+		case LOCALIZED_POKEMON: {
+			return obtener_mensaje_localized(particion->punteroMemoria);
+		}
+		case CAUGHT_POKEMON: {
+			return obtener_mensaje_caught(particion->punteroMemoria);
+		}
+		case CATCH_POKEMON: {
+			return obtener_mensaje_catch(particion->punteroMemoria);
+		}
+		case -1: exit(-1);
+	}
 }
 
 int obtener_index_particion(int* punteroMemoria) {

@@ -83,6 +83,7 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 punteroParticion buscar_particion_mensaje(uint32_t idMensaje);
 bool primer_puntero_ocupado(void* elemento);
 bool primer_puntero_desocupado(void* elemento);
+puntero_mensaje obtener_mensaje_memoria(punteroParticion particion);
 
 int cantidad_mensajes;
 
