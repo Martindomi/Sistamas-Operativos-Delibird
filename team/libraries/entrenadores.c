@@ -320,6 +320,9 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	int cantidadAMoverseX = xDestino - entrenador->x;
 	int cantidadAMoverseY = yDestino - entrenador->y;
+	int xInicial = entrenador->x;
+	int yInicial = entrenador->y;
+
 	bool esRRo = esRR();
 	int cantDeMovs;
 	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
@@ -358,7 +361,7 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 		}
 
 
-	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio a la posicion: X = %d Y = %d",entrenador->id, entrenador->x, entrenador->y);
+	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio desde la posicion: (%d;%d) a la posicion: (%d;%d)",entrenador->id, xInicial, yInicial, entrenador->x, entrenador->y);
 
 
 }
