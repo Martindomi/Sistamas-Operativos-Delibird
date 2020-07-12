@@ -376,21 +376,23 @@ bool tiene_otro_pokemon(t_entrenador * entrenador){
 	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
 	char* pokemonCapturado;
 	int size = list_size(entrenador->pokemonesCapturados);
-	bool result;
-
-	bool _filterPokemon(char* element){
-			return !strcmp(element,pokemonCapturado);
+	bool result = false;
+	bool _filterPokemonParaSacar(char* element){
+			int resultado = !strcmp(element,pokemonCapturado);
+			return resultado;
 		}
 
 	for(int i = 0; i < size; i++){
 		pokemonCapturado = list_get(entrenador->pokemonesCapturados, i);
-		list_remove_by_condition(pokemonesObjetivos,_filterPokemon);
+		list_remove_by_condition(pokemonesObjetivos,_filterPokemonParaSacar);
+
+
 	}
 
-	result = !list_is_empty(pokemonesObjetivos);
-	limpiar_lista_deadlock(pokemonesObjetivos);
 
-	return  result && entrenador->espacioLibre == 0;
+	//!list_is_empty(pokemonesObjetivos)
+
+	return !list_is_empty(pokemonesObjetivos) && entrenador->espacioLibre == 0;
 
 
 }
@@ -406,15 +408,6 @@ t_list* crear_lista_deadlock(t_list* lista){
 	}
 
 	return listaNueva;
-}
-
-void limpiar_lista_deadlock(t_list* lista){
-
-		void chars_destroyer(char* chars){
-			free(chars);
-		}
-
-	list_destroy_and_destroy_elements(lista, chars_destroyer);
 }
 
 char* pokemon_de_mas(t_entrenador* entrenador){
@@ -477,7 +470,7 @@ bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
 	t_list* pokemonesObjetivos = crear_lista_deadlock(entrenador->pokemonesObjetivo);
 	char* pokemonCapturado;
 	int size = list_size(entrenador->pokemonesCapturados);
-	bool result;
+
 
 	bool _filterPokemon(char* element){
 			return !strcmp(element,pokemonCapturado);
@@ -489,11 +482,11 @@ bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
 	}
 
 	pokemonCapturado = pokemon;
-	result = list_any_satisfy(pokemonesObjetivos,_filterPokemon);
+	return list_any_satisfy(pokemonesObjetivos,_filterPokemon);
 
-	limpiar_lista_deadlock(pokemonesObjetivos);
+	//limpiar_lista_deadlock(pokemonesObjetivos);
 
-	return result;
+
 
 }
 
