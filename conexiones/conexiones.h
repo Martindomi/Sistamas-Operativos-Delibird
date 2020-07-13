@@ -104,8 +104,7 @@ typedef t_mensaje_catch_pokemon* puntero_mensaje_catch_pokemon;
 
 
 typedef struct {
-	uint32_t caught_size;
-	char* caught_pokemon;
+	uint32_t caughtResult;
 } t_mensaje_caught_pokemon;
 
 typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
@@ -143,6 +142,14 @@ void* serializar_paquete(t_package* paquete, int* bytes);
 // HILO ESCUCHA
 void crear_hilo_escucha(char* ip, char* puerto);
 void* hilo_escucha(int* socket);
+
+// obtener mensajes
+puntero_mensaje obtener_mensaje_new(void* buffer);
+puntero_mensaje obtener_mensaje_get(void* buffer);
+puntero_mensaje obtener_mensaje_localized(void* buffer);
+puntero_mensaje obtener_mensaje_caught(void* buffer);
+puntero_mensaje obtener_mensaje_catch(void* buffer);
+puntero_mensaje obtener_mensaje_appeared(void* buffer);
 
 // INICIALIZACION CONFIG/LOGGER
 

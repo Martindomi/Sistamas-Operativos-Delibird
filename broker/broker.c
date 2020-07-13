@@ -89,7 +89,7 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
-			//asignar_memoria(mensaje_completo);
+			asignar_memoria(mensaje_completo, cod_op);
 
 			list_add(new_pokemon->mensajes, mensaje_completo);
 
@@ -121,6 +121,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			asignar_memoria(mensaje_completo, cod_op);
+
 			list_add(catch_pokemon->mensajes, mensaje_completo);
 
 			sem_post(&mutexLista[CATCH_POKEMON]);
@@ -133,6 +135,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(caught_pokemon->mensajes, mensaje_completo);
 			} else {
@@ -149,6 +153,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			asignar_memoria(mensaje_completo, cod_op);
+
 			list_add(get_pokemon->mensajes, mensaje_completo);
 
 			sem_post(&mutexLista[GET_POKEMON]);
@@ -161,6 +167,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(localized_pokemon->mensajes, mensaje_completo);
 			} else {
@@ -177,10 +185,13 @@ void process_request(int cod_op, int socket) {
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
 			agregar_suscriptor_cola(mensaje_suscripcion);
-			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
+
+			enviar_mensajes_memoria(mensaje_suscripcion);
+
+			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
 			free(mensaje_suscripcion);
 			break;
@@ -346,7 +357,9 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 		case CAUGHT_POKEMON: {
 			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
-			char* caughtPokemon = puntero_mensaje->caught_pokemon;
+			uint32_t caughtResult = puntero_mensaje->caughtResult;
+
+			char* caughtPokemon = caughtResult == 0 ? "OK" : "FAIL";
 
 			send_message_caught_pokemon(caughtPokemon, id, id_correlativo, conexion);
 
@@ -405,7 +418,7 @@ void inicializar_datos() {
 	cantidad_mensajes = 1;
 
 	punteroMemoriaPrincipal = malloc(tamanoMemoria);
-	printf("Direccion de memoria del puntero: %p\n", punteroMemoriaPrincipal);
+	printf("Direccion de memoria inicial: %p\n", punteroMemoriaPrincipal);
 	particiones = list_create();
 	punteroParticion particionInicial = malloc(sizeof(t_particion));
 	particionInicial->colaMensaje = NULL;
@@ -417,10 +430,12 @@ void inicializar_datos() {
 	particionInicial->historicoBuddy = list_create();
 	list_add(particionInicial->historicoBuddy, "C");
 	particionInicial->punteroMemoria = punteroMemoriaPrincipal;
-	particionInicial->tamanoMensaje = tamanoMemoria;
+	particionInicial->tamanoMensaje = calcular_tamano(tamanoMemoria, 0);
 	particionInicial->suscriptores_ack = list_create();
 	particionInicial->suscriptores_enviados = list_create();
 	list_add(particiones, particionInicial);
+	punteroMemoriaFinal = punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
+	printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
 }
 
 t_cola_mensaje* selecciono_cola(int cola) {
@@ -504,12 +519,43 @@ void leer_archivo_config() {
 }
 
 void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
-	printf("Asignar Memoria\n");
-	void* posMemoria = buscar_memoria_libre(mensajeCompleto, 3);
-	printf("Encontro memoria\n");
+	if(mensajeCompleto->size_mensaje_cuerpo <= tamanoMemoria) {
+		printf("Asignar Memoria\n");
 
-	memcpy(posMemoria, mensajeCompleto->mensaje_cuerpo, mensajeCompleto->size_mensaje_cuerpo);
-	printf("Asigno memoria!!!!!\n");
+		void* posMemoria = buscar_memoria_libre(mensajeCompleto, (uint32_t) colaMensaje);
+
+		// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
+		while(posMemoria == NULL) {
+			cantidadBusquedasFallidas ++;
+			printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
+			if(frecuenciaCompactacion == 0) {
+				compactar_memoria();
+				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+			} else if(frecuenciaCompactacion == -1) {
+				vaciar_memoria();
+				compactar_memoria();
+				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+			} else if(frecuenciaCompactacion == 1) {
+				eliminar_particion();
+				compactar_memoria();
+				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+			} else if(cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
+				compactar_memoria();
+				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+			} else {
+				eliminar_particion();
+				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+			}
+		}
+
+		printf("Encontro memoria\n");
+
+		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
+
+		printf("Asigno memoria!!!!!\n");
+	} else {
+		guard(-1, "Mensaje excede el limite permitido.");
+	}
 }
 
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
@@ -527,61 +573,108 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 		punteroParticion punteroParticionObtenido = list_get(particiones, i);
 		if(!punteroParticionObtenido->ocupada){
 			if(punteroParticionObtenido->tamanoMensaje
-					> (mensajeCompleto->size_mensaje_cuerpo)) {
+					> calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0)) {
 				punteroParticion nuevaParticion = malloc(sizeof(t_particion));
 				nuevaParticion->colaMensaje = NULL;
 				nuevaParticion->id = NULL;
 				nuevaParticion->idCorrelativo = NULL;
 				nuevaParticion->ocupada = false;
-				nuevaParticion->punteroMemoria = punteroParticionObtenido->punteroMemoria
-						+ mensajeCompleto->size_mensaje_cuerpo + 1;
-				nuevaParticion->tamanoMensaje = punteroParticionObtenido->tamanoMensaje
-						- mensajeCompleto->size_mensaje_cuerpo;
+				nuevaParticion->punteroMemoria = ((char*)punteroParticionObtenido->punteroMemoria)
+						+ calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
+				// TODO revisar que hacer si la particion nueva tiene un tamaño menor al permitido por variable
+				nuevaParticion->tamanoMensaje = punteroParticionObtenido->tamanoMensaje -
+						calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
 				nuevaParticion->suscriptores_ack = list_create();
 				nuevaParticion->suscriptores_enviados = list_create();
 				list_add(particiones, nuevaParticion);
-				printf("Posicion particion nueva: %p\n", nuevaParticion->punteroMemoria);
+				printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
+				printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
 				printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
-
+			}
+			if(punteroParticionObtenido->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
 				punteroParticionObtenido->colaMensaje = colaMensaje;
 				punteroParticionObtenido->id = mensajeCompleto->id;
 				punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
 				punteroParticionObtenido->ocupada = true;
-				punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+				punteroParticionObtenido->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
+				punteroParticionObtenido->lruHora = time(NULL);
 
-				printf("Posicion Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
-				printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+				printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
+				printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
+				printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
 				return punteroParticionObtenido->punteroMemoria;
 			}
 		}
 	}
 	printf("No encontro memoria libre\n");
-	// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
-	cantidadBusquedasFallidas ++;
-	printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
-	if(frecuenciaCompactacion == 1 || frecuenciaCompactacion == 0 || frecuenciaCompactacion == -1 ||
-			cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
-		compactar_memoria();
-		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
-	} else {
-		eliminar_particion();
-		return buscar_memoria_libre(mensajeCompleto, colaMensaje);
-	}
-
+	return NULL;
 }
 
 void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	printf("Best fit\n");
 
+	punteroParticion punteroMejorParticion = list_find(particiones, primer_puntero_desocupado);
+	// SI ENCUENTRO NINGUNO DESOCUPADO
+	if(punteroMejorParticion != NULL) {
+		// BUSCA LA PARTICION OPTIMA EN TAMAÑO PARA EL MENSAJE
+		for(int i = 0; i < list_size(particiones); i++) {
+			punteroParticion punteroParticionObtenido = list_get(particiones, i);
+			// SI ESTA DESOCUPADA, EL TAMAÑO DEL MENSAJE ENTRA Y TIENE UN TAMAÑO MENOR AL DE LA MEJOR
+			if(!punteroParticionObtenido->ocupada &&
+					punteroParticionObtenido->tamanoMensaje >=
+						calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0) &&
+							punteroParticionObtenido->tamanoMensaje <
+								punteroMejorParticion->tamanoMensaje ){
+				punteroMejorParticion = punteroParticionObtenido;
+			}
+		}
+
+		if(punteroMejorParticion->tamanoMensaje
+							> calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0)) {
+			punteroParticion nuevaParticion = malloc(sizeof(t_particion));
+			nuevaParticion->colaMensaje = NULL;
+			nuevaParticion->id = NULL;
+			nuevaParticion->idCorrelativo = NULL;
+			nuevaParticion->ocupada = false;
+			nuevaParticion->punteroMemoria = ((char*)punteroMejorParticion->punteroMemoria)
+					+ calcular_tamano((char*) mensajeCompleto->size_mensaje_cuerpo, 0);
+			// TODO revisar que hacer si la particion nueva tiene un tamaño menor al permitido por variable
+			nuevaParticion->tamanoMensaje = punteroMejorParticion->tamanoMensaje-
+					calcular_tamano((char*) mensajeCompleto->size_mensaje_cuerpo, 0);
+			nuevaParticion->suscriptores_ack = list_create();
+			nuevaParticion->suscriptores_enviados = list_create();
+			list_add(particiones, nuevaParticion);
+			printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
+			printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+			printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
+		}
+		if(punteroMejorParticion->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
+			punteroMejorParticion->colaMensaje = colaMensaje;
+			punteroMejorParticion->id = mensajeCompleto->id;
+			punteroMejorParticion->idCorrelativo = mensajeCompleto->id_correlativo;
+			punteroMejorParticion->ocupada = true;
+			punteroMejorParticion->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
+			punteroMejorParticion->lruHora = time(NULL);
+
+			printf("Puntero Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
+			printf("Posicion Mensaje: %d\n", (char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+			printf("Tamanio Mensaje: %d\n", punteroMejorParticion->tamanoMensaje);
+			return punteroMejorParticion->punteroMemoria;
+		}
+	}
+
+	printf("No encontro memoria libre\n");
+	return NULL;
 }
 
 void compactar_memoria() {
 	printf("Compacta memoria\n");
-	punteroParticion punteroParticionDesocupada;
-	punteroParticion punteroParticionOcupada;
+	punteroParticion punteroParticionDesocupada = NULL;
+	punteroParticion punteroParticionOcupada = NULL;
 
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticionRecorrer = list_get(particiones, i);
-		if(punteroParticionDesocupada != NULL){
+		if(punteroParticionDesocupada == NULL){
 			if(!punteroParticionRecorrer->ocupada) {
 				printf("Encuentra particion desocupada\n");
 				punteroParticionDesocupada = list_get(particiones, i);
@@ -608,22 +701,19 @@ void compactar_memoria() {
 
 void eliminar_particion() {
 	printf("Eliminar particion\n");
-	int indexEliminado;
+	int indexEliminar;
 	if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
-		indexEliminado = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
+		indexEliminar = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
 	} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
-		indexEliminado = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
+		indexEliminar = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
 	}
-	consolidar(indexEliminado);
+	eliminar_particion_seleccionada(indexEliminar);
+	consolidar(indexEliminar);
 }
 
 int eliminar_particion_fifo() {
 	punteroParticion punteroParticionMenorId;
 
-	bool primer_puntero_ocupado(void* elemento) {
-		punteroParticion particion = (punteroParticion*)elemento;
-		return particion->ocupada;
-	}
 	punteroParticionMenorId = list_find(particiones, (void*)primer_puntero_ocupado);
 	int index = -1;
 	// BUSCO PARTICION CON MENOR ID => MENSAJE MAS VIEJO EN MEMORIA
@@ -634,34 +724,49 @@ int eliminar_particion_fifo() {
 			index = i;
 		}
 	}
-	if(index != -1) {
-		printf("Encuentra una particion para eliminar\n");
-		punteroParticionMenorId->ocupada = false;
 
-		t_cola_mensaje* cola = selecciono_cola(punteroParticionMenorId->colaMensaje);
-		for(int j = 0 ; j< list_size(cola->mensajes); j++) {
-			bool mensaje_con_id(void* elemento) {
-				puntero_mensaje mensaje = (puntero_mensaje*)elemento;
-				return mensaje->id == punteroParticionMenorId->id;
-			}
-			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
-			if(punteroMensaje != NULL) {
-				free(list_get(cola->mensajes, j));
-				list_remove(cola->mensajes, j);
+	return index;
+}
+
+int eliminar_particion_lru() {
+	int index = -1;
+	punteroParticion punteroParticionLru = list_get(particiones, 0);
+	// BUSCO EL PUNTERO CON EL TIEMPO DE USO MAS LEJANO
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticion = list_get(particiones, i);
+		if(punteroParticion->ocupada) {
+			double seconds = difftime(punteroParticion->lruHora, punteroParticionLru->lruHora);
+			if(seconds <= 0) {
+				punteroParticionLru = punteroParticion;
+				index = i;
 			}
 		}
 	}
 	return index;
 }
 
-int eliminar_particion_lru() {
+void eliminar_particion_seleccionada(int index) {
+	printf("Encuentra una particion para eliminar\n");
+	punteroParticion punteroParticionEliminar = list_get(particiones, index);
+	punteroParticionEliminar->ocupada = false;
 
+	t_cola_mensaje* cola = selecciono_cola(punteroParticionEliminar->colaMensaje);
+	for(int j = 0 ; j< list_size(cola->mensajes); j++) {
+		puntero_mensaje punteroMensaje = list_get(cola->mensajes, j);
+
+		if(punteroParticionEliminar->id == punteroMensaje->id) {
+			free(list_get(cola->mensajes, j));
+			list_remove(cola->mensajes, j);
+			break;
+		}
+	}
 }
 
 void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 		punteroParticion punteroParticionOcupada) {
-	memcpy(punteroParticionDesocupada->punteroMemoria,
-			punteroParticionOcupada->punteroMemoria, punteroParticionOcupada->tamanoMensaje);
+
+	puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionOcupada);
+	guardar_mensaje_memoria(punteroMensaje, punteroParticionDesocupada->punteroMemoria, punteroParticionOcupada->colaMensaje);
 
 	punteroParticionOcupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria;
 
@@ -678,7 +783,7 @@ void consolidar(int indexEliminado) {
 
 	bool encuentro_particion_anterior(void* elemento) {
 		punteroParticion particion = (punteroParticion*)elemento;
-		return particion->punteroMemoria + particion->tamanoMensaje
+		return (char*)particion->punteroMemoria + particion->tamanoMensaje
 				== punteroParticionEliminada->punteroMemoria;
 	}
 	// COMPRUEBO SI TIENE ALGUNA PARTICION A IZQUIERA DESOCUPADA PARA UNIRLA
@@ -695,14 +800,15 @@ void consolidar(int indexEliminado) {
 		bool encuentro_particion_posterior(void* elemento) {
 			punteroParticion particion = (punteroParticion*)elemento;
 			return particion->punteroMemoria
-					== punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje + 1;
+					== (char*)punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje + 1;
 		}
 		printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
 		if(particionPosterior != NULL) {
-			printf("Encontro una particion libre a derecha\n");
 
 			if(!particionPosterior->ocupada) {
+				printf("Encontro una particion libre a derecha\n");
+
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
 				list_remove(particiones, indexEliminado);
@@ -711,6 +817,108 @@ void consolidar(int indexEliminado) {
 		}
 	}
 	printf("No hay mas particiones libres ni a izq ni a der\n");
+}
+
+void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion) {
+
+	bool misma_cola(void* elemento) {
+		punteroParticion particion = (punteroParticion*)elemento;
+		return particion->colaMensaje == mensajeSuscripcion->cola;
+	}
+	t_list* particionesCola = list_filter(particiones, misma_cola);
+
+	for(int i = 0; i < list_size(particionesCola); i++ ) {
+		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
+
+		bool encuentra_suscriptor(void* elemento) {
+			return strcmp((char*)elemento, mensajeSuscripcion->cliente) == 0;
+		}
+		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
+		if (!encontre) {
+			printf("Distribucion a %s\n", mensajeSuscripcion->cliente);
+
+			puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
+			distribuir_mensaje_sin_enviar_a(mensajeSuscripcion->cliente, mensajeSuscripcion->cola, punteroMensaje);
+			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
+			// SI NO ESTA, LO AGREGO
+			if(!enviado) {
+				list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
+			}
+		}
+	}
+}
+
+puntero_mensaje obtener_mensaje_memoria(punteroParticion particion) {
+	switch(particion->colaMensaje) {
+		case NEW_POKEMON: {
+			return obtener_mensaje_new(particion->punteroMemoria);
+		}
+		case APPEARED_POKEMON: {
+			return obtener_mensaje_appeared(particion->punteroMemoria);
+		}
+		case GET_POKEMON: {
+			return obtener_mensaje_get(particion->punteroMemoria);
+		}
+		case LOCALIZED_POKEMON: {
+			return obtener_mensaje_localized(particion->punteroMemoria);
+		}
+		case CAUGHT_POKEMON: {
+			return obtener_mensaje_caught(particion->punteroMemoria);
+		}
+		case CATCH_POKEMON: {
+			return obtener_mensaje_catch(particion->punteroMemoria);
+		}
+		case -1: exit(-1);
+	}
+}
+
+void guardar_mensaje_memoria(t_mensaje* mensajeCompleto, void* posMemoria, uint32_t colaMensaje) {
+	uint32_t id = mensajeCompleto->id;
+	uint32_t idCorrelativo = mensajeCompleto->id_correlativo;
+
+	switch(colaMensaje) {
+		case NEW_POKEMON: {
+			puntero_mensaje_new_pokemon punteroMensajeNew = (puntero_mensaje_new_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_new(posMemoria, punteroMensajeNew->name_pokemon, punteroMensajeNew->pos_x, punteroMensajeNew->pos_y,
+					punteroMensajeNew->quant_pokemon, id, idCorrelativo);
+			break;
+		}
+		case GET_POKEMON: {
+			puntero_mensaje_get_pokemon punteroMensajeGet = (puntero_mensaje_get_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_get(posMemoria, punteroMensajeGet->name_pokemon, id, idCorrelativo);
+			break;
+		}
+		case LOCALIZED_POKEMON: {
+			puntero_mensaje_localized_pokemon punteroMensajeLocalized = (puntero_mensaje_localized_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_localized(posMemoria, punteroMensajeLocalized->name_pokemon, punteroMensajeLocalized->quant_pokemon,
+					punteroMensajeLocalized->coords, id, idCorrelativo);
+			break;
+		}
+		case APPEARED_POKEMON: {
+			puntero_mensaje_appeared_pokemon punteroMensajeAppeared = (puntero_mensaje_appeared_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_appeared(posMemoria, punteroMensajeAppeared->name_pokemon, punteroMensajeAppeared->pos_x, punteroMensajeAppeared->pos_y,
+					id, idCorrelativo);
+			break;
+		}
+		case CAUGHT_POKEMON: {
+			puntero_mensaje_caught_pokemon punteroMensajeCaught = (puntero_mensaje_caught_pokemon) mensajeCompleto->mensaje_cuerpo;
+			char* caughtPokemon = punteroMensajeCaught->caughtResult == 0 ? "OK" : "FAIL";
+
+			guardar_mensaje_caught(posMemoria, caughtPokemon, id, idCorrelativo);
+			break;
+		}
+		case CATCH_POKEMON: {
+			puntero_mensaje_catch_pokemon punteroMensajeCatch = (puntero_mensaje_catch_pokemon) mensajeCompleto->mensaje_cuerpo;
+			guardar_mensaje_catch(posMemoria, punteroMensajeCatch->name_pokemon, punteroMensajeCatch->pos_x, punteroMensajeCatch->pos_y,
+					id, idCorrelativo);
+			break;
+		}
+		case -1: exit(-1);
+		default: exit(-1);
+	}
 }
 
 int obtener_index_particion(int* punteroMemoria) {
@@ -1015,4 +1223,64 @@ void bs_eliminar_particion_lru(){
 			}
 		}
 	}
+}
+
+
+bool primer_puntero_ocupado(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	return particion->ocupada;
+}
+
+bool primer_puntero_desocupado(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	return !particion->ocupada;
+}
+
+void desocupar_particion(void* elemento) {
+	punteroParticion particion = (punteroParticion*)elemento;
+	particion->ocupada = false;
+}
+
+void vaciar_memoria() {
+	list_iterate(particiones, desocupar_particion);
+}
+
+char* hora_actual() {
+	time_t ahora;
+	char* ahora_string;
+
+	ahora = guard(time(NULL), "Failed to obtain current date");
+
+	ahora_string = ctime(&ahora);
+
+	if(ahora_string == NULL) {
+		exit(-1);
+	}
+	return ahora_string;
+}
+
+uint32_t calcular_tamano(char* memoriaActual, char* memoriaNueva) {
+	uint32_t valor = memoriaActual - memoriaNueva;
+	return  valor > tamanoMinimoParticion ? valor : tamanoMinimoParticion;
+}
+
+uint32_t convertir_decimal(uint32_t decimal) {
+	int resto, remainder;
+	int i, j = 0;
+	char hexadecimal[100];
+	resto = decimal;
+	while(resto != 0) {
+		remainder = resto % 16;
+		if(remainder < 10)
+			hexadecimal[j++] = 48 + remainder;
+		else hexadecimal[j++] = 55 + remainder;
+		resto = resto / 16;
+	}
+	for(i = j; i >= 0; i--)
+		printf("%c", hexadecimal[i]);
+	return atoi(hexadecimal);
+}
+
+uint32_t convertir_hexadecimal_decimal(char* hexadecimal) {
+	return atoi(hexadecimal);
 }
