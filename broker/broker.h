@@ -33,13 +33,14 @@ char* logFile;
 
 int cantidadBusquedasFallidas;
 
-int* punteroMemoriaPrincipal;
+uint32_t* punteroMemoriaPrincipal;
+uint32_t* punteroMemoriaFinal;
 
 typedef struct {
 	uint32_t id;
 	uint32_t idCorrelativo;
 	int colaMensaje;
-	int* punteroMemoria;
+	uint32_t* punteroMemoria;
 	bool ocupada;
 	uint32_t tamanoMensaje;
 	t_list* suscriptores_enviados;
@@ -84,7 +85,9 @@ punteroParticion buscar_particion_mensaje(uint32_t idMensaje);
 bool primer_puntero_ocupado(void* elemento);
 bool primer_puntero_desocupado(void* elemento);
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion);
-
+uint32_t calcular_tamano(char* memoriaActual, char* memoriaNueva);
+uint32_t convertir_decimal(uint32_t decimal);
+uint32_t convertir_hexadecimal_decimal(char* hexadecimal);
 int cantidad_mensajes;
 
 #endif /* SERVIDOR_H_ */
