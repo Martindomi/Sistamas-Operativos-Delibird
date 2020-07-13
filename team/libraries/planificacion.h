@@ -27,7 +27,7 @@ sem_t mutex_reconexion;
 sem_t sem_deadlcok;
 sem_t sem_exit;
 sem_t sem_fin;
-
+sem_t mutex_boolReconexion;
 
 int movimientoTime;
 

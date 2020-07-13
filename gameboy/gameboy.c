@@ -5,10 +5,17 @@ int main(int argc, char *argv[]){
 	char* proceso;
 	uint32_t cola_destino;
 
-	inicializar_datos(config);
 
+	inicializar_datos(config);/*
+	argc = 5;
+	argv[1]="BROKER";
+	argv[2] = "CAUGHT_POKEMON";
+	argv[3] = "2";
+	argv[4]= "OK";
+*/
 	if(argc >= 2) {
 		proceso = argv[1];
+
 	} else {
 		log_info(logger_gameboy, "Faltan argumentos\n");
 		return -1;
@@ -108,7 +115,8 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 		case CAUGHT_POKEMON: {
 			if((strcmp(proceso,"BROKER") == 0) && (argc == 5)){
 				conexion = crear_conexion(ip_broker, puerto_broker);
-				send_message_caught_pokemon(argv[4], 0, atoi(argv[3]),conexion);
+				int id_corr = atoi(argv[3]);
+				send_message_caught_pokemon(argv[4], 0, id_corr, conexion);
 			} else {
 				manejar_error_mensaje();
 				return -1;

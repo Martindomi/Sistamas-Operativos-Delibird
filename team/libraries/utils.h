@@ -23,11 +23,20 @@
 #include "entrenadores.h"
 #include "../team.h"
 
+//--------------------------------------------------------SUSCRIPCION Y RECONEXION GENERICA
+bool seCreoHiloReconexion;
+t_list *colas_a_suscribir;
 
 
-bool suscribirse_a_colas();
+bool suscribirse_a_colas(char* path, char* programeName);
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket);
+void crear_hilo_reconexion(char* path, char* programeName);
+void _reintentar_conexion(char* path);
+void liberar_colas_a_suscribir();
+//--------------------------------------------------------
+//bool suscribirse_a_colas();
 void hilo_reconexion();
-void reintentar_conexion(int tiempo);
+//void reintentar_conexion(char* path);
 void funcionGenerica(int *socket);
 void tarda(int ciclos);
 void contar_deadlock_producido();

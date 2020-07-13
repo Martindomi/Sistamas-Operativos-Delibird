@@ -128,7 +128,8 @@ void process_request(int cod_op, int socket) {
 		case CATCH_POKEMON: {
 
 			mensaje_completo->mensaje = recibir_catch_pokemon(socket, &size);
-
+			puntero_mensaje_catch_pokemon pokemonCatch = mensaje_completo->mensaje->mensaje_cuerpo;
+			printf("recibe catch pokemon: %s\n", pokemonCatch->name_pokemon);
 			asignar_y_devolver_id(mensaje_completo, socket);
 
 			list_add(catch_pokemon->mensajes, mensaje_completo);
@@ -156,7 +157,8 @@ void process_request(int cod_op, int socket) {
 		case GET_POKEMON: {
 
 			mensaje_completo->mensaje = recibir_get_pokemon(socket, &size);
-
+			puntero_mensaje_get_pokemon pokemonGet = mensaje_completo->mensaje->mensaje_cuerpo;
+			printf("recibe get pokemon: %s\n", pokemonGet->name_pokemon);
 			asignar_y_devolver_id(mensaje_completo, socket);
 
 			list_add(get_pokemon->mensajes, mensaje_completo);
@@ -338,9 +340,11 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case CAUGHT_POKEMON: {
-			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon*)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
+			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon)puntero_mensaje_completo->mensaje->mensaje_cuerpo);
 
-			char* caughtPokemon = puntero_mensaje->caught_pokemon;
+			char* caughtPokemon =malloc(puntero_mensaje->caught_size);
+
+			caughtPokemon = puntero_mensaje->caught_pokemon;
 
 			send_message_caught_pokemon(caughtPokemon, id, id_correlativo, conexion);
 

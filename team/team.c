@@ -36,6 +36,7 @@
 
  int main(int argc, char *argv[]){
 
+	sem_t esperaSuscripcion;
 	inicializar_config_data();
 
 	lista_entrenadores = list_create();
@@ -50,7 +51,10 @@
 	cola_EXEC=list_create();
 	cola_EXIT=list_create();
 	cola_BLOQUED=list_create();
-
+	colas_a_suscribir = list_create();
+	list_add(colas_a_suscribir,APPEARED_POKEMON);
+	list_add(colas_a_suscribir,CAUGHT_POKEMON);
+	list_add(colas_a_suscribir,LOCALIZED_POKEMON);
 
 	sem_init(&(sem_colas_no_vacias),0,0);
 	sem_init(&(sem_cpu),0,1);
@@ -62,15 +66,18 @@
 	sem_init(&sem_exit,0,0);
 	sem_init(&(mutex_reconexion),0,1);
 	sem_init(&(sem_fin),0,1);
-
 	sem_init(&sem_deadlcok,0,0);
-
+	sem_init(&mutex_boolReconexion,0,1);
 	sem_init((&mutex_ciclos),0,1);
 	sem_init((&mutex_deadlockProd),0,1);
 	sem_init((&mutex_deadlockRes),0,1);
 	sem_init((&mutex_conSwitch),0,1);
+	sem_init((&esperaSuscripcion),0,1);
 
 
+	sem_wait(&mutex_boolReconexion);
+	seCreoHiloReconexion=false;
+	sem_post(&mutex_boolReconexion);
 	ciclosCPU = 0;
 	deadlocksProducidos= 0;
 	deadlocksResueltos= 0;
@@ -90,6 +97,15 @@
 	printf("%d\n",list_is_empty(lista_entrenadores));
 	crear_hilo_entrenadores(lista_entrenadores);
 
+
+	sem_wait(&esperaSuscripcion);
+	bool conexionOK =suscribirse_a_colas("./team.config", "TEAM");
+	if(!conexionOK){
+		crear_hilo_reconexion("./team.config", "TEAM");
+	}
+	sem_post(&esperaSuscripcion);
+
+	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 	enviar_get_objetivos();
 
 
@@ -167,9 +183,10 @@
 	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
 	path_log = config_get_string_value(config, "LOG_FILE");
 	t_log* logger;
-	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);
-*/	suscribirse_a_colas();
-	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
+	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);*/
+//	op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
+//	suscribirse_a_colas(vectorDeColas,"./team", "TEAM");
+//	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 /*	bool conexionOK = suscribirse_a_colas();
 	if(!conexionOK){
 		hilo_reconexion();

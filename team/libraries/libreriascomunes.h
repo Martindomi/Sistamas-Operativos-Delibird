@@ -26,6 +26,7 @@ t_list *cola_READY;
 t_list *cola_EXEC;
 t_list *cola_BLOQUED;
 t_list *cola_EXIT;
+t_list *colas_a_suscribir;
 
 uint32_t ciclosCPU;
 uint32_t deadlocksProducidos;
@@ -58,7 +59,7 @@ typedef struct {
 	char* logFile;
 	char* ipTeam;
 	char* puertoTeam;
-	//char* id;
+	char* id;
 
 } data_config;
 

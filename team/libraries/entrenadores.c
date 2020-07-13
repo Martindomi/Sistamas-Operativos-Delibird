@@ -68,6 +68,7 @@ void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadl
 
 //cuando recibe caught esto
 void capturoPokemon(t_entrenador* entrenador){
+
 	bool _filterPokemon(char* pokemonNombre){
 		return !strcmp(entrenador->pokemonCapturando->especie,pokemonNombre);
 	}
