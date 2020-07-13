@@ -412,6 +412,10 @@ void inicializar_datos() {
 	particionInicial->id = NULL;
 	particionInicial->idCorrelativo = NULL;
 	particionInicial->ocupada = false;
+	particionInicial->izq = false;
+	particionInicial->der = false;
+	particionInicial->historicoBuddy = list_create();
+	list_add(particionInicial->historicoBuddy, "C");
 	particionInicial->punteroMemoria = punteroMemoriaPrincipal;
 	particionInicial->tamanoMensaje = tamanoMemoria;
 	particionInicial->suscriptores_ack = list_create();
@@ -491,6 +495,8 @@ void leer_archivo_config() {
 	algoritmoMemoria = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_MEMORIA"), "PARTICIONES", "BS");
 	algoritmoReemplazo = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_REEMPLAZO"), "FIFO", "LRU");
 	algoritmoParticionLibre = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_PARTICION_LIBRE"), "FF", "BF");
+	algoritmoBuddySystem = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_BUDDY_SYSTEM"), "FF", "BF");
+	bsAlgoritmoReemplazo = validar_string_binario(obtener_string_config(configBroker, "BS_ALGORITMO_REEMPLAZO"), "FIFO", "LRU");
 	frecuenciaCompactacion = obtener_int_config(configBroker, "FRECUENCIA_COMPACTACION");
 
 	loggerBroker =log_create(logFile, "BROKER", false, LOG_LEVEL_INFO);
@@ -508,7 +514,7 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 	if(strcmp(algoritmoParticionLibre, "FF") == 0) {
-		buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
+		return buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
 	} else if (strcmp(algoritmoParticionLibre, "BF") == 0) {
 		return buscar_memoria_libre_best_fit(mensajeCompleto, colaMensaje);
 	}
@@ -715,4 +721,298 @@ int obtener_index_particion(int* punteroMemoria) {
 		}
 	}
 	return -1;
+}
+
+void* bs_segun_algoritmo(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
+	if(strcmp(algoritmoBuddySystem, "FF") == 0) {
+		return bs_first_fit(mensajeCompleto, colaMensaje);
+	} else if (strcmp(algoritmoBuddySystem, "BF") == 0) {
+		return bs_best_fit(mensajeCompleto, colaMensaje);
+	}
+}
+
+void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
+	int tamanioNecesario = potencia_de_dos_cercana(mensajeCompleto->size_mensaje_cuerpo); // tengo que obtener la potencia de 2 mas cercana al tamaño del mensaje
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticionObtenido = list_get(particiones, i);
+		if(!punteroParticionObtenido->ocupada){
+			if(punteroParticionObtenido->tamanoMensaje > tamanioNecesario){
+				// Modifico la particion original para que tenga la mitad de tamaño
+				// y despues hago una nueva con la otra mitad que faltaba
+				dividir_particiones(punteroParticionObtenido,i,tamanioNecesario); // Ej: si tengo una particion con tamaño de 32MB lo divido en 2 de 16MB etc hasta que mi mensaje pueda asignarse
+				return bs_segun_algoritmo(mensajeCompleto, colaMensaje);
+			}else{
+				if(punteroParticionObtenido->tamanoMensaje == tamanioNecesario){
+					punteroParticionObtenido->colaMensaje = colaMensaje;
+					punteroParticionObtenido->id = mensajeCompleto->id;
+					punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
+					punteroParticionObtenido->ocupada = true;
+					punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+					punteroParticionObtenido->lruHora = time(NULL);
+
+					printf("Posicion Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
+					printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+					return punteroParticionObtenido->punteroMemoria;
+				}
+			}
+		}
+	}
+	printf("No encontro memoria libre\n");
+	// Primero se debe eliminar segun algoritmo y despues consolidar
+	bs_eliminar_particion();
+	bs_consolidar();
+	return bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
+}
+
+void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
+	// tengo que obtener la potencia de 2 mas cercana al tamaño del mensaje
+	int tamanioNecesario = potencia_de_dos_cercana(mensajeCompleto->size_mensaje_cuerpo);
+
+	// Analizo toda la lista para buscar la particion
+	// mas conveniente para guardar el mensaje
+
+	bool primer_puntero_desocupado(void* elemento) {
+			punteroParticion particion = (punteroParticion*)elemento;
+			return !particion->ocupada;
+	}
+
+	//int indexParticionMasChica = primer_puntero_desocupado();
+	//punteroParticion particionMasChica = list_get(particiones, indexParticionMasChica);
+
+	punteroParticion particionMasChica = list_find(particiones, primer_puntero_desocupado);
+	int indexParticionMasChica = -1;
+
+	for(int i = 0; i < list_size(particiones); i++){
+
+		punteroParticion particionObtenida = list_get(particiones, i);
+		if(particionObtenida->tamanoMensaje <= particionMasChica->tamanoMensaje){
+			if(particionObtenida->tamanoMensaje >= tamanioNecesario && !particionObtenida->ocupada){
+				particionMasChica = particionObtenida;
+				indexParticionMasChica = i;
+			}
+		}
+	}
+	if(particionMasChica->tamanoMensaje > tamanioNecesario){
+		// Modifico la particion original para que tenga la mitad de tamaño
+		// y despues hago una nueva con la otra mitad que faltaba
+		dividir_particiones(particionMasChica,indexParticionMasChica,tamanioNecesario); // Ej: si tengo una particion con tamaño de 32MB lo divido en 2 de 16MB etc hasta que mi mensaje pueda asignarse
+		return bs_segun_algoritmo(mensajeCompleto, colaMensaje);
+	}else{
+		if(particionMasChica->tamanoMensaje == tamanioNecesario){
+			particionMasChica->colaMensaje = colaMensaje;
+			particionMasChica->id = mensajeCompleto->id;
+			particionMasChica->idCorrelativo = mensajeCompleto->id_correlativo;
+			particionMasChica->ocupada = true;
+			particionMasChica->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+			particionMasChica->lruHora = time(NULL);
+
+			printf("Posicion Mensaje: %p\n", particionMasChica->punteroMemoria);
+			printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
+			return particionMasChica->punteroMemoria;
+		}
+	}
+	printf("No encontro memoria libre\n");
+	// Primero se debe eliminar segun algoritmo y despues consolidar
+	bs_eliminar_particion();
+	bs_consolidar();
+	return bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
+}
+
+
+// ---------------------------------------------------------
+
+int potencia_de_dos_cercana(uint32_t tamanioMensaje){
+	int tamanioMininoNecesario = 2; // 2 elevado a 1
+	while(tamanioMininoNecesario < tamanioMensaje){
+		tamanioMininoNecesario *= 2; // multiplico por 2 hasta llegar a un numero mayor o igual al que necesito
+	}
+	return tamanioMininoNecesario;
+}
+
+void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t tamanioNecesario){
+	if(particionInicial->tamanoMensaje == tamanioNecesario){
+		return;
+		// no hace falta realizar más divisiones
+	}else{
+
+		/* "Creo dos particiones nuevas", ambas con el tamaño de la original
+		 * dividido 2.
+		*/
+
+		// particion izquierda (Es la original pero con tamaño a la mitad)
+		particionInicial->tamanoMensaje = particionInicial->tamanoMensaje / 2;
+		particionInicial->izq = true;
+		particionInicial->der = false;
+		list_add(particionInicial->historicoBuddy, "I");
+
+		// particion derecha
+		punteroParticion nuevaParticion = malloc(sizeof(t_particion));
+		nuevaParticion->id = NULL;
+		nuevaParticion->idCorrelativo = NULL;
+		nuevaParticion->colaMensaje = NULL;
+		nuevaParticion->ocupada = false;
+		nuevaParticion->izq = false;
+		nuevaParticion->der = true;
+		list_add(nuevaParticion->historicoBuddy,"D");
+
+		nuevaParticion->punteroMemoria = particionInicial->punteroMemoria
+				+ (particionInicial->tamanoMensaje / 2) + 1;
+		nuevaParticion->tamanoMensaje = particionInicial->tamanoMensaje / 2;
+		nuevaParticion->suscriptores_ack = list_create();
+		nuevaParticion->suscriptores_enviados = list_create();
+		list_add_in_index(particiones,index +1, nuevaParticion);
+
+		// vuelvo a dividir la particion izquierda
+		dividir_particiones(particionInicial, index ,tamanioNecesario);
+	}
+}
+
+void bs_consolidar(){
+	// voy a repetir la consolidacion hasta que
+	// no haya mas cambios
+	int cambios;
+	do{
+		cambios = 0;
+		for(int i = 0; i < list_size(particiones); i++) {
+			int indexBuddyIzq = i;
+			int indexBuddyDer = i+1;
+			punteroParticion buddyIzq = list_get(particiones, indexBuddyIzq);
+			if(!buddyIzq->ocupada){
+				punteroParticion buddyDer = list_get(particiones, indexBuddyDer);
+				// Chequeo si las dos particiones que tomo son buddys
+				if((buddyIzq->izq == buddyDer->der) && (buddyDer != NULL && !buddyDer->ocupada)){
+
+					// "UNIFICO" los buddys
+					buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
+					// analizo si el buddy que consolidé
+					// es un buddy derecho o izquierdo
+
+					// EJEMPLO:
+					// historicoBuddyIzq = {"C","I","I","I"}
+					// tamHistoricoBI = 4
+					// list_get(historicoBuddyIzq,tamHistoricoBI - 2) = "I"
+					// En este ejemplo, el buddy actual es el Izquierdo y cuando se consolide
+					// con el derecho, pasa a ser un buddy izquierdo con el doble de tamaño
+
+					t_list* historicoBuddyIzq = buddyIzq->historicoBuddy;
+					int tamHistoricoBI = list_size(historicoBuddyIzq);
+					// cuando se consolida, me fijo el tipo que era el buddy "padre"
+					if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "D") == 0){
+						// en este caso es un buddy derecho
+						buddyIzq->izq = false;
+						buddyIzq->der = true;
+					}else{
+						if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "I") == 0){
+							// en este caso es un buddy izquierdo
+							buddyIzq->izq = true;
+							buddyIzq->der = false;
+						}
+					}
+
+					list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
+					list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
+					cambios++;
+					break; // detiene el for para que no se buguee la lista
+				}
+			}
+		} // fin for
+	}while(cambios != 0);
+}
+
+void bs_eliminar_particion(){
+	printf("Eliminar particion\n");
+		//int indexEliminado;
+		if(strcmp(bsAlgoritmoReemplazo, "FIFO") == 0) {
+			// que es guard?
+			bs_eliminar_particion_fifo();
+		} else if (strcmp(bsAlgoritmoReemplazo, "LRU") == 0) {
+			bs_eliminar_particion_lru();
+		}
+		bs_consolidar();
+}
+
+void bs_eliminar_particion_fifo(){
+
+	punteroParticion punteroParticionMenorId;
+
+	bool primer_puntero_ocupado(void* elemento) {
+		punteroParticion particion = (punteroParticion*)elemento;
+		return particion->ocupada;
+	}
+	punteroParticionMenorId = list_find(particiones, (void*)primer_puntero_ocupado);
+	int index = -1;
+	// BUSCO PARTICION CON MENOR ID => MENSAJE MAS VIEJO EN MEMORIA
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticionEncontrado = list_get(particiones, i);
+		if(punteroParticionMenorId->id >= punteroParticionEncontrado->id && punteroParticionEncontrado->ocupada) {
+			punteroParticionMenorId = punteroParticionEncontrado;
+			index = i;
+		}
+	}
+	if(index != -1) {
+		printf("Encuentra una particion para eliminar\n");
+		punteroParticionMenorId->ocupada = false;
+
+		t_cola_mensaje* cola = selecciono_cola(punteroParticionMenorId->colaMensaje);
+		for(int j = 0 ; j< list_size(cola->mensajes); j++) {
+			bool mensaje_con_id(void* elemento) {
+				puntero_mensaje mensaje = (puntero_mensaje*)elemento;
+				return mensaje->id == punteroParticionMenorId->id;
+			}
+			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
+			if(punteroMensaje != NULL) {
+				free(list_get(cola->mensajes, j));
+				list_remove(cola->mensajes, j);
+			}
+		}
+	}
+}
+/*
+int primer_puntero_desocupado(){
+	punteroParticion primerDesocupado = list_get(particiones, list_size(particiones) - 1);;
+	int indexPrimerDesocupado = list_size(particiones);
+	for(int i = 0; i < list_size(particiones); i++){
+		punteroParticion particionObtenida = list_get(particiones, i);
+		if(!particionObtenida->ocupada){
+			if(indexPrimerDesocupado > i){
+				primerDesocupado = particionObtenida;
+				indexPrimerDesocupado = i;
+			}
+		}
+	}
+	return indexPrimerDesocupado;
+}*/
+
+void bs_eliminar_particion_lru(){
+
+	int index = -1;
+	punteroParticion punteroParticionLru = list_get(particiones, 0);
+	// BUSCO EL PUNTERO CON EL TIEMPO DE USO MAS LEJANO
+	for(int i = 0; i < list_size(particiones); i++) {
+		punteroParticion punteroParticion = list_get(particiones, i);
+		if(punteroParticion->ocupada) {
+			double seconds = difftime(punteroParticion->lruHora, punteroParticionLru->lruHora);
+			if(seconds <= 0) {
+				punteroParticionLru = punteroParticion;
+				index = i;
+			}
+		}
+	}
+	if(index != -1){
+		printf("Encuentra una particion para eliminar\n");
+		punteroParticionLru->ocupada = false;
+
+		t_cola_mensaje* cola = selecciono_cola(punteroParticionLru->colaMensaje);
+		for(int j = 0 ; j< list_size(cola->mensajes); j++) {
+			bool mensaje_con_id(void* elemento) {
+				puntero_mensaje mensaje = (puntero_mensaje*)elemento;
+				return mensaje->id == punteroParticionLru->id;
+			}
+			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
+			if(punteroMensaje != NULL) {
+				free(list_get(cola->mensajes, j));
+				list_remove(cola->mensajes, j);
+			}
+		}
+	}
 }
