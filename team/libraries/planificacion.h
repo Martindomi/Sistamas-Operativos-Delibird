@@ -23,11 +23,10 @@ sem_t sem_caught;
 sem_t mutex_caught;
 sem_t sem_colas_no_vacias;
 sem_t mutex_mov_colas_time;
-sem_t mutex_reconexion;
 sem_t sem_deadlcok;
 sem_t sem_exit;
 sem_t sem_fin;
-sem_t mutex_boolReconexion;
+sem_t sem_entrenador_disponible;
 
 int movimientoTime;
 
@@ -60,5 +59,6 @@ t_entrenador* busca_entrenador_que_necesita(char* pokemon);
 void detectar_deadlock();
 void mover_bloqueados_a_exit();
 void finalizar_y_liberar();
+void mover_entrenador_bloqueado_a_exit(t_entrenador* enternador);
 
 #endif /* LIBRARIES_PLANIFICACION_H_ */

@@ -122,6 +122,13 @@ typedef struct {
 } t_suscripcion_cola;
 typedef t_suscripcion_cola* puntero_suscripcion_cola;
 
+typedef struct {
+	op_code cola;
+	char* id;
+	int tiempo;
+} t_suscripcion_cola_ID;
+typedef t_suscripcion_cola_ID* puntero_suscripcion_cola_ID;
+
 
 t_log* logger_global;
 
@@ -148,7 +155,7 @@ void* serializar_paquete(t_package* paquete, int* bytes);
 
 // HILO ESCUCHA
 void crear_hilo_escucha(char* ip, char* puerto);
-void* hilo_escucha(int* socket);
+void* hilo_escucha(int socket);
 
 // INICIALIZACION CONFIG/LOGGER
 

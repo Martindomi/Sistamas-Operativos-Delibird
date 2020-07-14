@@ -893,13 +893,13 @@ void crear_hilo_escucha(char* ip, char* puerto)
 
     freeaddrinfo(servinfo);
 
-    pthread_create(&thread_team,NULL,(void*)hilo_escucha, &socket_servidor);
+    pthread_create(&thread_team,NULL,(void*)hilo_escucha, socket_servidor);
     pthread_detach(thread_team);
 
 }
 
-void* hilo_escucha(int* socket_servidor){
-	int socketser = *socket_servidor;
+void* hilo_escucha(int socket_servidor){
+	int socketser = socket_servidor;
 	while(1){
 
 		struct sockaddr_in dir_cliente;

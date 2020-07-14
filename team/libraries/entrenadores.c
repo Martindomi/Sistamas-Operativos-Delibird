@@ -21,34 +21,43 @@ void main_entrenador(t_entrenador* entrenador){
 			t_entrenador* entrenadorDeadlock = (t_entrenador*) (entrenador->entrenadorDeadlock);
 
 			moverEntrenador(entrenador, entrenadorDeadlock->x,entrenadorDeadlock->y);
-			realizarIntercambio(entrenador,entrenadorDeadlock);
+			analizarIntercambio(entrenador,entrenadorDeadlock);
 
+		}
+
+		sem_post(&(sem_cpu));
+	}
+}
+
+void analizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock){
+
+	if(entrenador->x==entrenadorDeadlock->x && entrenador->y==entrenadorDeadlock->y){
+		realizarIntercambio(entrenador,entrenadorDeadlock);
 
 			if(tiene_otro_pokemon(entrenador)){
 				moverColas(cola_EXEC,cola_BLOQUED,entrenador);
-				log_info(loggerTEAM," LALALALALALALLALALALALAL CAMBIO DE COLA; Entrenador %d: EXEC -> BLOCKED. Motivo: Realiza intercambio pero sigue en deadlock", entrenador->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> BLOCKED. Motivo: Realiza intercambio pero sigue en deadlock", entrenador->id);
 			}else{
 				moverColas(cola_EXEC,cola_EXIT,entrenador);
 				printf("entrenador %d se fue a EXIT \n", entrenador->id);
-				log_info(loggerTEAM,"LELELELELELELELLELELELELELE CAMBIO DE COLA; Entrenador %d: EXEC -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenador->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenador->id);
 				sem_post(&sem_exit);
 			}
-
-
-
 			if(!tiene_otro_pokemon(entrenadorDeadlock)){
 				moverColas(cola_BLOQUED,cola_EXIT,entrenador->entrenadorDeadlock);
 				printf("entrenador %d se fue a EXIT \n", entrenadorDeadlock->id);
-				log_info(loggerTEAM,"LILILLILILILILILILILILI CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenadorDeadlock->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenadorDeadlock->id);
 				sem_post(&sem_exit);
 			}
 
 			if(tiene_otro_pokemon(entrenador) || tiene_otro_pokemon(entrenadorDeadlock)){
 				sem_post(&sem_deadlcok);
 			}
-		}
 
-		sem_post(&(sem_cpu));
+
+	}else{
+		moverColas(cola_EXEC,cola_READY,entrenador);
+		sem_post(&sem_colas_no_vacias);
 	}
 }
 
@@ -62,7 +71,6 @@ void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadl
 	log_info(loggerTEAM,"INTERCAMBIO; Entrenador: %d recibe pokemon %s y Entrenador: %d recibe pokemon %s",entrenador->id, pokemonACambiar2,entrenadorDeadlock->id, pokemonACambiar1);
 	contar_ciclos_entrenador(entrenador, 5);
 	contar_deadlock_resuelto();
-
 
 }
 
@@ -111,6 +119,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		unEntrenador->estimacion = configData->estmacionInicial;
 		unEntrenador->rafagaReal = configData->estmacionInicial;
 		unEntrenador->estimacionRestante = configData->estmacionInicial;
+		unEntrenador->pokemonCapturando=NULL;
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
 		unEntrenador->pokemonesCapturados = list_create();

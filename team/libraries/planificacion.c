@@ -30,6 +30,7 @@ void main_planificacion_recibidos(){
 		}else if(pokemonsObjetivo->cantidad==0){
 
 		}else{
+			sem_wait(&sem_entrenador_disponible);
 			distancia_new = entrenadorMasCerca(pokemon, buscar_entrenadores_new_disponibles());
 			distancia_bloqued = entrenadorMasCerca(pokemon,buscar_entrenadores_bloqueados_disponibles());
 
@@ -89,12 +90,16 @@ void main_planificacion_caught(){
 				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
 				pokemonCaputrado->cantidad--;
 				entrenador->espacioLibre--;
+				if(entrenador->espacioLibre!=0){
+					sem_post(&sem_entrenador_disponible);
+				}
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 				if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
 					sem_post(&sem_deadlcok);
 				}
+				mover_entrenador_bloqueado_a_exit(entrenador);
 			}
 		}
 
@@ -235,6 +240,14 @@ void desalojar_por_rafaga_mas_corta(t_entrenador* entrenadorReady){
 
 }
 */
+
+void finalizarEntrenadorLuegoDeCaptura(t_entrenador* entrenador){
+
+
+
+}
+
+
 t_entrenador* planificacionSJFSD(t_list* colaReady){
 
 	return buscar_entrenador_con_rafaga_mas_corta();
@@ -352,6 +365,19 @@ void mover_bloqueados_a_exit(){
 		sem_post(&sem_exit);
 
 	}
+}
+
+void mover_entrenador_bloqueado_a_exit(t_entrenador* enternador){
+
+	if(enternador->espacioLibre==0){
+		if(!tiene_otro_pokemon(enternador)){
+			moverColas(cola_BLOQUED,cola_EXIT,enternador);
+			log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Entrenador cumple su objetivo!", enternador->id);
+			sem_post(&sem_exit);
+		}
+	}
+
+
 }
 
 bool todos_bloqueados(){
@@ -518,7 +544,13 @@ void main_exit(){
 }
 
 bool todos_terminados(){
-	return list_is_empty(cola_READY) && list_is_empty(cola_NEW) && list_is_empty(cola_BLOQUED) && list_is_empty(cola_EXEC) && !list_is_empty(cola_EXIT);
+	bool ready = list_is_empty(cola_READY);
+	bool new = list_is_empty(cola_NEW);
+	bool bloqued = list_is_empty(cola_BLOQUED);
+	bool exec = list_is_empty(cola_EXEC);
+	bool exit = !list_is_empty(cola_EXIT);
+
+	return ready && new && bloqued && exec && exit;
 }
 
 void finalizar(){

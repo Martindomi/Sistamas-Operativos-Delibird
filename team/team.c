@@ -39,8 +39,10 @@
 	sem_t esperaSuscripcion;
 	inicializar_config_data();
 
+	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+
 	lista_entrenadores = list_create();
-	int andaBroker = 1;
+	//int andaBroker = 1;
 	listaPokemonsRecibidos = list_create();
 	listaPokemonesCaught= list_create();
 	ids_mensajes_enviados = list_create();
@@ -51,10 +53,6 @@
 	cola_EXEC=list_create();
 	cola_EXIT=list_create();
 	cola_BLOQUED=list_create();
-	colas_a_suscribir = list_create();
-	list_add(colas_a_suscribir,APPEARED_POKEMON);
-	list_add(colas_a_suscribir,CAUGHT_POKEMON);
-	list_add(colas_a_suscribir,LOCALIZED_POKEMON);
 
 	sem_init(&(sem_colas_no_vacias),0,0);
 	sem_init(&(sem_cpu),0,1);
@@ -73,7 +71,8 @@
 	sem_init((&mutex_deadlockRes),0,1);
 	sem_init((&mutex_conSwitch),0,1);
 	sem_init((&esperaSuscripcion),0,1);
-
+	sem_init(&mutex_suscripcion,0,0);
+	sem_init(&sem_entrenador_disponible,0,0);
 
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
@@ -98,13 +97,11 @@
 	crear_hilo_entrenadores(lista_entrenadores);
 
 
-	sem_wait(&esperaSuscripcion);
-	bool conexionOK =suscribirse_a_colas("./team.config", "TEAM");
-	if(!conexionOK){
-		crear_hilo_reconexion("./team.config", "TEAM");
-	}
-	sem_post(&esperaSuscripcion);
 
+	bool conexionOK =suscribirse_a_colas("./team.config");
+	if(!conexionOK){
+		crear_hilo_reconexion("./team.config");
+	}
 	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 	enviar_get_objetivos();
 
@@ -268,15 +265,38 @@ t_mensajeTeam esperoMensaje() {
 void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 	int cant_entrenadores = list_size(lista_entrenadores);
 	int i=0;
+	list_add_all(cola_NEW,lista_entrenadores);
+
 	while(i<cant_entrenadores){
 		t_entrenador *unEntrenador = list_get(lista_entrenadores,i);
+
+		mover_entrenador_new_sin_espacio(unEntrenador);
 
 		pthread_create(&(unEntrenador->th),NULL,(void*)main_entrenador,unEntrenador);
 		//pthread_join((unEntrenador->th), NULL);
 		i++;
 	}
+}
 
-	list_add_all(cola_NEW,lista_entrenadores);
+void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
+
+	if(enternador->espacioLibre==0){
+		if(!tiene_otro_pokemon(enternador)){
+			moverColas(cola_NEW,cola_EXIT,enternador);
+			log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: NEW-> EXIT. Motivo: Entrenador con todos los pokemones!", enternador->id);
+			sem_post(&sem_exit);
+		}else{
+			moverColas(cola_NEW,cola_BLOQUED,enternador);
+			log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: NEW-> BLOQUED. Motivo: Entrenador sin espacio y otro pokemon", enternador->id);
+			enternador->movsDisponibles=configData->quantum;
+			sem_post(&sem_deadlcok);
+
+		}
+	}else{
+		sem_post(&sem_entrenador_disponible);
+	}
+
+
 }
 
 void aplica_funcion_escucha(int * socket){

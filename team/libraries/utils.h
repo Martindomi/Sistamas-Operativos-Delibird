@@ -25,12 +25,16 @@
 
 //--------------------------------------------------------SUSCRIPCION Y RECONEXION GENERICA
 bool seCreoHiloReconexion;
-t_list *colas_a_suscribir;
+sem_t mutex_boolReconexion; // 	sem_init(&mutex_boolReconexion,0,1);
+sem_t mutex_reconexion;// 	sem_init(&(mutex_reconexion),0,1);
+sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
+// op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON }; --> lo puse en main.c
 
+// cada uno debe vrear el suyo de todo lo que esta arriba
 
-bool suscribirse_a_colas(char* path, char* programeName);
-void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket);
-void crear_hilo_reconexion(char* path, char* programeName);
+bool suscribirse_a_colas(char* path);
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket,int tiempo);
+void crear_hilo_reconexion(char* path);
 void _reintentar_conexion(char* path);
 void liberar_colas_a_suscribir();
 //--------------------------------------------------------

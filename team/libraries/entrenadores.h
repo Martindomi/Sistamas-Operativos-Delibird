@@ -64,6 +64,6 @@ void analizarCaptura(t_entrenador* entrenador);
 void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock);
 void contar_ciclos_entrenador(t_entrenador * entrenador, int ciclos);
 bool entrenador_tiene_menor_rafaga(t_entrenador* entrenador, int *sizeAntes);
-
+void analizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock);
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */

@@ -1,60 +1,62 @@
 
 #include "utils.h"
-
+ op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
 //--------------------------------------------------------------------------------------------------------------------//
 
-bool suscribirse_a_colas(char* path, char* programeName){
+bool suscribirse_a_colas(char* path){
 
 	bool conexionOK=false;
-	int conexion;
+	int conexion, i=0;
 	char* mensaje;
 	pthread_t hiloEscucha;
-	int size = list_size(colas_a_suscribir);
+
 	op_code cola;
 	t_config *config = config_create(path);
 
 	char* logPath = config_get_string_value(config,"LOG_FILE");
 	char* ipBroker = config_get_string_value(config, "IP_BROKER");
 	char* puertoBroker = config_get_string_value(config, "PUERTO_BROKER");
-	int id = config_get_int_value(config,"ID");
+	char* id = config_get_string_value(config,"ID");
 
-	t_log *logger = log_create(logPath,programeName,true,LOG_LEVEL_INFO);
+	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
 
 	conexion=crear_conexion(ipBroker,puertoBroker);
 
 	if(conexion != -1){
 		conexionOK = true;
-		for(int i = 0;i<size;i++){
+		while(vectorDeColas[i]!=NULL){
 
-			cola =(op_code) list_get(colas_a_suscribir,i);
-			enviar_mensaje_suscribir_con_id(cola, id, conexion);
+			cola = vectorDeColas[i];
+			enviar_mensaje_suscribir_con_id(cola, id, conexion, -1);
 			mensaje = client_recibir_mensaje(conexion);
 			log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje);
 			free(mensaje);
 			i++;
-		    pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
-		    pthread_detach(hiloEscucha);
-		}
 
+		}
+		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
+		pthread_detach(hiloEscucha);
 		config_destroy(config);
 		log_destroy(logger);
 		return conexionOK;
-	}
+
+	}else{
 
 	log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
 	config_destroy(config);
 	log_destroy(logger);
 	return conexionOK;
 
+	}
 }
 
-void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket){
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket, int tiempo){
 	t_package* paquete = malloc(sizeof(t_package));
 
 	paquete->header = SUSCRIBE;
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	int size_cliente = strlen(id) + 1;
-	buffer->size = sizeof(op_code) + sizeof(int) + size_cliente;
+	buffer->size = sizeof(op_code) + sizeof(int)*2 + size_cliente;
 	void* stream = malloc(buffer->size);
 
 	int tamanio = 0;
@@ -65,7 +67,9 @@ void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int soc
 	tamanio += sizeof(int);
 
 	memcpy(stream + tamanio, id, size_cliente);
+	tamanio += sizeof(size_cliente);
 
+	memcpy(stream + tamanio, &tiempo, sizeof(int));
 	buffer->stream = stream;
 
 	paquete->buffer = buffer;
@@ -81,55 +85,55 @@ void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int soc
 	free(a_enviar);
 }
 
-void crear_hilo_reconexion(char* path, char* programeName){
-
-
-
+void crear_hilo_reconexion(char* path){
 	sem_wait(&mutex_reconexion);
 	if(!seCreoHiloReconexion){
-		sem_wait(&mutex_boolReconexion);
-		seCreoHiloReconexion=true;
-		sem_post(&mutex_boolReconexion);
+		sem_post(&mutex_reconexion);
 		pthread_t th_reconexion;
 		pthread_create(&th_reconexion,NULL,(void*)_reintentar_conexion,path);
+	}else{
+		sem_post(&mutex_reconexion);
 	}
+
 
 }
 
 void _reintentar_conexion(char* path){
 
-	t_config *config = config_create(path);
-	int tiempo = config_get_int_value(config,"TIEMPO_RECONEXION");
-	char* logPath = config_get_string_value(config, "LOG_FILE");
-	char *programeName= config_get_string_value(config, "ID");
-	t_log *logger= log_create(logPath,programeName,true,LOG_LEVEL_INFO);
-	bool conexionOK = false;
-	int count = 0;
+		sem_wait(&mutex_boolReconexion);
+		seCreoHiloReconexion=true;
+		sem_post(&mutex_boolReconexion);
+		t_config *config = config_create(path);
+		int tiempo = config_get_int_value(config,"TIEMPO_RECONEXION");
+		char* logPath = config_get_string_value(config, "LOG_FILE");
+		char *programeName= config_get_string_value(config, "ID");
+		char *ip= config_get_string_value(config, "IP_BROKER");
+		char *puerto= config_get_string_value(config, "PUERTO_BROKER");
+		t_log *logger= log_create(logPath,programeName,true,LOG_LEVEL_INFO);
+		bool conexionOK = false;
+		int count = 0;
 
-	log_info(logger,"RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker");
+		log_info(logger,"RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker");
 
-	while(!conexionOK){
-		if(count != 0){
-			log_info(logger,"RECONEXION; FALLIDA, se realiza un nuevo intento");
+		while(!conexionOK){
+			if(count != 0){
+				log_info(logger,"RECONEXION; FALLIDA, se realiza un nuevo intento");
+			}
+
+
+			sleep(tiempo);
+			conexionOK =suscribirse_a_colas(path);
+			++count ;
 		}
+		log_info(logger,"RECONEXION; EXITOSA, cantidad de intentos: %d", count);
+		config_destroy(config);
+		log_destroy(logger);
+		sem_wait(&mutex_boolReconexion);
+		seCreoHiloReconexion=false;
+		sem_post(&mutex_boolReconexion);
+		sem_post(&mutex_suscripcion);
 
-
-		sleep(tiempo);
-		conexionOK = suscribirse_a_colas(path,programeName);
-		++count ;
-	}
-
-	log_info(logger,"RECONEXION; EXITOSA, cantidad de intentos: %d", count);
-	sem_post(&mutex_reconexion);
-
-	config_destroy(config);
-	log_destroy(logger);
-	sem_wait(&mutex_boolReconexion);
-	seCreoHiloReconexion=false;
-	sem_post(&mutex_boolReconexion);
 }
-
-
 //--------------------------------------------------------------------------------------------------------------------//
 
 /*
@@ -359,9 +363,9 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
-		op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
+		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; GET-> 'Pokemon %s sin locaciones'", especiePokemon);
-		crear_hilo_reconexion("./team.config","TEAM");
+		crear_hilo_reconexion("./team.config");
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	mensaje=client_recibir_mensaje(conexion);
@@ -388,8 +392,9 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
-		op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
-		crear_hilo_reconexion("./team.config","TEAM");
+		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
+			crear_hilo_reconexion("./team.config");
+		sem_post(&mutex_boolReconexion);
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; CATCH-> 'Entrenador %d captura pokemon %s con exito'",entrenador->id,especiePokemon);
 		list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 		entrenador->id_catch=0;
@@ -397,6 +402,9 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		entrenador->espacioLibre--;
 		t_pokemonObjetivo *pokemonCapturado = list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonCapturado->cantidad--;
+		if(entrenador->espacioLibre!=0){
+			sem_post(&sem_entrenador_disponible);
+		}
 		t_list* entrenadores_no_disponibles = buscar_entrenadores_bloqueados_NOdisponibles();
 		if(list_is_empty(entrenadores_no_disponibles)){
 			sem_post(&sem_deadlcok);
@@ -404,6 +412,8 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		list_destroy(entrenadores_no_disponibles);
 		//log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
 		log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
+		mover_entrenador_bloqueado_a_exit(entrenador);
+
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
 		printf("Envio catch pokemon %s\n",especiePokemon);
@@ -486,7 +496,7 @@ void inicializar_config_data(){
 	sizePT = strlen(config_get_string_value(configTEAM,"PUERTO_TEAM"))+1;
 	configData->puertoTeam= malloc(sizePT);
 	sizeID = strlen(config_get_string_value(configTEAM,"ID"))+1;
-	configData->puertoTeam= malloc(sizeID);
+	configData->id= malloc(sizeID);
 
 
 
@@ -535,15 +545,19 @@ void pokemonObjetivo_destroyer(t_pokemonObjetivo* pokemon){
 
 void liberar_lista_objetivos(){
 
-	list_destroy_and_destroy_elements(lista_objetivo,pokemonObjetivo_destroyer);
-
+	if(!list_is_empty(lista_objetivo)){
+		list_destroy_and_destroy_elements(lista_objetivo,pokemonObjetivo_destroyer);
+	}else{
+		list_destroy(lista_objetivo);
+	}
 }
 
 
 void pokemon_destroyer(t_pokemon* pokemon){
 
-	//free(pokemon->especie);
+	if(pokemon!=NULL){
 	free(pokemon);
+	}
 }
 
 void liberar_lista_pokemons_recibidos(){
@@ -583,9 +597,6 @@ void liberar_ids_mensajes_enviados(){
 	list_destroy_and_destroy_elements(ids_mensajes_enviados, mensaje_destroyer);
 }
 
-void liberar_colas_a_suscribir(){
-	list_destroy(colas_a_suscribir);
-}
 
 void finalizar_y_liberar(){
 
@@ -596,7 +607,6 @@ void finalizar_y_liberar(){
 	liberar_lista_pokemons_recibidos();
 	liberar_ids_mensajes_enviados();
 	liberar_entrenadores_de_lista(cola_EXIT);
-	liberar_colas_a_suscribir();
 	list_destroy(cola_EXEC);
 	list_destroy(cola_BLOQUED);
 	list_destroy(cola_NEW);
