@@ -436,6 +436,7 @@ void inicializar_datos() {
 	particionInicial->tamanoMensaje = calcular_tamano(tamanoMemoria, 0);
 	particionInicial->suscriptores_ack = list_create();
 	particionInicial->suscriptores_enviados = list_create();
+	particionInicial->lruHora = time(NULL);
 	list_add(particiones, particionInicial);
 	punteroMemoriaFinal = (char*)punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
 	printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
@@ -597,6 +598,7 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 						calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
 				nuevaParticion->suscriptores_ack = list_create();
 				nuevaParticion->suscriptores_enviados = list_create();
+				nuevaParticion->lruHora = time(NULL);
 				list_add(particiones, nuevaParticion);
 				printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
 				printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -654,6 +656,7 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 					calcular_tamano((char*) mensajeCompleto->size_mensaje_cuerpo, 0);
 			nuevaParticion->suscriptores_ack = list_create();
 			nuevaParticion->suscriptores_enviados = list_create();
+			nuevaParticion->lruHora = time(NULL);
 			list_add(particiones, nuevaParticion);
 			printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
 			printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -1342,9 +1345,9 @@ void guardar_estado_memoria(FILE* file) {
 		punteroParticion particion = list_get(listaParticiones, j);
 		char fecha[50];
 		struct tm* timeinfo;
-		time(&particion->lruHora);
+		//time(&particion->lruHora);
 		timeinfo = localtime(&particion->lruHora);
-		strftime(fecha, 50, "%I:%M", timeinfo);
+		strftime(fecha, 50, "%H:%M:%S", timeinfo);
 		char* ocupada = particion->ocupada ? "X" : "L";
 		char* cola;
 		switch(particion->colaMensaje) {
@@ -1354,9 +1357,10 @@ void guardar_estado_memoria(FILE* file) {
 			case LOCALIZED_POKEMON: cola = "LOCALIZED_POKEMON"; break;
 			case CATCH_POKEMON: cola = "CATCH_POKEMON"; break;
 			case CAUGHT_POKEMON: cola = "CAUGHT_POKEMON"; break;
+			default: cola = "NO_ASIGNADA"; break;
 		}
 		fprintf(file, string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %s	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
-				(char*)particion->punteroMemoria + particion->tamanoMensaje, ocupada, particion->tamanoMensaje, fecha, cola, particion->id));
+				(char*)particion->punteroMemoria + particion->tamanoMensaje - 1, ocupada, particion->tamanoMensaje, fecha, cola, particion->id));
 	}
 }
 
