@@ -29,8 +29,6 @@ int tamanoMinimoParticion;
 char* algoritmoMemoria;
 char* algoritmoReemplazo;
 char* algoritmoParticionLibre;
-char* algoritmoBuddySystem;
-char* bsAlgoritmoReemplazo;
 int frecuenciaCompactacion;
 char* logFile;
 
@@ -78,6 +76,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
+void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 
