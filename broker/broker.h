@@ -10,6 +10,7 @@
 #include <commons/log.h>
 #include <semaphore.h>
 #include <time.h>
+#include<signal.h>
 
 #define  THREAD_POOL 6
 #define  SEM_POOL 8
@@ -105,6 +106,9 @@ puntero_mensaje obtener_mensaje_memoria(punteroParticion particion);
 uint32_t calcular_tamano(char* memoriaActual, char* memoriaNueva);
 uint32_t convertir_decimal(uint32_t decimal);
 uint32_t convertir_hexadecimal_decimal(char* hexadecimal);
+bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
+void manejo_dump_cache(int num);
+
 int cantidad_mensajes;
 
 #endif /* SERVIDOR_H_ */

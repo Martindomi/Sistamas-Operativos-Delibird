@@ -381,6 +381,9 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 }
 
 void inicializar_datos() {
+	printf("Process id %d\n", getpid());
+
+	signal(SIGUSR1, manejo_dump_cache);
 
 	new_pokemon = malloc(sizeof(t_cola_mensaje));
 	(*new_pokemon).suscriptores = list_create();
@@ -434,7 +437,7 @@ void inicializar_datos() {
 	particionInicial->suscriptores_ack = list_create();
 	particionInicial->suscriptores_enviados = list_create();
 	list_add(particiones, particionInicial);
-	punteroMemoriaFinal = punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
+	punteroMemoriaFinal = (char*)punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
 	printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
 }
 
@@ -680,6 +683,10 @@ void compactar_memoria() {
 	punteroParticion punteroParticionDesocupada = NULL;
 	punteroParticion punteroParticionOcupada = NULL;
 
+	list_sort(particiones, ordernar_particiones_memoria);
+
+	ver_estado_memoria();
+
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticionRecorrer = list_get(particiones, i);
 		if(punteroParticionDesocupada == NULL){
@@ -711,12 +718,20 @@ void eliminar_particion() {
 	printf("Eliminar particion\n");
 	int indexEliminar;
 	if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
-		indexEliminar = guard(eliminar_particion_fifo(), "Problema al eliminar una particion\n");
+		indexEliminar = eliminar_particion_fifo();
 	} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
-		indexEliminar = guard(eliminar_particion_lru(), "Problema al eliminar una particion\n");
+		indexEliminar = eliminar_particion_lru();
 	}
-	eliminar_particion_seleccionada(indexEliminar);
-	consolidar(indexEliminar);
+	printf("Indice a eliminar %d\n", indexEliminar);
+
+	if(indexEliminar != -1) {
+		eliminar_particion_seleccionada(indexEliminar);
+		consolidar(indexEliminar);
+	} else {
+		if(list_size(particiones) > 0) {
+			consolidar(0);
+		}
+	}
 }
 
 int eliminar_particion_fifo() {
@@ -725,11 +740,13 @@ int eliminar_particion_fifo() {
 	punteroParticionMenorId = list_find(particiones, (void*)primer_puntero_ocupado);
 	int index = -1;
 	// BUSCO PARTICION CON MENOR ID => MENSAJE MAS VIEJO EN MEMORIA
-	for(int i = 0; i < list_size(particiones); i++) {
-		punteroParticion punteroParticionEncontrado = list_get(particiones, i);
-		if(punteroParticionMenorId->id >= punteroParticionEncontrado->id && punteroParticionEncontrado->ocupada) {
-			punteroParticionMenorId = punteroParticionEncontrado;
-			index = i;
+	if(punteroParticionMenorId != NULL) {
+		for(int i = 0; i < list_size(particiones); i++) {
+			punteroParticion punteroParticionEncontrado = list_get(particiones, i);
+			if(punteroParticionMenorId->id >= punteroParticionEncontrado->id && punteroParticionEncontrado->ocupada) {
+				punteroParticionMenorId = punteroParticionEncontrado;
+				index = i;
+			}
 		}
 	}
 
@@ -756,6 +773,7 @@ int eliminar_particion_lru() {
 void eliminar_particion_seleccionada(int index) {
 	printf("Encuentra una particion para eliminar\n");
 	punteroParticion punteroParticionEliminar = list_get(particiones, index);
+	printf("Particion eliminada %p con mensaje con id %d\n", punteroParticionEliminar->punteroMemoria, punteroParticionEliminar->id);
 	punteroParticionEliminar->ocupada = false;
 
 	t_cola_mensaje* cola = selecciono_cola(punteroParticionEliminar->colaMensaje);
@@ -778,7 +796,7 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 
 	punteroParticionOcupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria;
 
-	punteroParticionDesocupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria
+	punteroParticionDesocupada->punteroMemoria = (char*)punteroParticionDesocupada->punteroMemoria
 			+ punteroParticionOcupada->tamanoMensaje;
 
 	printf("Realiza el intercambio de las particiones\n");
@@ -808,7 +826,7 @@ void consolidar(int indexEliminado) {
 		bool encuentro_particion_posterior(void* elemento) {
 			punteroParticion particion = (punteroParticion*)elemento;
 			return particion->punteroMemoria
-					== (char*)punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje + 1;
+					== (char*)punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje;
 		}
 		printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
@@ -1302,4 +1320,63 @@ uint32_t convertir_decimal(uint32_t decimal) {
 
 uint32_t convertir_hexadecimal_decimal(char* hexadecimal) {
 	return atoi(hexadecimal);
+}
+
+bool ordernar_particiones_memoria(void* puntero1, void* puntero2) {
+	punteroParticion particion1 = (punteroParticion) puntero1;
+	punteroParticion particion2 = (punteroParticion) puntero2;
+	return particion1->punteroMemoria < particion2->punteroMemoria;
+}
+
+void ver_estado_memoria() {
+	for(int j = 0; j < list_size(particiones); j++) {
+		punteroParticion asd = list_get(particiones, j);
+		printf("Puntero %p. Estado %d\n", asd->punteroMemoria, asd->ocupada);
+		printf("Tamano de mensaje %d\n", asd->tamanoMensaje);
+	}
+}
+
+void guardar_estado_memoria(FILE* file) {
+	t_list* listaParticiones = list_sorted(particiones, ordernar_particiones_memoria);
+	for(int j = 0; j < list_size(listaParticiones); j++) {
+		punteroParticion particion = list_get(listaParticiones, j);
+		char fecha[50];
+		struct tm* timeinfo;
+		time(&particion->lruHora);
+		timeinfo = localtime(&particion->lruHora);
+		strftime(fecha, 50, "%I:%M", timeinfo);
+		char* ocupada = particion->ocupada ? "X" : "L";
+		char* cola;
+		switch(particion->colaMensaje) {
+			case NEW_POKEMON: cola = "NEW_POKEMON"; break;
+			case APPEARED_POKEMON: cola = "APPEARED_POKEMON"; break;
+			case GET_POKEMON: cola = "GET_POKEMON"; break;
+			case LOCALIZED_POKEMON: cola = "LOCALIZED_POKEMON"; break;
+			case CATCH_POKEMON: cola = "CATCH_POKEMON"; break;
+			case CAUGHT_POKEMON: cola = "CAUGHT_POKEMON"; break;
+		}
+		fprintf(file, string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %s	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
+				(char*)particion->punteroMemoria + particion->tamanoMensaje, ocupada, particion->tamanoMensaje, fecha, cola, particion->id));
+	}
+}
+
+void manejo_dump_cache(int num) {
+	FILE* dump = fopen("../dump.log", "a");
+	/*char fecha[50];
+	time_t hoy;
+	struct tm* timeinfo;
+	time(&hoy);
+	timeinfo = localtime(&hoy);
+	strftime(fecha, 50, "%I:%M", timeinfo);
+
+	char* infoHeader = malloc(500);
+	infoHeader = "Dump: ";
+	char* result;
+	strcpy(result, infoHeader);
+	strcat(result, fecha);
+	write(STDOUT_FILENO, fecha, 500);*/
+
+	guardar_estado_memoria(dump);
+
+	fclose(dump);
 }
