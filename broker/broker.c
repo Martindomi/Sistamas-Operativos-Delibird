@@ -1362,21 +1362,24 @@ void guardar_estado_memoria(FILE* file) {
 
 void manejo_dump_cache(int num) {
 	FILE* dump = fopen("../dump.log", "a");
-	/*char fecha[50];
+	char fecha[50];
 	time_t hoy;
 	struct tm* timeinfo;
 	time(&hoy);
 	timeinfo = localtime(&hoy);
-	strftime(fecha, 50, "%I:%M", timeinfo);
+	strftime(fecha, 50, "%d/%m/%Y %T", timeinfo);
 
 	char* infoHeader = malloc(500);
 	infoHeader = "Dump: ";
-	char* result;
-	strcpy(result, infoHeader);
-	strcat(result, fecha);
-	write(STDOUT_FILENO, fecha, 500);*/
+
+	fprintf(dump, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf(dump, infoHeader);
+	fprintf(dump, fecha);
+	fprintf(dump, "\n");
 
 	guardar_estado_memoria(dump);
+
+	fprintf(dump, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
 	fclose(dump);
 }
