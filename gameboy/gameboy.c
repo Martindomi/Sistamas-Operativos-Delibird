@@ -6,13 +6,12 @@ int main(int argc, char *argv[]){
 	uint32_t cola_destino;
 
 
-	inicializar_datos(config);/*
-	argc = 5;
-	argv[1]="BROKER";
-	argv[2] = "CAUGHT_POKEMON";
-	argv[3] = "2";
-	argv[4]= "OK";
-*/
+	inicializar_datos(config);
+	/*argc = 4;
+	argv[1]="SUSCRIPTOR";
+	argv[2] = "GET_POKEMON";
+	argv[3] = "10";*/
+
 	if(argc >= 2) {
 		proceso = argv[1];
 
@@ -41,9 +40,10 @@ int main(int argc, char *argv[]){
 
 
 	*/
-		op_code cola = (op_code)atoi(argv[2]);
+		op_code cola = obtener_cola_mensaje(argv[2]);
 		int tiempo = atoi(argv[3]);
-		suscribirse_a_cola_gameboy(config->path,cola,tiempo);
+
+		suscribirse_a_cola_gameboy(cola,tiempo);
 
 	} else if ((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc != 4)) {
 		manejar_error_mensaje();
@@ -172,11 +172,12 @@ void inicializar_datos(t_config* config) {
 	puerto_gamecard = config_get_string_value(config, "PUERTO_GAMECARD");
 	ip_gameboy = config_get_string_value(config, "IP_GAMEBOY");
 	puerto_gameboy = config_get_string_value(config, "PUERTO_GAMEBOY");
+	id_proceso = config_get_string_value(config,"ID");
 
 	ACK = "ACK";
 }
 
-void realizar_suscripcion(uint32_t cola_destino, int tiempo_suscripto) {
+/*void realizar_suscripcion(uint32_t cola_destino, int tiempo_suscripto) {
 	char* ip_puerto_gameboy = malloc(strlen(ip_gameboy) + strlen(puerto_gameboy) + strlen(":") + 2);
 	strcpy(ip_puerto_gameboy, ip_gameboy);
 	strcat(ip_puerto_gameboy, ":");
@@ -193,7 +194,7 @@ void realizar_suscripcion(uint32_t cola_destino, int tiempo_suscripto) {
 
 	liberar_conexion(conexion);
 	free(ip_puerto_gameboy);
-}
+}*/
 
 void aplica_funcion_escucha(int * socket) {
 	printf("recibe mensaje del broker\n");
@@ -202,39 +203,44 @@ void aplica_funcion_escucha(int * socket) {
 	uint32_t size;
 
 	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	printf("socket %d", *socket);
-	printf("cod op %d", cod_op);
+	printf("socket %d\n", *socket);
+	printf("cod op %d\n", cod_op);
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
-	printf("PASE ACK %s", ACK);
+	printf("PASE ACK %s\n", ACK);
 	switch(cod_op) {
 		case NEW_POKEMON: {
 			mensajeRecibido = recibir_new_pokemon(*socket, &size);
-			printf("mensaje new pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje new pokemon recibido con id %d\n", mensajeRecibido->id);
 			break;
 		}
 		case APPEARED_POKEMON: {
 			mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
-			printf("mensaje appeared pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje appeared pokemon recibido con id %d\n", mensajeRecibido->id);
 			break;
 		}
 		case GET_POKEMON: {
 			mensajeRecibido = recibir_get_pokemon(*socket, &size);
-			printf("mensaje get pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje get pokemon recibido con id %d\n", mensajeRecibido->id);
 			break;
 		}
 		case LOCALIZED_POKEMON: {
 			mensajeRecibido = recibir_localized_pokemon(*socket, &size);
-			printf("mensaje localized pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje localized pokemon recibido con id %d\n", mensajeRecibido->id);
 			break;
 		}
 		case CATCH_POKEMON: {
 			mensajeRecibido = recibir_catch_pokemon(*socket, &size);
-			printf("mensaje catch pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje catch pokemon recibido con id %d\n", mensajeRecibido->id);
 			break;
 		}
 		case CAUGHT_POKEMON: {
 			mensajeRecibido = recibir_caught_pokemon(*socket, &size);
-			printf("mensaje caught pokemon recibido con id %d", mensajeRecibido->id);
+			printf("mensaje caught pokemon recibido con id %d\n", mensajeRecibido->id);
+			break;
+		}
+		case MESSAGE: {
+			mensajeRecibido = client_recibir_mensaje(*socket);
+			printf("mensaje recibido\n");
 			break;
 		}
 		default: {
@@ -247,7 +253,7 @@ void aplica_funcion_escucha(int * socket) {
 op_code vectorDeColas[1];
 //--------------------------------------------------------------------------------------------------------------------//
 
-bool suscribirse_a_cola_gameboy(char* path,op_code cola_elegida ,int tiempo){
+bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 
 	vectorDeColas[0]=cola_elegida;
 	bool conexionOK=false;
@@ -256,85 +262,41 @@ bool suscribirse_a_cola_gameboy(char* path,op_code cola_elegida ,int tiempo){
 	pthread_t hiloEscucha, hiloSleep;
 
 	op_code cola;
-	t_config *config = config_create(path);
+	printf("hola1\n");
 
-	char* logPath = config_get_string_value(config,"LOG_FILE");
-	char* ipBroker = config_get_string_value(config, "IP_BROKER");
-	char* puertoBroker = config_get_string_value(config, "PUERTO_BROKER");
-	char* id = config_get_string_value(config,"ID");
-
-	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
-
-	conexion=crear_conexion(ipBroker,puertoBroker);
-
+	conexion = crear_conexion(ip_broker,puerto_broker);
+	printf("hola\n");
 	if(conexion != -1){
 		conexionOK = true;
-		while(vectorDeColas[i]!=NULL){
+		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, conexion);
+		pthread_detach(&hiloEscucha);
+		//while(vectorDeColas[i]!=NULL){
 
 			cola = vectorDeColas[i];
-			enviar_mensaje_suscribir_con_id(cola, id, conexion, tiempo);
+			printf("Conexion %d\n", conexion);
+			enviar_mensaje_suscribir_con_id(cola, id_proceso, conexion, tiempo);
 			mensaje = client_recibir_mensaje(conexion);
-			log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje);
+			log_info(logger_gameboy,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s\n", mensaje);
 			free(mensaje);
 			i++;
 
-		}
-		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
-		pthread_detach(&hiloEscucha);
+		//}
+
 		pthread_create(&hiloSleep,NULL,(void*)sleep(tiempo), NULL);
 		pthread_join(&hiloSleep,NULL);
 
 
-		config_destroy(config);
-		log_destroy(logger);
+		//log_destroy(logger_gameboy);
 		return conexionOK;
 
 	}else{
 
-	log_info(logger,"NO SE PUDO CONECTAR AL BROKER");
-	config_destroy(config);
-	log_destroy(logger);
+	log_info(logger_gameboy,"NO SE PUDO CONECTAR AL BROKER");
+	//log_destroy(logger_gameboy);
 	return conexionOK;
 
 	}
 }
-
-void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket, int tiempo){
-	t_package* paquete = malloc(sizeof(t_package));
-
-	paquete->header = SUSCRIBE;
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	int size_cliente = strlen(id) + 1;
-	buffer->size = sizeof(op_code) + sizeof(int)*2 + size_cliente;
-	void* stream = malloc(buffer->size);
-
-	int tamanio = 0;
-	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
-	tamanio += sizeof(op_code);
-
-	memcpy(stream + tamanio, &size_cliente, sizeof(int));
-	tamanio += sizeof(int);
-
-	memcpy(stream + tamanio, id, size_cliente);
-	tamanio += sizeof(size_cliente);
-
-	memcpy(stream + tamanio, &tiempo, sizeof(int));
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-}
-
-
 
 
 //--------------------------------------------------------------------------------------------------------------------//

@@ -50,40 +50,7 @@ bool suscribirse_a_colas(char* path){
 	}
 }
 
-void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket, int tiempo){
-	t_package* paquete = malloc(sizeof(t_package));
 
-	paquete->header = SUSCRIBE;
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	int size_cliente = strlen(id) + 1;
-	buffer->size = sizeof(op_code) + sizeof(int)*2 + size_cliente;
-	void* stream = malloc(buffer->size);
-
-	int tamanio = 0;
-	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
-	tamanio += sizeof(op_code);
-
-	memcpy(stream + tamanio, &size_cliente, sizeof(int));
-	tamanio += sizeof(int);
-
-	memcpy(stream + tamanio, id, size_cliente);
-	tamanio += sizeof(size_cliente);
-
-	memcpy(stream + tamanio, &tiempo, sizeof(int));
-	buffer->stream = stream;
-
-	paquete->buffer = buffer;
-
-	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
-	void* a_enviar = serializar_paquete(paquete, &bytes);
-
-	send(socket, a_enviar, bytes, 0);
-
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
-	free(a_enviar);
-}
 
 void crear_hilo_reconexion(char* path){
 	sem_wait(&mutex_reconexion);

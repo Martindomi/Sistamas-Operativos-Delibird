@@ -112,15 +112,15 @@ typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
 typedef struct {
 	op_code cola;
 	char* cliente;
+	int tiempo;
 } t_suscripcion_cola;
 typedef t_suscripcion_cola* puntero_suscripcion_cola;
 
 typedef struct {
-	op_code cola;
-	char* id;
-	int tiempo;
-} t_suscripcion_cola_ID;
-typedef t_suscripcion_cola_ID* puntero_suscripcion_cola_ID;
+	char* cliente;
+	int socket;
+} t_suscriptor;
+typedef t_suscriptor* puntero_suscriptor;
 
 
 t_log* logger_global;

@@ -19,6 +19,7 @@ char* ip_gamecard;
 char* puerto_gamecard;
 char* ip_gameboy;
 char* puerto_gameboy;
+char* id_proceso;
 char* ACK;
 
 t_log* logger_gameboy;
@@ -34,8 +35,7 @@ sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
 // cada uno debe vrear el suyo de todo lo que esta arriba
 
 bool suscribirse_a_colas(char* path);
-void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket,int tiempo);
-bool suscribirse_a_cola_gameboy(char* path,op_code cola_elegida ,int tiempo);
+bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo);
 //--------------------------------------------------------
 
 #endif /* TP0_H_ */

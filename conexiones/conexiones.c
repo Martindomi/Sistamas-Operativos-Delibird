@@ -674,7 +674,7 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 
 	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
 	void* a_enviar = serializar_paquete(paquete, &bytes);
-
+	printf("%d\n", socket_cliente);
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(paquete->buffer->stream);
@@ -864,7 +864,7 @@ puntero_mensaje obtener_mensaje_localized(void* buffer) {
 }
 
 //----------------------------------SUSCRIPCION-------------------------------------------------
-void enviar_mensaje_suscribir(op_code codigo_operacion, char* ip_puerto_cliente, int socket){
+/*void enviar_mensaje_suscribir(op_code codigo_operacion, char* ip_puerto_cliente, int socket){
 	t_package* paquete = malloc(sizeof(t_package));
 
 	paquete->header = SUSCRIBE;
@@ -895,6 +895,41 @@ void enviar_mensaje_suscribir(op_code codigo_operacion, char* ip_puerto_cliente,
 	free(paquete->buffer);
 	free(paquete);
 	free(a_enviar);
+}*/
+
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket, int tiempo){
+	t_package* paquete = malloc(sizeof(t_package));
+
+	paquete->header = SUSCRIBE;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	int size_cliente = strlen(id) + 1;
+	buffer->size = sizeof(op_code) + sizeof(int)*2 + size_cliente;
+	void* stream = malloc(buffer->size);
+
+	int tamanio = 0;
+	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
+	tamanio += sizeof(op_code);
+
+	memcpy(stream + tamanio, &size_cliente, sizeof(int));
+	tamanio += sizeof(int);
+
+	memcpy(stream + tamanio, id, size_cliente);
+	tamanio += size_cliente;
+
+	memcpy(stream + tamanio, &tiempo, sizeof(int));
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
 }
 
 puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size, t_log* logger_broker){
@@ -904,6 +939,7 @@ puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size
 	int puerto_size;
 	char* puerto;
 	op_code codigo_cola;
+	int tiempo;
 
 	log_info(logger_broker, "PASA MALLOC");
 	log_info(logger_broker, &buffer);
@@ -918,9 +954,13 @@ puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size
 
 	puerto = malloc(puerto_size);
 	memcpy(puerto, buffer + desplazamiento, puerto_size);
+	desplazamiento += puerto_size;
+
+	memcpy(&tiempo, buffer + desplazamiento, sizeof(int));
 
 	mensaje_recibido->cola = codigo_cola;
 	mensaje_recibido->cliente = puerto;
+	mensaje_recibido->tiempo = tiempo;
 
 	free(buffer);
 	return mensaje_recibido;
@@ -973,6 +1013,7 @@ void crear_hilo_escucha(char* ip, char* puerto)
 
 void* hilo_escucha(int socket_servidor){
 	int socketser = socket_servidor;
+	printf("%d\n", socketser);
 	while(1){
 
 		struct sockaddr_in dir_cliente;
@@ -982,13 +1023,13 @@ void* hilo_escucha(int socket_servidor){
 
 		if (socket_cliente == -1) {
 
-		//		printf("No pending connections; sleeping for one second.\n");
+				printf("No pending connections; sleeping for one second.\n");
 
 				sleep(1);
 
 		} else {
 			int socket = socket_cliente;
-		//	printf("Got a connection; writing 'hello' then closing.\n");
+			printf("Got a connection; writing 'hello' then closing.\n");
 			aplica_funcion_escucha(&socket);
 		}
 	}
