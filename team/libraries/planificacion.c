@@ -216,7 +216,7 @@ t_entrenador* buscar_entrenador_con_rafaga_mas_corta(){
 
 		bool comparar_rafagas(t_entrenador * entrenador, t_entrenador * entrenador2){
 
-			return entrenador->estimacion <= entrenador2->estimacion;
+			return entrenador->estimacionRestante <= entrenador2->estimacionRestante;
 		}
 		if(list_size(cola_READY)>1){
 			list_sort(cola_READY, comparar_rafagas);

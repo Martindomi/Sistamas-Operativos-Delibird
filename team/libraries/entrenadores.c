@@ -390,7 +390,7 @@ bool entrenador_tiene_menor_rafaga(t_entrenador* entrenador, int *sizeAntes){
 		(*sizeAntes)++;
 		entrenadorAComparar = buscar_entrenador_con_rafaga_mas_corta();
 
-		if(entrenador->estimacionRestante > entrenadorAComparar->estimacion){
+		if(entrenador->estimacionRestante > entrenadorAComparar->estimacionRestante){
 			return true;
 		}
 

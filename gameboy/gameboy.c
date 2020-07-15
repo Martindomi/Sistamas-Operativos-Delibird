@@ -34,10 +34,16 @@ int main(int argc, char *argv[]){
 
 	if((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc == 4)) {
 		// TODO SUSCRIPCION
-		printf("ip %s puerto %s\n", ip_gameboy, puerto_gameboy);
+	/*	printf("ip %s puerto %s\n", ip_gameboy, puerto_gameboy);
 		crear_hilo_escucha(ip_gameboy, puerto_gameboy);
 		realizar_suscripcion(cola_destino, atoi(argv[3]));
 		sleep(30000);
+
+
+	*/
+		op_code cola = (op_code)atoi(argv[2]);
+		int tiempo = atoi(argv[3]);
+		suscribirse_a_cola_gameboy(config->path,cola,tiempo);
 
 	} else if ((strcmp(proceso,"SUSCRIPTOR") == 0) && (argc != 4)) {
 		manejar_error_mensaje();
@@ -144,7 +150,9 @@ uint32_t obtener_cola_mensaje(char* cola_string) {
 		return CATCH_POKEMON;
 	} else if(strcmp(cola_string,"CAUGHT_POKEMON") == 0) {
 		return CAUGHT_POKEMON;
-	} else {
+	} else if(strcmp(cola_string,"SUSCRIBE")==0){
+		return SUSCRIBE;
+	}else{
 		return 0;
 	}
 }
@@ -234,3 +242,100 @@ void aplica_funcion_escucha(int * socket) {
 		}
 	}
 }
+
+
+op_code vectorDeColas[1];
+//--------------------------------------------------------------------------------------------------------------------//
+
+bool suscribirse_a_cola_gameboy(char* path,op_code cola_elegida ,int tiempo){
+
+	vectorDeColas[0]=cola_elegida;
+	bool conexionOK=false;
+	int conexion, i=0, tiempoRestante = 0;
+	char* mensaje;
+	pthread_t hiloEscucha, hiloSleep;
+
+	op_code cola;
+	t_config *config = config_create(path);
+
+	char* logPath = config_get_string_value(config,"LOG_FILE");
+	char* ipBroker = config_get_string_value(config, "IP_BROKER");
+	char* puertoBroker = config_get_string_value(config, "PUERTO_BROKER");
+	char* id = config_get_string_value(config,"ID");
+
+	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
+
+	conexion=crear_conexion(ipBroker,puertoBroker);
+
+	if(conexion != -1){
+		conexionOK = true;
+		while(vectorDeColas[i]!=NULL){
+
+			cola = vectorDeColas[i];
+			enviar_mensaje_suscribir_con_id(cola, id, conexion, tiempo);
+			mensaje = client_recibir_mensaje(conexion);
+			log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje);
+			free(mensaje);
+			i++;
+
+		}
+		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
+		pthread_detach(&hiloEscucha);
+		pthread_create(&hiloSleep,NULL,(void*)sleep(tiempo), NULL);
+		pthread_join(&hiloSleep,NULL);
+
+
+		config_destroy(config);
+		log_destroy(logger);
+		return conexionOK;
+
+	}else{
+
+	log_info(logger,"NO SE PUDO CONECTAR AL BROKER");
+	config_destroy(config);
+	log_destroy(logger);
+	return conexionOK;
+
+	}
+}
+
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket, int tiempo){
+	t_package* paquete = malloc(sizeof(t_package));
+
+	paquete->header = SUSCRIBE;
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	int size_cliente = strlen(id) + 1;
+	buffer->size = sizeof(op_code) + sizeof(int)*2 + size_cliente;
+	void* stream = malloc(buffer->size);
+
+	int tamanio = 0;
+	memcpy(stream + tamanio, &codigo_operacion, sizeof(op_code));
+	tamanio += sizeof(op_code);
+
+	memcpy(stream + tamanio, &size_cliente, sizeof(int));
+	tamanio += sizeof(int);
+
+	memcpy(stream + tamanio, id, size_cliente);
+	tamanio += sizeof(size_cliente);
+
+	memcpy(stream + tamanio, &tiempo, sizeof(int));
+	buffer->stream = stream;
+
+	paquete->buffer = buffer;
+
+	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
+	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	send(socket, a_enviar, bytes, 0);
+
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
+	free(a_enviar);
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------------//
+
