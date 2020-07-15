@@ -344,7 +344,7 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		}
 		case GET_POKEMON: {
 			puntero_mensaje_get_pokemon puntero_mensaje = ((puntero_mensaje_get_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
-
+			printf("pokemon------------> %s\n", puntero_mensaje->name_pokemon);
 			char* nombre = puntero_mensaje->name_pokemon;
 			printf("No envia mensaje\n");
 			send_message_get_pokemon(nombre, id, id_correlativo, conexion);
@@ -402,7 +402,7 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 	}
 
 	free(mensaje_recibido);
-	close(conexion);
+	//close(conexion);
 }
 
 void inicializar_datos() {

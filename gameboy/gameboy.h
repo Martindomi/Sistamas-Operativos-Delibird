@@ -10,6 +10,7 @@
 #include<readline/readline.h>
 #include<conexiones.h>
 #include<semaphore.h>
+#include <sys/time.h>
 
 char* ip_broker;
 char* puerto_broker;
@@ -36,6 +37,7 @@ sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
 
 bool suscribirse_a_colas(char* path);
 bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo);
+char* client_recibir_mensaje_gameboy(int socket_cliente);
 //--------------------------------------------------------
 
 #endif /* TP0_H_ */

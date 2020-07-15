@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+
 typedef enum
 {
 	MESSAGE=1,
@@ -138,7 +139,7 @@ void* serializar_mensaje(t_package* paquete, int *bytes);
 void devolver_mensaje(void* payload, int size, int socket_cliente);
 
 // Client
-
+int crear_conexion_servidor(char* ip, char* puerto);
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 char* client_recibir_mensaje(int socket_cliente);

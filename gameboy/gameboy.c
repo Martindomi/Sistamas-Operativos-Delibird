@@ -7,11 +7,11 @@ int main(int argc, char *argv[]){
 
 
 	inicializar_datos(config);
-	/*argc = 4;
+/*	argc = 4;
 	argv[1]="SUSCRIPTOR";
 	argv[2] = "GET_POKEMON";
-	argv[3] = "10";*/
-
+	argv[3] = "50";
+*/
 	if(argc >= 2) {
 		proceso = argv[1];
 
@@ -196,57 +196,89 @@ void inicializar_datos(t_config* config) {
 	free(ip_puerto_gameboy);
 }*/
 
-void aplica_funcion_escucha(int * socket) {
-	printf("recibe mensaje del broker\n");
-	op_code cod_op;
-	puntero_mensaje mensajeRecibido;
-	uint32_t size;
+void aplica_funcion_escucha(int *socket) {
 
-	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-	printf("socket %d\n", *socket);
-	printf("cod op %d\n", cod_op);
-	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
-	printf("PASE ACK %s\n", ACK);
-	switch(cod_op) {
-		case NEW_POKEMON: {
-			mensajeRecibido = recibir_new_pokemon(*socket, &size);
-			printf("mensaje new pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case APPEARED_POKEMON: {
-			mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
-			printf("mensaje appeared pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case GET_POKEMON: {
-			mensajeRecibido = recibir_get_pokemon(*socket, &size);
-			printf("mensaje get pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case LOCALIZED_POKEMON: {
-			mensajeRecibido = recibir_localized_pokemon(*socket, &size);
-			printf("mensaje localized pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case CATCH_POKEMON: {
-			mensajeRecibido = recibir_catch_pokemon(*socket, &size);
-			printf("mensaje catch pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case CAUGHT_POKEMON: {
-			mensajeRecibido = recibir_caught_pokemon(*socket, &size);
-			printf("mensaje caught pokemon recibido con id %d\n", mensajeRecibido->id);
-			break;
-		}
-		case MESSAGE: {
-			mensajeRecibido = client_recibir_mensaje(*socket);
-			printf("mensaje recibido\n");
-			break;
-		}
-		default: {
 
+	while(1){
+
+
+		printf("recibe mensaje del broker\n");
+		op_code cod_op=0;
+		puntero_mensaje mensajeRecibido;
+		uint32_t size;
+
+		recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+		printf("socket %d\n", *socket);
+		printf("cod op %d\n", cod_op);
+
+
+		switch(cod_op) {
+			case NEW_POKEMON: {
+				mensajeRecibido = recibir_new_pokemon(*socket, &size);
+				printf("mensaje new pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case APPEARED_POKEMON: {
+				mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
+				printf("mensaje appeared pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case GET_POKEMON: {
+				mensajeRecibido = recibir_get_pokemon(*socket, &size);
+				printf("mensaje get pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case LOCALIZED_POKEMON: {
+				mensajeRecibido = recibir_localized_pokemon(*socket, &size);
+				printf("mensaje localized pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case CATCH_POKEMON: {
+				mensajeRecibido = recibir_catch_pokemon(*socket, &size);
+				printf("mensaje catch pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case CAUGHT_POKEMON: {
+				mensajeRecibido = recibir_caught_pokemon(*socket, &size);
+				printf("mensaje caught pokemon recibido con id %d\n", mensajeRecibido->id);
+				break;
+			}
+			case MESSAGE: {
+				mensajeRecibido = client_recibir_mensaje_gameboy(*socket);
+				printf("mensaje recibido: %s\n",mensajeRecibido);
+				break;
+			}case 0:{
+				printf("Espera mensaje\n");
+				break;
+			}
+			default: {
+
+			}
+		}
+		if(cod_op>=1 && cod_op <=8){
+			devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
+			printf("PASE ACK %s\n", ACK);
+		}else{
+			log_info(logger_gameboy,"SE PERDIO LA CONEXION CON EL BROKER");
+			break;
 		}
 	}
+}
+
+char* client_recibir_mensaje_gameboy(int socket_cliente)
+{
+	op_code operacion;
+	int buffer_size;
+
+
+	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
+
+	char * buffer = malloc(buffer_size);
+	recv(socket_cliente, buffer, buffer_size, 0);
+
+	puts(buffer);
+	return buffer;
+
 }
 
 
@@ -268,21 +300,22 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 	printf("hola\n");
 	if(conexion != -1){
 		conexionOK = true;
-		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, conexion);
-		pthread_detach(&hiloEscucha);
+
 		//while(vectorDeColas[i]!=NULL){
 
 			cola = vectorDeColas[i];
 			printf("Conexion %d\n", conexion);
 			enviar_mensaje_suscribir_con_id(cola, id_proceso, conexion, tiempo);
-			mensaje = client_recibir_mensaje(conexion);
-			log_info(logger_gameboy,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s\n", mensaje);
-			free(mensaje);
+			//mensaje = client_recibir_mensaje(conexion);
+			pthread_create(&hiloEscucha,NULL,(void*)aplica_funcion_escucha, &conexion);
+			pthread_detach(&hiloEscucha);
+			//log_info(logger_gameboy,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s\n", mensaje);
+			//free(mensaje);
 			i++;
 
 		//}
 
-		pthread_create(&hiloSleep,NULL,(void*)sleep(tiempo), NULL);
+		pthread_create(&hiloSleep,NULL,(void*)delay_suscripcion(tiempo,conexion), NULL);
 		pthread_join(&hiloSleep,NULL);
 
 
@@ -298,6 +331,12 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 	}
 }
 
+void delay_suscripcion(int tiempo, int conexion){
+	sleep(tiempo);
+	log_info(logger_gameboy,"FIN DE CONEXION");
+	liberar_conexion(conexion);
+
+}
 
 //--------------------------------------------------------------------------------------------------------------------//
 

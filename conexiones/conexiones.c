@@ -94,8 +94,12 @@ void* server_recibir_mensaje(int socket_cliente, uint32_t* size)
 {
 	void * buffer;
 
+	printf("Entra a recibir mensaje\n");
 	recv(socket_cliente, size, sizeof(uint32_t), MSG_WAITALL);
+	printf("tamaño: %d\n", *size);
+
 	buffer = malloc(*size);
+
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
 	return buffer;
@@ -182,11 +186,51 @@ int crear_conexion(char *ip, char* puerto)
 	if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1)
 		return -1;
 
+
 	freeaddrinfo(server_info);
 
 	return socket_cliente;
 }
 
+
+int crear_conexion_servidor(char* ip, char* puerto)
+{
+	pthread_t thread_team;
+
+	int socket_servidor;
+    struct addrinfo hints, *servinfo, *p;
+
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+
+    for (p=servinfo; p != NULL; p = p->ai_next)
+    {
+        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+            return -1;
+
+        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
+        guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
+
+        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
+            close(socket_servidor);
+            continue;
+        }
+        break;
+    }
+
+	listen(socket_servidor, SOMAXCONN);
+
+    freeaddrinfo(servinfo);
+
+    return socket_servidor;
+
+}
 //TODO
 void enviar_mensaje(char* mensaje, int socket_cliente)
 {
@@ -674,6 +718,12 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 
 	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
 	void* a_enviar = serializar_paquete(paquete, &bytes);
+
+	puntero_mensaje puntero= obtener_mensaje_get(stream);
+	puntero_mensaje_get_pokemon puntero_get = (puntero_mensaje_get_pokemon) (puntero->mensaje_cuerpo);
+
+	printf("envio get de pokemon: %s \n", puntero_get->name_pokemon);
+
 	printf("%d\n", socket_cliente);
 	send(socket_cliente, a_enviar, bytes, 0);
 
@@ -699,6 +749,7 @@ void guardar_mensaje_get(void* stream, char* nombre, uint32_t id, uint32_t id_co
 	tamanio += sizeof(uint32_t);
 
 	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
+
 }
 
 puntero_mensaje recibir_get_pokemon( int socket, uint32_t* paquete_size){
