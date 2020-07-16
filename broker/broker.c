@@ -184,16 +184,20 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
-			agregar_suscriptor_cola(mensaje_suscripcion);
+			printf("Recibe una suscripcion\n");
+			sleep(5);
+			agregar_suscriptor_cola(mensaje_suscripcion, socket);
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
 
-			enviar_mensajes_memoria(mensaje_suscripcion);
+			enviar_mensajes_memoria(mensaje_suscripcion, socket);
 
 			sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
-			free(mensaje_suscripcion);
+			if(mensaje_suscripcion->tiempo == -1) {
+				free(mensaje_suscripcion);
+			}
 			break;
 		}
 		case 0:
@@ -212,9 +216,36 @@ void aumentar_cantidad_mensajes(){
 	cantidad_mensajes ++;
 }
 
-void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion){
+void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion, int socket){
 	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje_suscripcion->cola);
-	list_add(cola_mensaje->suscriptores, mensaje_suscripcion->cliente);
+
+	puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
+	suscriptor->cliente = mensaje_suscripcion->cliente;
+	suscriptor->socket = socket;
+
+	list_add(cola_mensaje->suscriptores, suscriptor);
+	pthread_t threadSuscripcion;
+	if(mensaje_suscripcion->tiempo != -1) {
+		pthread_create(&threadSuscripcion,NULL,(void*)desuscribir_cliente, mensaje_suscripcion);
+		pthread_detach(threadSuscripcion);
+	}
+}
+
+void desuscribir_cliente(puntero_suscripcion_cola mensaje) {
+	printf("Entro al hilo\n");
+	sleep(mensaje->tiempo);
+	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje->cola);
+	bool encontrar_suscriptor(void* elemento) {
+		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
+		return !strcmp(suscriptor->cliente, mensaje->cliente);
+	}
+	void free_suscriptor(void* elemento) {
+		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
+		free(suscriptor->cliente);
+		free(suscriptor);
+	}
+	list_remove_and_destroy_by_condition(cola_mensaje->suscriptores, encontrar_suscriptor, free_suscriptor);
+	printf("Remueve cliente\n");
 }
 
 void* distribuir_mensajes(void* puntero_cola) {
@@ -235,7 +266,7 @@ void* distribuir_mensajes(void* puntero_cola) {
 void distribuir_mensajes_cola(int cola) {
 	puntero_mensaje puntero_mensaje;
 	t_cola_mensaje* cola_mensajes = selecciono_cola(cola);
-	char* suscriptor;
+	puntero_suscriptor suscriptor;
 	// TODO Mejorar manejo de error
 	if (cola_mensajes == -1) {
 		pthread_exit(NULL);
@@ -252,19 +283,19 @@ void distribuir_mensajes_cola(int cola) {
 			punteroParticion punteroParticionMensaje = buscar_particion_mensaje(puntero_mensaje->id);
 
 			bool encuentra_suscriptor(void* elemento) {
-				return strcmp((char*)elemento, suscriptor) == 0;
+				return strcmp((char*)elemento, suscriptor->cliente) == 0;
 			}
 			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
 			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			if (!encontre) {
-				printf("Distribucion a %s\n", suscriptor);
+				printf("Distribucion a %s\n", suscriptor->cliente);
 				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje);
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 				// SI NO ESTA, LO AGREGO
 				if(!enviado) {
-					list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor);
+					list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
 				}
 				break;
 			}
@@ -282,18 +313,11 @@ punteroParticion buscar_particion_mensaje(uint32_t idMensaje) {
 	return list_find(particiones, (void*)obtener_particion_id);
 }
 
-void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje puntero_mensaje_completo) {
+void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo) {
 	int conexion;
-	char* ip_suscriptor;
-	char* puerto_suscriptor;
 	char* mensaje_recibido;
-	char** aux;
-	aux = string_split(suscriptor, ":");
-	ip_suscriptor = aux[0];
-	puerto_suscriptor = aux[1];
 
-	printf("Suscriptor %s\n", suscriptor);
-	conexion = crear_conexion(ip_suscriptor, puerto_suscriptor);
+	conexion = suscriptor->socket;
 	uint32_t id = puntero_mensaje_completo->id;
 	uint32_t id_correlativo = puntero_mensaje_completo->id_correlativo;
 	switch(cola) {
@@ -320,11 +344,11 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 		}
 		case GET_POKEMON: {
 			puntero_mensaje_get_pokemon puntero_mensaje = ((puntero_mensaje_get_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
-
+			printf("pokemon------------> %s\n", puntero_mensaje->name_pokemon);
 			char* nombre = puntero_mensaje->name_pokemon;
-
+			printf("No envia mensaje\n");
 			send_message_get_pokemon(nombre, id, id_correlativo, conexion);
-
+			printf("Envia mensaje\n");
 			break;
 		}
 		case APPEARED_POKEMON: {
@@ -355,6 +379,7 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 			break;
 		}
 		case CAUGHT_POKEMON: {
+
 			puntero_mensaje_caught_pokemon puntero_mensaje = ((puntero_mensaje_caught_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
 
 			uint32_t caughtResult = puntero_mensaje->caughtResult;
@@ -373,11 +398,11 @@ void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje
 	// TODO que hago si no recibo el ACK?
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(puntero_mensaje_completo->id);
-		list_add(punteroParticionEncontrado->suscriptores_ack, suscriptor);
+		list_add(punteroParticionEncontrado->suscriptores_ack, suscriptor->cliente);
 	}
 
 	free(mensaje_recibido);
-	close(conexion);
+	//close(conexion);
 }
 
 void inicializar_datos() {
@@ -848,7 +873,7 @@ void consolidar(int indexEliminado) {
 	printf("No hay mas particiones libres ni a izq ni a der\n");
 }
 
-void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion) {
+void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int socket) {
 
 	bool misma_cola(void* elemento) {
 		punteroParticion particion = (punteroParticion*)elemento;
@@ -860,22 +885,28 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion) {
 		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
 
 		bool encuentra_suscriptor(void* elemento) {
-			return strcmp((char*)elemento, mensajeSuscripcion->cliente) == 0;
+			puntero_suscriptor sus = (puntero_suscriptor) elemento;
+			return strcmp(sus->cliente, mensajeSuscripcion->cliente) == 0;
 		}
 		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
 		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 		if (!encontre) {
-			printf("Distribucion a %s\n", mensajeSuscripcion->cliente);
+			printf("Distribucion MEMORIA a %s\n", mensajeSuscripcion->cliente);
 
 			puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
-			distribuir_mensaje_sin_enviar_a(mensajeSuscripcion->cliente, mensajeSuscripcion->cola, punteroMensaje);
+			puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
+			suscriptor->cliente = mensajeSuscripcion->cliente;
+			suscriptor->socket = socket;
+			printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
+			distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje);
 			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 			// SI NO ESTA, LO AGREGO
 			if(!enviado) {
 				list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
 			}
+			free(suscriptor);
 		}
 	}
 }

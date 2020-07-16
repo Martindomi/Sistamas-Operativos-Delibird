@@ -73,7 +73,7 @@ t_cola_mensaje* caught_pokemon;
 int mensajes_nuevos();
 void distribuir_mensajes_cola(int cola);
 t_cola_mensaje* selecciono_cola(int cola);
-void distribuir_mensaje_sin_enviar_a(char* suscriptor, int cola, puntero_mensaje puntero_mensaje_completo);
+void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo);
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
@@ -91,7 +91,7 @@ void bs_eliminar_particion();
 void bs_eliminar_particion_fifo();
 void bs_eliminar_particion_lru();
 //int primer_puntero_desocupado();
-
+void desuscribir_cliente(puntero_suscripcion_cola mensaje);
 
 void compactar_memoria();
 void eliminar_particion();

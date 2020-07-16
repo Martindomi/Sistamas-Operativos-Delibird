@@ -7,9 +7,6 @@
 
 t_list* ids_mensajes_enviados;
 char* ACK;
-char* ip_broker;
-char* puerto_broker;
-t_log* logger;
 
 void suscribirse_cola(op_code codigo_cola, char* ip_broker, char* puerto_broker, char* puerto_thread_team, t_log* logger);
 void crear_thread_suscripcion(op_code op_code, char* ip_broker, char* port_broker, char* port_team, t_log* logger);
@@ -18,7 +15,7 @@ void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto);
 void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto);
 sem_t sem_cpu;
 
-
+void mover_entrenador_new_sin_espacio(t_entrenador* enternador);
 void aplica_funcion_escucha(int * socket);
 void crear_hilo_entrenadores(t_list* listaEntrenadores);
 t_mensajeTeam esperoMensaje();
