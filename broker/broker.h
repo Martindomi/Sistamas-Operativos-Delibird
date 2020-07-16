@@ -100,6 +100,7 @@ int eliminar_particion_lru();
 void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 		punteroParticion punteroParticionOcupada);
 punteroParticion buscar_particion_mensaje(uint32_t idMensaje);
+bool lista_llena(t_list* particiones);
 bool primer_puntero_ocupado(void* elemento);
 bool primer_puntero_desocupado(void* elemento);
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion);

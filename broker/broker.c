@@ -986,12 +986,14 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					punteroParticionObtenido->id = mensajeCompleto->id;
 					punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
 					punteroParticionObtenido->ocupada = true;
-					punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+					//punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+					punteroParticionObtenido->tamanoMensaje = tamanioNecesario;
 					punteroParticionObtenido->lruHora = time(NULL);
 
 					printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 					printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
 					printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+					ver_estado_memoria();
 					return punteroParticionObtenido->punteroMemoria;
 				}
 			}
@@ -1005,51 +1007,88 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 }
 
 void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
+	printf("Best fit\n");
 	// tengo que obtener la potencia de 2 mas cercana al tamaño del mensaje
 	int tamanioNecesario = potencia_de_dos_cercana(mensajeCompleto->size_mensaje_cuerpo);
-
+	int nuevoTamanioNecesario = tamanioNecesario;
+	printf("El tamaño necesario para el mensaje es: %d\n",tamanioNecesario);
 	// Analizo toda la lista para buscar la particion
 	// mas conveniente para guardar el mensaje
 
+
 	bool primer_puntero_desocupado(void* elemento) {
-			punteroParticion particion = (punteroParticion*)elemento;
-			return !particion->ocupada;
+		punteroParticion particion = (punteroParticion*)elemento;
+		return !particion->ocupada;
 	}
 
-	//int indexParticionMasChica = primer_puntero_desocupado();
+	//int indexParticionMasChica = bs_primer_puntero_desocupado();
 	//punteroParticion particionMasChica = list_get(particiones, indexParticionMasChica);
 
-	punteroParticion particionMasChica = list_find(particiones, primer_puntero_desocupado);
+	punteroParticion particionMasChica = NULL;
 	int indexParticionMasChica = -1;
 
-	for(int i = 0; i < list_size(particiones); i++){
+	if(!lista_llena(particiones)){
+		//particionMasChica = list_find(particiones, primer_puntero_desocupado);
 
-		punteroParticion particionObtenida = list_get(particiones, i);
-		if(particionObtenida->tamanoMensaje <= particionMasChica->tamanoMensaje){
-			if(particionObtenida->tamanoMensaje >= tamanioNecesario && !particionObtenida->ocupada){
-				particionMasChica = particionObtenida;
-				indexParticionMasChica = i;
+		//printf("La particion inicial mas conveniente es la de: %dB\n", particionMasChica->tamanoMensaje);
+		//printf("Su posicion en la lista es: %d\n", indexParticionMasChica);
+
+
+		/*for(int i = 0; i < list_size(particiones); i++){
+			punteroParticion particionObtenida = list_get(particiones, i);
+			if(!particionObtenida->ocupada){
+				if((particionObtenida->tamanoMensaje >= tamanioNecesario) && (particionObtenida->tamanoMensaje < particionMasChica->tamanoMensaje)){
+					particionMasChica = particionObtenida;
+					indexParticionMasChica = i;
+					printf("La verdadera particion mas conveniente es la de: %dB\n", particionMasChica->tamanoMensaje);
+					printf("Su posicion en la lista es: %d\n", indexParticionMasChica);
+				}
 			}
-		}
+		}*/
+		bool entraMensaje = false;
+		do{
+			for(int i = 0; i< list_size(particiones);i++){
+				punteroParticion particionObtenida = list_get(particiones,i);
+				if(!particionObtenida->ocupada){
+					if(particionObtenida->tamanoMensaje == nuevoTamanioNecesario){
+						particionMasChica = particionObtenida;
+						indexParticionMasChica = i;
+						entraMensaje = true;
+						printf("La particion mas conveniente es la de: %dB\n", particionMasChica->tamanoMensaje);
+						printf("Su posicion en la lista es: %d\n", indexParticionMasChica);
+						break;
+					}
+				}
+			}
+			if(!entraMensaje && (nuevoTamanioNecesario < tamanoMemoria)){
+				//busco el tamaño inmediatamente superior
+				nuevoTamanioNecesario *= 2;
+			}
+		}while(!entraMensaje);
 	}
-	if(particionMasChica->tamanoMensaje > tamanioNecesario){
-		// Modifico la particion original para que tenga la mitad de tamaño
-		// y despues hago una nueva con la otra mitad que faltaba
-		dividir_particiones(particionMasChica,indexParticionMasChica,tamanioNecesario); // Ej: si tengo una particion con tamaño de 32MB lo divido en 2 de 16MB etc hasta que mi mensaje pueda asignarse
-		return bs_segun_algoritmo(mensajeCompleto, colaMensaje);
-	}else{
-		if(particionMasChica->tamanoMensaje == tamanioNecesario){
-			particionMasChica->colaMensaje = colaMensaje;
-			particionMasChica->id = mensajeCompleto->id;
-			particionMasChica->idCorrelativo = mensajeCompleto->id_correlativo;
-			particionMasChica->ocupada = true;
-			particionMasChica->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
-			particionMasChica->lruHora = time(NULL);
 
-			printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
-			printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
-			printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
-			return particionMasChica->punteroMemoria;
+	if(particionMasChica != NULL){
+		if(particionMasChica->tamanoMensaje > tamanioNecesario){
+			// Modifico la particion original para que tenga la mitad de tamaño
+			// y despues hago una nueva con la otra mitad que faltaba
+			dividir_particiones(particionMasChica,indexParticionMasChica,tamanioNecesario); // Ej: si tengo una particion con tamaño de 32MB lo divido en 2 de 16MB etc hasta que mi mensaje pueda asignarse
+			return bs_segun_algoritmo(mensajeCompleto, colaMensaje);
+		}else{
+			if(particionMasChica->tamanoMensaje == tamanioNecesario){
+				particionMasChica->colaMensaje = colaMensaje;
+				particionMasChica->id = mensajeCompleto->id;
+				particionMasChica->idCorrelativo = mensajeCompleto->id_correlativo;
+				particionMasChica->ocupada = true;
+				//particionMasChica->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
+				particionMasChica->tamanoMensaje = tamanioNecesario;
+				particionMasChica->lruHora = time(NULL);
+
+				printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
+				printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
+				printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
+				ver_estado_memoria();
+				return particionMasChica->punteroMemoria;
+			}
 		}
 	}
 	printf("No encontro memoria libre\n");
@@ -1082,6 +1121,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		 * dividido 2.
 		*/
 		printf("Entra a dividir\n");
+		printf("La particion izquierda está en el indice %d\n", index);
 		// particion izquierda (Es la original pero con tamaño a la mitad)
 		particionInicial->tamanoMensaje = particionInicial->tamanoMensaje / 2;
 		particionInicial->izq = true;
@@ -1103,19 +1143,23 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 
 		printf("Crea particion derecha\n");
 
+
 		nuevaParticion->punteroMemoria = (char*)particionInicial->punteroMemoria
 				+ (particionInicial->tamanoMensaje);
 		nuevaParticion->tamanoMensaje = particionInicial->tamanoMensaje;
 		nuevaParticion->suscriptores_ack = list_create();
 		nuevaParticion->suscriptores_enviados = list_create();
-		list_add_in_index(particiones,index +1, nuevaParticion);
+		list_add_in_index(particiones,index + 1, nuevaParticion);
+		printf("La particion derecha está en el indice %d\n", index + 1);
 		printf("Divide\n");
+		ver_estado_memoria();
 		// vuelvo a dividir la particion izquierda
 		dividir_particiones(particionInicial, index ,tamanioNecesario);
 	}
 }
 
 void bs_consolidar(){
+	printf("Consolidar\n");
 	// voy a repetir la consolidacion hasta que
 	// no haya mas cambios
 	int cambios;
@@ -1125,42 +1169,51 @@ void bs_consolidar(){
 			int indexBuddyIzq = i;
 			int indexBuddyDer = i+1;
 			punteroParticion buddyIzq = list_get(particiones, indexBuddyIzq);
+			punteroParticion buddyDer = NULL;
+			if(indexBuddyDer <= list_size(particiones)){
+				buddyDer = list_get(particiones, indexBuddyDer);
+			}
 			if(!buddyIzq->ocupada){
-				punteroParticion buddyDer = list_get(particiones, indexBuddyDer);
 				// Chequeo si las dos particiones que tomo son buddys
-				if((buddyIzq->izq == buddyDer->der) && (buddyDer != NULL && !buddyDer->ocupada)){
+				if(buddyDer != NULL){
+					if((buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada)){
 
-					// "UNIFICO" los buddys
-					buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
-					// analizo si el buddy que consolidé
-					// es un buddy derecho o izquierdo
+						printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
 
-					// EJEMPLO:
-					// historicoBuddyIzq = {"C","I","I","I"}
-					// tamHistoricoBI = 4
-					// list_get(historicoBuddyIzq,tamHistoricoBI - 2) = "I"
-					// En este ejemplo, el buddy actual es el Izquierdo y cuando se consolide
-					// con el derecho, pasa a ser un buddy izquierdo con el doble de tamaño
+						// "UNIFICO" los buddys
+						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
+						// analizo si el buddy que consolidé
+						// es un buddy derecho o izquierdo
 
-					t_list* historicoBuddyIzq = buddyIzq->historicoBuddy;
-					int tamHistoricoBI = list_size(historicoBuddyIzq);
-					// cuando se consolida, me fijo el tipo que era el buddy "padre"
-					if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "D") == 0){
-						// en este caso es un buddy derecho
-						buddyIzq->izq = false;
-						buddyIzq->der = true;
-					}else{
-						if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "I") == 0){
-							// en este caso es un buddy izquierdo
-							buddyIzq->izq = true;
-							buddyIzq->der = false;
+						// EJEMPLO:
+						// historicoBuddyIzq = {"C","I","I","I"}
+						// tamHistoricoBI = 4
+						// list_get(historicoBuddyIzq,tamHistoricoBI - 2) = "I"
+						// En este ejemplo, el buddy actual es el Izquierdo y cuando se consolide
+						// con el derecho, pasa a ser un buddy izquierdo con el doble de tamaño
+
+						t_list* historicoBuddyIzq = buddyIzq->historicoBuddy;
+						int tamHistoricoBI = list_size(historicoBuddyIzq);
+						// cuando se consolida, me fijo el tipo que era el buddy "padre"
+						if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "D") == 0){
+							// en este caso es un buddy derecho
+							buddyIzq->izq = false;
+							buddyIzq->der = true;
+						}else{
+							if(strcmp(list_get(historicoBuddyIzq,tamHistoricoBI -2), "I") == 0){
+								// en este caso es un buddy izquierdo
+								buddyIzq->izq = true;
+								buddyIzq->der = false;
+							}
 						}
-					}
 
-					list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
-					list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
-					cambios++;
-					break; // detiene el for para que no se buguee la lista
+						list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
+						list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
+						printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
+						cambios++;
+						ver_estado_memoria();
+						break; // detiene el for para que no se buguee la lista
+					}// fin if
 				}
 			}
 		} // fin for
@@ -1176,7 +1229,6 @@ void bs_eliminar_particion(){
 		} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
 			bs_eliminar_particion_lru();
 		}
-		bs_consolidar();
 }
 
 void bs_eliminar_particion_fifo(){
@@ -1215,10 +1267,10 @@ void bs_eliminar_particion_fifo(){
 		}
 	}
 }
-/*
-int primer_puntero_desocupado(){
-	punteroParticion primerDesocupado = list_get(particiones, list_size(particiones) - 1);;
-	int indexPrimerDesocupado = list_size(particiones);
+
+int bs_primer_puntero_desocupado(){
+	punteroParticion primerDesocupado = list_get(particiones, list_size(particiones) - 1);
+	int indexPrimerDesocupado = list_size(particiones) - 1;
 	for(int i = 0; i < list_size(particiones); i++){
 		punteroParticion particionObtenida = list_get(particiones, i);
 		if(!particionObtenida->ocupada){
@@ -1229,7 +1281,7 @@ int primer_puntero_desocupado(){
 		}
 	}
 	return indexPrimerDesocupado;
-}*/
+}
 
 void bs_eliminar_particion_lru(){
 
@@ -1263,6 +1315,17 @@ void bs_eliminar_particion_lru(){
 			}
 		}
 	}
+}
+
+bool lista_llena(t_list* particiones){
+	int cantidadDeOcupados = 0;
+	for(int i=0; i< list_size(particiones);i++){
+		punteroParticion particion = list_get(particiones,i);
+		if(particion->ocupada){
+			cantidadDeOcupados++;
+		}
+	}
+	return(cantidadDeOcupados == list_size(particiones));
 }
 
 
