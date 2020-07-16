@@ -5,8 +5,8 @@
 
 bool suscribirse_a_colas(char* path){
 
-	bool conexionOK=false;
-	int conexion, i=0;
+	bool conexionOK=true;
+	int conexion=0, i=0;
 	char* mensaje;
 	pthread_t hiloEscucha;
 
@@ -20,37 +20,45 @@ bool suscribirse_a_colas(char* path){
 
 	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
 
-	conexion=crear_conexion(ipBroker,puertoBroker);
+	while(vectorDeColas[i]!=NULL && conexion != -1){
 
-	if(conexion != -1){
-		conexionOK = true;
-		while(vectorDeColas[i]!=NULL){
+		conexion=crear_conexion(ipBroker,puertoBroker);
+
+		if(conexion != -1){
+
+			pthread_create(&hiloEscucha,NULL,(void*)crear_hilo_escucha_suscripcion, conexion);
+			pthread_detach(hiloEscucha);
+
 
 			cola = vectorDeColas[i];
 			enviar_mensaje_suscribir_con_id(cola, id, conexion, -1);
-			mensaje = client_recibir_mensaje(conexion);
-			log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje);
-			free(mensaje);
+			printf("envio suscipcion\n");
+			tarda(1);
 			i++;
 
+
+
+		}else{
+
+		log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
+		conexionOK=false;
+
 		}
-		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
-		pthread_detach(hiloEscucha);
-		config_destroy(config);
-		log_destroy(logger);
-		return conexionOK;
 
-	}else{
+	}
 
-	log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
 	config_destroy(config);
 	log_destroy(logger);
 	return conexionOK;
-
-	}
 }
 
+void crear_hilo_escucha_suscripcion(int conexion){
 
+	while(1){
+		aplica_funcion_escucha(&conexion);
+	}
+
+}
 
 void crear_hilo_reconexion(char* path){
 	sem_wait(&mutex_reconexion);
@@ -147,7 +155,8 @@ bool suscribirse_a_colas() {
 }
 
 */
-int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team/*, t_log* logger*/) {
+/*
+int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team, t_log* logger) {
 	char* mensaje;
 	int conexion;
 
@@ -173,7 +182,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 	close(conexion);
 	return 1;
 }
-
+*/
 
 /*
 void hilo_reconexion(){
@@ -473,7 +482,6 @@ void inicializar_config_data(){
 	//config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION");
 	//puts(configData->algoritmoPlanificacion);
 	configData->posicionesEntrenadores= config_get_array_value(configTEAM,"POSICIONES_ENTRENADORES");
-	puts(configData->posicionesEntrenadores[0]);
 	configData->pokemonesEntrenadores= config_get_array_value(configTEAM,"POKEMON_ENTRENADORES");
 	configData->objetivosEntrenadores= config_get_array_value(configTEAM,"OBJETIVOS_ENTRENADORES");
 	configData->estmacionInicial=config_get_double_value(configTEAM,"ESTIMACION_INICIAL");

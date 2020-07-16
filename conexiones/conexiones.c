@@ -271,6 +271,23 @@ char* client_recibir_mensaje(int socket_cliente)
 
 }
 
+char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente)
+{
+	op_code operacion;
+	int buffer_size;
+
+
+	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
+
+	char * buffer = malloc(buffer_size);
+	recv(socket_cliente, buffer, buffer_size, 0);
+
+	puts(buffer);
+	return buffer;
+
+}
+
+
 void liberar_conexion(int socket_cliente)
 {
 	close(socket_cliente);
@@ -688,7 +705,7 @@ puntero_mensaje obtener_mensaje_caught(void* buffer) {
 	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&caughtResult, buffer, sizeof(uint32_t));
+	memcpy(&caughtResult, buffer + desplazamiento, sizeof(uint32_t));
 
 	mensaje_recibido->caughtResult = caughtResult;
 
@@ -1043,8 +1060,8 @@ void crear_hilo_escucha(char* ip, char* puerto)
         if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
             continue;
 
-        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
-        guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
+//        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
+//       guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
 
         if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
             close(socket_servidor);
@@ -1074,17 +1091,129 @@ void* hilo_escucha(int socket_servidor){
 
 		if (socket_cliente == -1) {
 
-				printf("No pending connections; sleeping for one second.\n");
+//				printf("No pending connections; sleeping for one second.\n");
 
 				sleep(1);
 
 		} else {
 			int socket = socket_cliente;
-			printf("Got a connection; writing 'hello' then closing.\n");
+//			printf("Got a connection; writing 'hello' then closing.\n");
 			aplica_funcion_escucha(&socket);
 		}
 	}
 }
+
+
+//-------------------------NO ME SALIO LA CONEXION GENERICA AL FINAL, COPIAR Y PEGAR ESTO EN EL MODULO-------------------------//
+/*
+bool suscribirse_a_colas(char* path){
+
+	bool conexionOK=true;
+	int conexion=0, i=0;
+	char* mensaje;
+	pthread_t hiloEscucha;
+
+	op_code cola;
+	t_config *config = config_create(path);
+
+	char* logPath = config_get_string_value(config,"LOG_FILE");
+	char* ipBroker = config_get_string_value(config, "IP_BROKER");
+	char* puertoBroker = config_get_string_value(config, "PUERTO_BROKER");
+	char* id = config_get_string_value(config,"ID");
+
+	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
+
+	while(vectorDeColas[i]!=NULL && conexion != -1){
+
+		conexion=crear_conexion(ipBroker,puertoBroker);
+
+		if(conexion != -1){
+
+			pthread_create(&hiloEscucha,NULL,(void*)crear_hilo_escucha_suscripcion, conexion);
+			pthread_detach(hiloEscucha);
+
+
+			cola = vectorDeColas[i];
+			enviar_mensaje_suscribir_con_id(cola, id, conexion, -1);
+			printf("envio suscipcion\n");
+			tarda(1);
+			i++;
+
+
+
+		}else{
+
+		log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
+		conexionOK=false;
+
+		}
+
+	}
+
+	config_destroy(config);
+	log_destroy(logger);
+	return conexionOK;
+}
+
+void crear_hilo_escucha_suscripcion(int conexion){
+
+	while(1){
+		aplica_funcion_escucha(&conexion);
+	}
+
+}
+
+void crear_hilo_reconexion(char* path){
+	sem_wait(&mutex_reconexion);
+	if(!seCreoHiloReconexion){
+		sem_post(&mutex_reconexion);
+		pthread_t th_reconexion;
+		pthread_create(&th_reconexion,NULL,(void*)_reintentar_conexion,path);
+	}else{
+		sem_post(&mutex_reconexion);
+	}
+
+
+}
+
+void _reintentar_conexion(char* path){
+
+		sem_wait(&mutex_boolReconexion);
+		seCreoHiloReconexion=true;
+		sem_post(&mutex_boolReconexion);
+		t_config *config = config_create(path);
+		int tiempo = config_get_int_value(config,"TIEMPO_RECONEXION");
+		char* logPath = config_get_string_value(config, "LOG_FILE");
+		char *programeName= config_get_string_value(config, "ID");
+		char *ip= config_get_string_value(config, "IP_BROKER");
+		char *puerto= config_get_string_value(config, "PUERTO_BROKER");
+		t_log *logger= log_create(logPath,programeName,true,LOG_LEVEL_INFO);
+		bool conexionOK = false;
+		int count = 0;
+
+		log_info(logger,"RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker");
+
+		while(!conexionOK){
+			if(count != 0){
+				log_info(logger,"RECONEXION; FALLIDA, se realiza un nuevo intento");
+			}
+
+
+			sleep(tiempo);
+			conexionOK =suscribirse_a_colas(path);
+			++count ;
+		}
+		log_info(logger,"RECONEXION; EXITOSA, cantidad de intentos: %d", count);
+		config_destroy(config);
+		log_destroy(logger);
+		sem_wait(&mutex_boolReconexion);
+		seCreoHiloReconexion=false;
+		sem_post(&mutex_boolReconexion);
+		sem_post(&mutex_suscripcion);
+
+}
+*/
+//--------------------------------------------------------------------------------------------------------------------//
 
 
 //---------------------------------- INICIALIZAR CONFIG/LOG -------------------------------------------------

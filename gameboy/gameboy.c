@@ -244,7 +244,7 @@ void aplica_funcion_escucha(int *socket) {
 				break;
 			}
 			case MESSAGE: {
-				mensajeRecibido = client_recibir_mensaje_gameboy(*socket);
+				mensajeRecibido = client_recibir_mensaje_SIN_CODEOP(*socket);
 				printf("mensaje recibido: %s\n",mensajeRecibido);
 				break;
 			}case 0:{
@@ -265,21 +265,6 @@ void aplica_funcion_escucha(int *socket) {
 	}
 }
 
-char* client_recibir_mensaje_gameboy(int socket_cliente)
-{
-	op_code operacion;
-	int buffer_size;
-
-
-	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
-
-	char * buffer = malloc(buffer_size);
-	recv(socket_cliente, buffer, buffer_size, 0);
-
-	puts(buffer);
-	return buffer;
-
-}
 
 
 op_code vectorDeColas[1];

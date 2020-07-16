@@ -143,13 +143,35 @@ int crear_conexion_servidor(char* ip, char* puerto);
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 char* client_recibir_mensaje(int socket_cliente);
+char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente);
 void eliminar_paquete(t_package* paquete);
 void liberar_conexion(int socket_cliente);
 void* serializar_paquete(t_package* paquete, int* bytes);
 
+
 // HILO ESCUCHA
 void crear_hilo_escucha(char* ip, char* puerto);
 void* hilo_escucha(int socket);
+//--------------------------------------------------------SUSCRIPCION Y RECONEXION --------------------------------------------------------
+
+/*
+ * 				CREAR EN EL MODULO Y PONERLE ESA ESPECIFICACION
+ *
+bool seCreoHiloReconexion; // inicializar en main como "false"
+sem_t mutex_boolReconexion; // 	sem_init(&mutex_boolReconexion,0,1);
+sem_t mutex_reconexion;// 	sem_init(&(mutex_reconexion),0,1);
+sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
+modulo op_code vectorDeColas[]={ , , }; --> con las colas a suscribirse
+
+
+
+bool suscribirse_a_colas(char* path);
+void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket,int tiempo);
+void crear_hilo_escucha_suscripcion(int conexion);
+void crear_hilo_reconexion(char* path);
+void _reintentar_conexion(char* path);
+*/
+//--------------------------------------------------------
 
 // obtener mensajes
 puntero_mensaje obtener_mensaje_new(void* buffer);
