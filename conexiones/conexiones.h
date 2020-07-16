@@ -150,7 +150,7 @@ void* serializar_paquete(t_package* paquete, int* bytes);
 
 
 // HILO ESCUCHA
-void crear_hilo_escucha(char* ip, char* puerto);
+int crear_hilo_escucha(char* ip, char* puerto);
 void* hilo_escucha(int socket);
 
 

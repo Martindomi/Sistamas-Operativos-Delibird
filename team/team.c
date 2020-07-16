@@ -3,6 +3,7 @@
 #include "libraries/libreriascomunes.h"
 
 
+
  int main(int argc, char *argv[]){
 
 	sem_t esperaSuscripcion;
@@ -62,14 +63,14 @@
 
 	inicializar_entrenadores(lista_entrenadores);
 
-	printf("%d\n",list_is_empty(lista_entrenadores));
 	crear_hilo_entrenadores(lista_entrenadores);
 
+	socketEscucha = crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 	bool conexionOK =suscribirse_a_colas("./team.config");
 	if(!conexionOK){
 		crear_hilo_reconexion("./team.config");
 	}
-	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
+
 	enviar_get_objetivos();
 
 	//esperar_finalizacion_team();

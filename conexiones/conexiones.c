@@ -290,7 +290,10 @@ char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente)
 
 void liberar_conexion(int socket_cliente)
 {
-	close(socket_cliente);
+	if(socket_cliente != -1){
+		printf("Se cierra el socket\n");
+		close(socket_cliente);
+	}
 }
 
 // -------------------------------------------------NEW POKEMON--------------------------------------------------
@@ -1039,7 +1042,7 @@ int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; 
 
 //----------------------------------HILO ESCUCHA-------------------------------------------------
 
-void crear_hilo_escucha(char* ip, char* puerto)
+int crear_hilo_escucha(char* ip, char* puerto)
 {
 	pthread_t thread_team;
 
@@ -1076,7 +1079,7 @@ void crear_hilo_escucha(char* ip, char* puerto)
 
     pthread_create(&thread_team,NULL,(void*)hilo_escucha, socket_servidor);
     pthread_detach(thread_team);
-
+    return socket_servidor;
 }
 
 void* hilo_escucha(int socket_servidor){
