@@ -297,7 +297,6 @@ void distribuir_mensajes_cola(int cola) {
 				if(!enviado) {
 					list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
 				}
-				break;
 			}
 		}
 
@@ -559,8 +558,9 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 				compactar_memoria();
 				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
 			} else if(frecuenciaCompactacion == -1) {
+				// TODO revisar si es necesario usar el algoritmo de reemplazo hasta q todas las particiones queden vacias
 				vaciar_memoria();
-				compactar_memoria();
+				consolidar(NULL);
 				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
 			} else if(frecuenciaCompactacion == 1) {
 				eliminar_particion();
@@ -737,6 +737,7 @@ void compactar_memoria() {
 		compactar_memoria();
 	} else {
 		printf("No encontro particiones para compactar\n");
+		consolidar(NULL);
 		return;
 	}
 
@@ -833,8 +834,13 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 
 void consolidar(int indexEliminado) {
 	printf("Entra consolidar\n");
-	punteroParticion punteroParticionEliminada = list_get(particiones, indexEliminado);
-
+	punteroParticion punteroParticionEliminada;
+	if(indexEliminado == NULL) {
+		punteroParticionEliminada = list_find(particiones, primer_puntero_desocupado);
+		indexEliminado = obtener_index_particion(punteroParticionEliminada->punteroMemoria);
+	} else {
+		punteroParticionEliminada = list_get(particiones, indexEliminado);
+	}
 	bool encuentro_particion_anterior(void* elemento) {
 		punteroParticion particion = (punteroParticion*)elemento;
 		return (char*)particion->punteroMemoria + particion->tamanoMensaje
@@ -842,13 +848,12 @@ void consolidar(int indexEliminado) {
 	}
 	// COMPRUEBO SI TIENE ALGUNA PARTICION A IZQUIERA DESOCUPADA PARA UNIRLA
 	punteroParticion particionAnterior = list_find(particiones, (void*)encuentro_particion_anterior);
-	if(particionAnterior != NULL) {
-		printf("Encontro una particion libre a izquierda\n");
-		if(!particionAnterior->ocupada) {
+	if(particionAnterior != NULL && !particionAnterior->ocupada) {
+			printf("Encontro una particion libre a izquierda\n");
+
 			particionAnterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 			list_remove(particiones, indexEliminado);
 			consolidar(guard(obtener_index_particion(particionAnterior->punteroMemoria), "No se encontro memoria anterior\n"));
-		}
 	} else {
 		// SI NO TIENE A IZQUIERDA, BUSCO A DERECHA
 		bool encuentro_particion_posterior(void* elemento) {
@@ -858,16 +863,13 @@ void consolidar(int indexEliminado) {
 		}
 		printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
-		if(particionPosterior != NULL) {
-
-			if(!particionPosterior->ocupada) {
+		if(particionPosterior != NULL && !particionPosterior->ocupada) {
 				printf("Encontro una particion libre a derecha\n");
 
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
 				list_remove(particiones, indexEliminado);
 				consolidar(guard(obtener_index_particion(particionPosterior->punteroMemoria), "No se encontro memoria posterior\n"));
-			}
 		}
 	}
 	printf("No hay mas particiones libres ni a izq ni a der\n");
@@ -900,6 +902,7 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 			suscriptor->socket = socket;
 			printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
 			distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje);
+			actualizar_lru_mensaje(punteroMensaje->id);
 			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 			// SI NO ESTA, LO AGREGO
@@ -909,6 +912,15 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 			free(suscriptor);
 		}
 	}
+}
+
+void actualizar_lru_mensaje(uint32_t idMensaje) {
+	bool encuentra_mensaje_con_id(void* elemento) {
+		punteroParticion particion = (punteroParticion) elemento;
+		return particion->id == idMensaje;
+	}
+	punteroParticion particionEncontrada = list_find(particiones, encuentra_mensaje_con_id);
+	particionEncontrada->lruHora = time(NULL);
 }
 
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion) {
