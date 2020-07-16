@@ -544,11 +544,11 @@ void leer_archivo_config() {
 
 }
 
-void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
+void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
 	if(mensajeCompleto->size_mensaje_cuerpo <= tamanoMemoria) {
 		printf("Asignar Memoria\n");
 
-		void* posMemoria = buscar_memoria_libre(mensajeCompleto, (uint32_t) colaMensaje);
+		void* posMemoria = pd_memoria_libre(mensajeCompleto, (uint32_t) colaMensaje);
 
 		// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
 		while(posMemoria == NULL) {
@@ -556,22 +556,22 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 			printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
 			if(frecuenciaCompactacion == 0) {
 				compactar_memoria();
-				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
 			} else if(frecuenciaCompactacion == -1) {
 				// TODO revisar si es necesario usar el algoritmo de reemplazo hasta q todas las particiones queden vacias
 				vaciar_memoria();
 				consolidar(NULL);
-				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
 			} else if(frecuenciaCompactacion == 1) {
 				eliminar_particion();
 				compactar_memoria();
-				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
 			} else if(cantidadBusquedasFallidas % frecuenciaCompactacion == 0) {
 				compactar_memoria();
-				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
 			} else {
 				eliminar_particion();
-				posMemoria = buscar_memoria_libre(mensajeCompleto, colaMensaje);
+				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
 			}
 		}
 
@@ -585,13 +585,29 @@ void asignar_memoria(t_mensaje* mensajeCompleto, int colaMensaje) {
 	}
 }
 
-void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 	if(strcmp(algoritmoMemoria, "PARTICIONES") == 0) {
 		printf("Particiones\n");
-		return pd_memoria_libre(mensajeCompleto, colaMensaje);
+		asignar_memoria_pd(mensajeCompleto, colaMensaje);
 	} else if(strcmp(algoritmoMemoria, "BS") == 0) {
 		printf("Buddy System\n");
-		return bs_segun_algoritmo(mensajeCompleto, colaMensaje);
+		asignar_memoria_bs(mensajeCompleto, colaMensaje);
+	}
+}
+
+void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	if(mensajeCompleto->size_mensaje_cuerpo <= tamanoMemoria) {
+		printf("Asignar Memoria\n");
+
+		void* posMemoria = bs_segun_algoritmo(mensajeCompleto, (uint32_t) colaMensaje);
+
+		printf("Encontro memoria\n");
+
+		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
+
+		printf("Asigno memoria!!!!!\n");
+	} else {
+		guard(-1, "Mensaje excede el limite permitido.");
 	}
 }
 
