@@ -271,9 +271,29 @@ char* client_recibir_mensaje(int socket_cliente)
 
 }
 
+char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente)
+{
+	op_code operacion;
+	int buffer_size;
+
+
+	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
+
+	char * buffer = malloc(buffer_size);
+	recv(socket_cliente, buffer, buffer_size, 0);
+
+	puts(buffer);
+	return buffer;
+
+}
+
+
 void liberar_conexion(int socket_cliente)
 {
-	close(socket_cliente);
+	if(socket_cliente != -1){
+		printf("Se cierra el socket\n");
+		close(socket_cliente);
+	}
 }
 
 // -------------------------------------------------NEW POKEMON--------------------------------------------------
@@ -688,7 +708,7 @@ puntero_mensaje obtener_mensaje_caught(void* buffer) {
 	memcpy(&id_correlacional, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&caughtResult, buffer, sizeof(uint32_t));
+	memcpy(&caughtResult, buffer + desplazamiento, sizeof(uint32_t));
 
 	mensaje_recibido->caughtResult = caughtResult;
 
@@ -1022,7 +1042,7 @@ int guard(int n, char * err) { if (n == -1) { perror(err); exit(1); } return n; 
 
 //----------------------------------HILO ESCUCHA-------------------------------------------------
 
-void crear_hilo_escucha(char* ip, char* puerto)
+int crear_hilo_escucha(char* ip, char* puerto)
 {
 	pthread_t thread_team;
 
@@ -1043,8 +1063,8 @@ void crear_hilo_escucha(char* ip, char* puerto)
         if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
             continue;
 
-        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
-        guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
+//        int flags = guard(fcntl(socket_servidor, F_GETFL), "could not get flags on TCP listening socket");
+//       guard(fcntl(socket_servidor, F_SETFL, flags | O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
 
         if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
             close(socket_servidor);
@@ -1059,7 +1079,7 @@ void crear_hilo_escucha(char* ip, char* puerto)
 
     pthread_create(&thread_team,NULL,(void*)hilo_escucha, socket_servidor);
     pthread_detach(thread_team);
-
+    return socket_servidor;
 }
 
 void* hilo_escucha(int socket_servidor){
@@ -1074,17 +1094,18 @@ void* hilo_escucha(int socket_servidor){
 
 		if (socket_cliente == -1) {
 
-				printf("No pending connections; sleeping for one second.\n");
+//				printf("No pending connections; sleeping for one second.\n");
 
 				sleep(1);
 
 		} else {
 			int socket = socket_cliente;
-			printf("Got a connection; writing 'hello' then closing.\n");
+//			printf("Got a connection; writing 'hello' then closing.\n");
 			aplica_funcion_escucha(&socket);
 		}
 	}
 }
+
 
 
 //---------------------------------- INICIALIZAR CONFIG/LOG -------------------------------------------------

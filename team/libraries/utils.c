@@ -1,12 +1,12 @@
 
 #include "utils.h"
- op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+ op_code vectorDeColas[]={ CAUGHT_POKEMON, LOCALIZED_POKEMON,APPEARED_POKEMON  };
 //--------------------------------------------------------------------------------------------------------------------//
 
 bool suscribirse_a_colas(char* path){
 
 	bool conexionOK=false;
-	int conexion, i=0;
+	int i=0;
 	char* mensaje;
 	pthread_t hiloEscucha;
 
@@ -20,41 +20,58 @@ bool suscribirse_a_colas(char* path){
 
 	t_log *logger = log_create(logPath,id,true,LOG_LEVEL_INFO);
 
-	conexion=crear_conexion(ipBroker,puertoBroker);
+	while(vectorDeColas[i]!=NULL){
 
-	if(conexion != -1){
-		conexionOK = true;
-		while(vectorDeColas[i]!=NULL){
+		socketSuscripcion=crear_conexion(ipBroker,puertoBroker);
+
+		if(socketSuscripcion!= -1){
+			conexionOK=true;
+			pthread_create(&hiloEscucha,NULL,(void*)crear_hilo_escucha_suscripcion,socketSuscripcion);
+			pthread_detach(hiloEscucha);
+
 
 			cola = vectorDeColas[i];
-			enviar_mensaje_suscribir_con_id(cola, id, conexion, -1);
-			mensaje = client_recibir_mensaje(conexion);
-			log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje enviado es] %s", mensaje);
-			free(mensaje);
+			enviar_mensaje_suscribir_con_id(cola, id, socketSuscripcion, -1);
+			printf("envio suscipcion\n");
+			tarda(1);
 			i++;
 
+
+
+		}else{
+
+		log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
+		break;
+
 		}
-		pthread_create(&hiloEscucha,NULL,(void*)hilo_escucha, &conexion);
-		pthread_detach(hiloEscucha);
-		config_destroy(config);
-		log_destroy(logger);
-		return conexionOK;
 
-	}else{
+	}
 
-	log_info(logger, "OPERACION POR DEFAULT; SUSCRIPCION-> 'Intento de reconexion y suscripcion'");
 	config_destroy(config);
 	log_destroy(logger);
 	return conexionOK;
-
-	}
 }
 
+void crear_hilo_escucha_suscripcion(int conexion){
 
+	int result_recv=0;
+	while(1){
+		result_recv = aplica_funcion_escucha(&conexion);
+		if(result_recv == -1){
+			liberar_conexion(conexion);
+			crear_hilo_reconexion("./team.config");
+			return;
+		}
+	}
+
+}
 
 void crear_hilo_reconexion(char* path){
 	sem_wait(&mutex_reconexion);
 	if(!seCreoHiloReconexion){
+		sem_wait(&mutex_boolReconexion);
+		seCreoHiloReconexion=true;
+		sem_post(&mutex_boolReconexion);
 		sem_post(&mutex_reconexion);
 		pthread_t th_reconexion;
 		pthread_create(&th_reconexion,NULL,(void*)_reintentar_conexion,path);
@@ -67,9 +84,7 @@ void crear_hilo_reconexion(char* path){
 
 void _reintentar_conexion(char* path){
 
-		sem_wait(&mutex_boolReconexion);
-		seCreoHiloReconexion=true;
-		sem_post(&mutex_boolReconexion);
+
 		t_config *config = config_create(path);
 		int tiempo = config_get_int_value(config,"TIEMPO_RECONEXION");
 		char* logPath = config_get_string_value(config, "LOG_FILE");
@@ -147,7 +162,8 @@ bool suscribirse_a_colas() {
 }
 
 */
-int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team/*, t_log* logger*/) {
+/*
+int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, char* ip_puerto_team, t_log* logger) {
 	char* mensaje;
 	int conexion;
 
@@ -173,7 +189,7 @@ int suscribir(op_code codigo_operacion, char* ip_broker, char* puerto_broker, ch
 	close(conexion);
 	return 1;
 }
-
+*/
 
 /*
 void hilo_reconexion(){
@@ -473,7 +489,6 @@ void inicializar_config_data(){
 	//config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION");
 	//puts(configData->algoritmoPlanificacion);
 	configData->posicionesEntrenadores= config_get_array_value(configTEAM,"POSICIONES_ENTRENADORES");
-	puts(configData->posicionesEntrenadores[0]);
 	configData->pokemonesEntrenadores= config_get_array_value(configTEAM,"POKEMON_ENTRENADORES");
 	configData->objetivosEntrenadores= config_get_array_value(configTEAM,"OBJETIVOS_ENTRENADORES");
 	configData->estmacionInicial=config_get_double_value(configTEAM,"ESTIMACION_INICIAL");
@@ -568,6 +583,8 @@ void liberar_ids_mensajes_enviados(){
 void finalizar_y_liberar(){
 
 	log_destroy(loggerTEAM);
+	liberar_conexion(socketEscucha);
+	liberar_conexion(socketSuscripcion);
 	liberar_config_data();
 	liberar_lista_objetivos();
 	liberar_lista_pokemons_caught();

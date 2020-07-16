@@ -125,7 +125,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		unEntrenador->pokemonesCapturados = list_create();
 		unEntrenador->pokemonesObjetivo = list_create();
 		if(read_pokemones[i]==NULL || no_hay_mas == 1){
-			printf("NO HAY\n");
+			printf("No tiene pokemones capturados\n");
 			no_hay_mas = 1;
 		} else {
 			char** tempCapt = string_split(read_pokemones[i], "|");
@@ -172,12 +172,12 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		liberarArrayDeStrings(posiciones);
 
 	}
-
+	printf("Se calcula lista objetivos segun objetivos individuales:\n");
 	imprimirListaObjetivo();
 
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
-
+	printf("Se quitan los pokemones ya capturados:\n");
 	imprimirListaObjetivo();
 
 
@@ -226,6 +226,8 @@ void imprimirEntrenador(t_entrenador* entrenador) {
 void imprimirListaObjetivo(){
 
 	printf("------------\n");
+	printf("Lista objetivo:\n");
+	printf("------------\n");
 	for(int i = 0; i < list_size(lista_objetivo);i++){
 
 		t_pokemonObjetivo *poke = list_get(lista_objetivo,i);
@@ -239,10 +241,10 @@ void imprimirListaObjetivo(){
 void crearListaObjetivo(){
 
 	if(lista_objetivo==NULL){
-		printf("crea lista\n");
+		printf("creando lista de todos los objetivos\n");
 		lista_objetivo=list_create();
 	}
-	printf("lista craeda\n");
+	printf("lista de objetivos creada\n");
 
 
 
