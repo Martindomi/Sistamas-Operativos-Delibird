@@ -601,6 +601,13 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 
 		void* posMemoria = bs_segun_algoritmo(mensajeCompleto, (uint32_t) colaMensaje);
 
+		while(posMemoria == NULL) {
+			// Primero se debe eliminar segun algoritmo y despues consolidar
+			bs_eliminar_particion();
+			bs_consolidar();
+			posMemoria = bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
+		}
+
 		printf("Encontro memoria\n");
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
@@ -612,10 +619,14 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 }
 
 void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
-	if(strcmp(algoritmoParticionLibre, "FF") == 0) {
-		return buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
-	} else if (strcmp(algoritmoParticionLibre, "BF") == 0) {
-		return buscar_memoria_libre_best_fit(mensajeCompleto, colaMensaje);
+	if(!lista_llena(particiones)){
+		if(strcmp(algoritmoParticionLibre, "FF") == 0) {
+			return buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
+		} else if (strcmp(algoritmoParticionLibre, "BF") == 0) {
+			return buscar_memoria_libre_best_fit(mensajeCompleto, colaMensaje);
+		}
+	} else {
+		return NULL;
 	}
 }
 
@@ -1059,10 +1070,7 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 		}
 	}
 	printf("No encontro memoria libre\n");
-	// Primero se debe eliminar segun algoritmo y despues consolidar
-	bs_eliminar_particion();
-	bs_consolidar();
-	return bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
+	return NULL;
 }
 
 void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
@@ -1119,11 +1127,19 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					}
 				}
 			}
-			if(!entraMensaje && (nuevoTamanioNecesario < tamanoMemoria)){
+			printf("entra mensaje %d\n", entraMensaje);
+			printf("nuevo tamanio %d\n", nuevoTamanioNecesario);
+			printf("tamano memoria %d\n", tamanoMemoria);
+			if(!entraMensaje){
+				if(nuevoTamanioNecesario < tamanoMemoria) {
+					nuevoTamanioNecesario *= 2;
+				} else {
+					entraMensaje = true;
+				}
 				//busco el tamaño inmediatamente superior
-				nuevoTamanioNecesario *= 2;
 				printf("Como no encontré un mensaje de %d, pruebo con uno de %d\n",tamanioNecesario, nuevoTamanioNecesario);
 			}
+			printf("OLA");
 		}while(!entraMensaje);
 	}
 
@@ -1151,11 +1167,8 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 			}
 		}
 	}
-	printf("No encontro memoria libre\n");
-	// Primero se debe eliminar segun algoritmo y despues consolidar
-	bs_eliminar_particion();
-	bs_consolidar();
-	return bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
+	printf("CHAU");
+	return NULL;
 }
 
 
