@@ -1094,6 +1094,7 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 			if(!entraMensaje && (nuevoTamanioNecesario < tamanoMemoria)){
 				//busco el tamaño inmediatamente superior
 				nuevoTamanioNecesario *= 2;
+				printf("Como no encontré un mensaje de %d, pruebo con uno de %d\n",tamanioNecesario, nuevoTamanioNecesario);
 			}
 		}while(!entraMensaje);
 	}
