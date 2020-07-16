@@ -54,8 +54,12 @@ bool suscribirse_a_colas(char* path){
 
 void crear_hilo_escucha_suscripcion(int conexion){
 
+	int result_recv=0;
 	while(1){
-		aplica_funcion_escucha(&conexion);
+		result_recv = aplica_funcion_escucha(&conexion);
+		if(result_recv == -1){
+			return;
+		}
 	}
 
 }
@@ -588,7 +592,6 @@ void finalizar_y_liberar(){
 	list_destroy(cola_READY);
 	list_destroy(lista_entrenadores);
 
-	exit(0);
 
 }
 

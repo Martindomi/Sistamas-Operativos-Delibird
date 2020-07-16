@@ -1027,3 +1027,10 @@
 
 [INFO] 17:05:21:907 GAMEBOY/(6015:6017): Llega mensaje a cola CATCH_POKEMON: ID MENSAJE: 3 POKEMON: Pika POSICION: (1;1)
 [INFO] 17:05:31:906 GAMEBOY/(6015:6015): FIN DE CONEXION
+[INFO] 17:13:01:246 GAMEBOY/(6479:6479): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:38:05:79 GAMEBOY/(7135:7135): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:47:35:966 GAMEBOY/(7543:7543): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:50:58:568 GAMEBOY/(7660:7660): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:51:07:377 GAMEBOY/(7661:7661): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:51:36:432 GAMEBOY/(7672:7672): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:53:14:502 GAMEBOY/(7694:7694): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON

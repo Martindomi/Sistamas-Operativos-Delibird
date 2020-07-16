@@ -71,7 +71,9 @@
 	}
 	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 	enviar_get_objetivos();
-	sleep(500000000000);
+
+	//esperar_finalizacion_team();
+	pthread_join(hiloExit,NULL);
 }
 /*
 t_mensajeTeam esperoMensaje() {
@@ -125,12 +127,19 @@ void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
 
 }
 
-void aplica_funcion_escucha(int * socket){
+int aplica_funcion_escucha(int * socket){
+
+
+
 	printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	char *msj;
+	int recv_data;
 
-	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	recv_data = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	if(recv_data==-1){
+		return -1;
+	}
 	printf("recibio cod op \n");
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
@@ -192,7 +201,7 @@ void aplica_funcion_escucha(int * socket){
 		break;
 	}
 
-
+	return 0;
 
 
 
