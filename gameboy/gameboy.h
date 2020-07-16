@@ -25,6 +25,7 @@ char* ACK;
 
 t_log* logger_gameboy;
 uint32_t obtener_cola_mensaje(char* cola_string);
+char* obtener_nombre_cola(uint32_t numeroCola);
 
 //--------------------------------------------------------SUSCRIPCION Y RECONEXION GENERICA
 bool seCreoHiloReconexion;
