@@ -34,9 +34,10 @@ sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
 
 bool suscribirse_a_colas(char* path);
 void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int socket,int tiempo);
+void crear_hilo_escucha_suscripcion(int conexion);
 void crear_hilo_reconexion(char* path);
 void _reintentar_conexion(char* path);
-void liberar_colas_a_suscribir();
+
 //--------------------------------------------------------
 //bool suscribirse_a_colas();
 void hilo_reconexion();

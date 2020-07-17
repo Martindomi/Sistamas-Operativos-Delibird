@@ -185,7 +185,7 @@ void process_request(int cod_op, int socket) {
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
 			printf("Recibe una suscripcion\n");
-			sleep(5);
+
 			agregar_suscriptor_cola(mensaje_suscripcion, socket);
 
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";

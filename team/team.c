@@ -3,36 +3,6 @@
 #include "libraries/libreriascomunes.h"
 
 
-/*
- *  ANOTACIONES:
- *
- * 	*********************   CREADOS   *********************
- *
- * 	libreriascomunes 	-> data_config  (estructura para sacar todos los datos del team.config) configData (variable tipo data_config)
- * 						-> configTEAM (config global para no estar abriendo y cerrando)(solo se usa una vez para crear el configData)
- * 						-> logTEAM (log global para no estar abriendo y cerrando)
- *
- *  utils: 	-> funciones para inicializar los de arriba
- *			-> enviar mensaje GET (sin probar)(falta proceso 'default')
- *			-> enviar mensaje CATCH (sin probar)(falta proceso 'default')
- *
- *  probe inicializar entrenadores sin crear el config adentro de la funcion y pasandole los datos de configData (pruebas ok)
- *
- *  todos los config y logs fueron comentadas (por las dudas) y usados los globales
- *
- *	*********************   CONSULTAS   *********************
- *
- *	Esta bien tener el log global? el config podria no serlo ya que se abre y cierra
- *
- *	Habria que pasarle el path del config por parametro a team para que sepa cual usar? ej ./team /home/utnso/tp/team/team.config y asi poder tener varios
- *	procesos team y cada uno podra ejecutar un config diferente.
- *
- *
- *  *********************   NOTA   *********************
- *
- *  habria que probar todo bien, tambien lo que dije que ya probe :)
- */
-
 
  int main(int argc, char *argv[]){
 
@@ -42,12 +12,11 @@
 	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
 
 	lista_entrenadores = list_create();
-	//int andaBroker = 1;
 	listaPokemonsRecibidos = list_create();
 	listaPokemonesCaught= list_create();
 	ids_mensajes_enviados = list_create();
 	ACK = "ACK";
-	printf("%d\n",list_is_empty(lista_entrenadores));
+
 	cola_NEW=list_create();
 	cola_READY=list_create();
 	cola_EXEC=list_create();
@@ -90,165 +59,24 @@
 	pthread_create(&hiloCortoPlazo,NULL,(void*)main_planificacion_corto_plazo,NULL);
 	pthread_create(&hiloDeadlock,NULL,(void*)detectar_deadlock,NULL);
 	pthread_create(&hiloExit,NULL,(void*)main_exit,NULL);
-	//initListaPokemonsNecesitados();
+
+
 	inicializar_entrenadores(lista_entrenadores);
 
-	printf("%d\n",list_is_empty(lista_entrenadores));
 	crear_hilo_entrenadores(lista_entrenadores);
 
-
-
+	socketEscucha = crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
 	bool conexionOK =suscribirse_a_colas("./team.config");
 	if(!conexionOK){
 		crear_hilo_reconexion("./team.config");
 	}
-	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
+
 	enviar_get_objetivos();
 
-
-
-/*	t_list *posicionesPikachu = list_create();
-	int *i=malloc(sizeof(int));
-	*i=6;
-	list_add(posicionesPikachu,i);
-	i=malloc(sizeof(int));
-	*i=9;
-	list_add(posicionesPikachu,i);
-	i=malloc(sizeof(int));
-	*i=9;
-	list_add(posicionesPikachu,i);
-	 i=malloc(sizeof(int));
-	*i=9;
-	list_add(posicionesPikachu,i);
-	i=malloc(sizeof(int));
-	*i=10;
-	list_add(posicionesPikachu,i);
-	i=malloc(sizeof(int));
-	*i=1;
-	list_add(posicionesPikachu,i);
-
-	//Espero un appear o broker desconecta entonces cierro
-
-
-	printf("imprimo NEW: \n");
-	imprimirListaEntrenadores(cola_NEW);
-	printf("Imprimo Ready: \n");
-	imprimirListaEntrenadores(cola_READY);
-
-	puntero_mensaje_localized_pokemon pokemonloco = malloc(sizeof(puntero_mensaje_localized_pokemon));
-	pokemonloco->name_size=5;
-	pokemonloco->name_pokemon=malloc(sizeof(char)*pokemonloco->name_size);
-	memcpy(pokemonloco->name_pokemon,"Toto",5);
-	pokemonloco->quant_pokemon=3;
-	pokemonloco->coords = posicionesPikachu;
-
-	procesar_localized(pokemonloco,1);
-	sleep(10);*/
-//	printf("imprimo NEW: \n");
-//	imprimirListaEntrenadores(cola_NEW);
-//	printf("Imprimo Ready: \n");
-//	imprimirListaEntrenadores(cola_READY);
-
-	//t_list* coords;
-
-   // procesar_localized();
-
-/*
-	do {
-
-	t_mensajeTeam queHago =	esperoMensaje();
-	switch(queHago) {
-		case APPEAR:
-			aparecio_pokemon();
-			break;
-		case BROKEROFF:
-			andaBroker = 0;
-			printf("Se cerro el broker, chau\n");
-			break;
-		}
-
-	}while(andaBroker);
-*/
-/*	TODO
- * primero se tiene que conectar con el broker -> ver como serializar y deseralizar mensajes que envia y recibe
- *
-  Conexiones Prueba
-	t_config *config = config_create("./team.config");	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	ip_broker = config_get_string_value(config, "IP_BROKER");
-	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
-	ip_team = config_get_string_value(config, "IP_TEAM");
-	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
-	path_log = config_get_string_value(config, "LOG_FILE");
-	t_log* logger;
-	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);*/
-//	op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
-//	suscribirse_a_colas(vectorDeColas,"./team", "TEAM");
-//	crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
-/*	bool conexionOK = suscribirse_a_colas();
-	if(!conexionOK){
-		hilo_reconexion();
-	}*/
-/*	sleep(10);
-	suscribirse_cola(LOCALIZED_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
-	suscribirse_cola(CAUGHT_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
-	suscribirse_cola(APPEARED_POKEMON, ip_broker, puerto_broker, ip_team, puerto_team, logger);
-	config_destroy(config);
-	log_destroy(logger);
-	*/
-
-
-
-
-/*TODO
- * se debe realizar planificaion	1°FIFO
- * 									2°RR
- * 									3°SJF
- *
- */
-
-
-
-
-/*TODO
- *ver como liberar memoria de los entrenadores -> los char** y los entrenadores en si
- *
- *
- */
-/*
-	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
-	ip_team = config_get_string_value(config, "IP_TEAM");
-	puerto_team = config_get_string_value(config, "PUERTO_TEAM");
-	ip_broker = config_get_string_value(config, "IP_BROKER");
-	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
-	path_log = config_get_string_value(config, "LOG_FILE");
-	logger = log_create(path_log, "TEAM", true, LOG_LEVEL_INFO);
-	ACK = "ACK";
-	ids_mensajes_enviados = list_create();
-
-	crear_hilo_escucha(ip_team,puerto_team);
-	bool conexionOK = suscribirse_a_colas();
-	if(!conexionOK){
-		hilo_reconexion();
-	}
-	sleep(5);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	sleep(5);
-	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);
-
-	sleep(5);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);
-	sleep(5);
-	enviar_mensaje_appeared_pokemon(logger, ip_broker, puerto_broker);*/
-	//list_destroy(lista_entrenadores);// AGREGAR DESTRUCTOR DE ELEMENTOS
-
-	//printf("el programa sigue por aqui \n");
-	//sleep(100000);
-	//config_destroy(config);
-
-	// TODO sacar esto
-	sleep(50000);
+	//esperar_finalizacion_team();
+	pthread_join(hiloExit,NULL);
 }
-
+/*
 t_mensajeTeam esperoMensaje() {
 	printf("Esperando mensaje\n");
 	int i = 0;
@@ -261,6 +89,7 @@ t_mensajeTeam esperoMensaje() {
 	}
 
 }
+*/
 
 void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 	int cant_entrenadores = list_size(lista_entrenadores);
@@ -299,13 +128,21 @@ void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
 
 }
 
-void aplica_funcion_escucha(int * socket){
+int aplica_funcion_escucha(int * socket){
+
+
+
 	printf("recibe mensaje del broker\n");
 	op_code cod_op;
-	recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	char *msj;
+	int recv_data;
+
+	recv_data = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	if(recv_data==-1){
+		return -1;
+	}
 	printf("recibio cod op \n");
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
-
 
 	puntero_mensaje mensajeRecibido;
 	uint32_t size;
@@ -317,6 +154,13 @@ void aplica_funcion_escucha(int * socket){
 	}
 
 	switch(cod_op){
+	case MESSAGE:
+
+		msj = client_recibir_mensaje_SIN_CODEOP(*socket);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s", msj);
+		free(msj);
+		break;
+
 	case APPEARED_POKEMON:
 		mensajeRecibido = recibir_appeared_pokemon(*socket, size);
 		puntero_mensaje_appeared_pokemon appearedRecibido = mensajeRecibido->mensaje_cuerpo;
@@ -328,6 +172,7 @@ void aplica_funcion_escucha(int * socket){
 	case CAUGHT_POKEMON:
 		mensajeRecibido = recibir_caught_pokemon(*socket, size);
 		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
+		printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
@@ -349,6 +194,7 @@ void aplica_funcion_escucha(int * socket){
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 			if(encontre) {
 				printf("id:%d\n", mensajeRecibido->id_correlativo);
+
 				procesar_localized(localizedRecibido, mensajeRecibido->id_correlativo);
 
 			}
@@ -356,7 +202,7 @@ void aplica_funcion_escucha(int * socket){
 		break;
 	}
 
-
+	return 0;
 
 
 
@@ -398,13 +244,13 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 
 	t_caught *caughts=malloc(sizeof(t_caught));
 	caughts->idCorrelativo = idCorrelativo;
-	switch(caughtRecibido->caught_size){
-	case 3:
+	switch(caughtRecibido->caughtResult){
+	case 0:
 		caughts->atrapado=OK;
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
 
 		break;
-	case 5:
+	case 1:
 		caughts->atrapado=FAIL;
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
 

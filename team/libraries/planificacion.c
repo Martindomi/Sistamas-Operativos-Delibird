@@ -81,7 +81,7 @@ void main_planificacion_caught(){
 		caught = list_get(listaPokemonesCaught,0);
 		list_remove(listaPokemonesCaught,0);
 		entrenador = list_find(entrenadores_esperando_caught,(void*)_filterEntrenadorCaught);
-		printf("se encontre entrenador %d esperando caught\n", entrenador->id);
+		printf("se encontro entrenador %d esperando caught\n", entrenador->id);
 		if(entrenador!=NULL){
 			entrenador->id_catch=0;
 			if(caught->atrapado==OK){
@@ -90,9 +90,6 @@ void main_planificacion_caught(){
 				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
 				pokemonCaputrado->cantidad--;
 				entrenador->espacioLibre--;
-				if(entrenador->espacioLibre!=0){
-					sem_post(&sem_entrenador_disponible);
-				}
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
@@ -100,11 +97,19 @@ void main_planificacion_caught(){
 					sem_post(&sem_deadlcok);
 				}
 				mover_entrenador_bloqueado_a_exit(entrenador);
+			}else{
+				printf("no lo pudo capturar :( :( :( \n");
 			}
-		}
 
+			if(entrenador->espacioLibre!=0){
+				sem_post(&sem_entrenador_disponible);
+			}
+
+		}
 	}
+
 }
+
 
 
 

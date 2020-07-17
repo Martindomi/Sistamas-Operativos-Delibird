@@ -143,13 +143,16 @@ int crear_conexion_servidor(char* ip, char* puerto);
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 char* client_recibir_mensaje(int socket_cliente);
+char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente);
 void eliminar_paquete(t_package* paquete);
 void liberar_conexion(int socket_cliente);
 void* serializar_paquete(t_package* paquete, int* bytes);
 
+
 // HILO ESCUCHA
-void crear_hilo_escucha(char* ip, char* puerto);
+int crear_hilo_escucha(char* ip, char* puerto);
 void* hilo_escucha(int socket);
+
 
 // obtener mensajes
 puntero_mensaje obtener_mensaje_new(void* buffer);

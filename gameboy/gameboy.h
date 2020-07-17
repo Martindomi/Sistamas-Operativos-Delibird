@@ -25,6 +25,7 @@ char* ACK;
 
 t_log* logger_gameboy;
 uint32_t obtener_cola_mensaje(char* cola_string);
+char* obtener_nombre_cola(uint32_t numeroCola);
 
 //--------------------------------------------------------SUSCRIPCION Y RECONEXION GENERICA
 bool seCreoHiloReconexion;
@@ -37,7 +38,7 @@ sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
 
 bool suscribirse_a_colas(char* path);
 bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo);
-char* client_recibir_mensaje_gameboy(int socket_cliente);
+
 //--------------------------------------------------------
 
 #endif /* TP0_H_ */

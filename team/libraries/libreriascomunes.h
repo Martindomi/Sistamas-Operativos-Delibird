@@ -28,6 +28,9 @@ t_list *cola_BLOQUED;
 t_list *cola_EXIT;
 t_list *colas_a_suscribir;
 
+int socketEscucha;
+int socketSuscripcion;
+
 uint32_t ciclosCPU;
 uint32_t deadlocksProducidos;
 uint32_t deadlocksResueltos;
