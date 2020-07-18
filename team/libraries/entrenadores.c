@@ -135,7 +135,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 				capturadosContador++;
 			}
 
+			free(tempCapt);
 		}
+
 		//printf("%s\n",*unEntrenador.pokemonesCapturados);
 		//puts(*(unEntrenador.pokemonesCapturados +1));
 		//puts(*(unEntrenador.pokemonesCapturados+2));
@@ -146,6 +148,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 			list_add(unEntrenador->pokemonesObjetivo,tempObjetivos[objetivoContador]);
 			objetivoContador++;
 		}
+		free(tempObjetivos);
 
 
 		cargarObjetivosGlobales(unEntrenador->pokemonesObjetivo);
@@ -264,7 +267,7 @@ void cargarObjetivosGlobales(t_list* pokemones){
 
 void agregarPokemonALista(char* pokemon){
 
-	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(pokemonObjetivo));
+	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(t_pokemonObjetivo));
 
 	//strcpy(pokemonObjetivo->pokemon,pokemon);
 

@@ -13,7 +13,8 @@ void main_planificacion_recibidos(){
 	int i = 0;
 	t_pokemonObjetivo *pokemonsObjetivo ;
 	t_pokemon *pokemon;
-	t_entrenador *entrenador;
+	t_list *disponiblesNEW;
+	t_list *disponiblesBLOK;
 	t_distancia *distancia_new, *distancia_bloqued;
 
 	bool _filterPokemon(t_pokemonObjetivo *element){
@@ -31,8 +32,12 @@ void main_planificacion_recibidos(){
 
 		}else{
 			sem_wait(&sem_entrenador_disponible);
-			distancia_new = entrenadorMasCerca(pokemon, buscar_entrenadores_new_disponibles());
-			distancia_bloqued = entrenadorMasCerca(pokemon,buscar_entrenadores_bloqueados_disponibles());
+			disponiblesBLOK = buscar_entrenadores_bloqueados_disponibles();
+			disponiblesNEW = buscar_entrenadores_new_disponibles();
+			distancia_new = entrenadorMasCerca(pokemon, disponiblesNEW);
+			distancia_bloqued = entrenadorMasCerca(pokemon,disponiblesBLOK);
+			list_destroy(disponiblesBLOK);
+			list_destroy(disponiblesNEW);
 
 			if(distancia_new->distancia < distancia_bloqued->distancia){
 				if(esSJF()){
@@ -58,6 +63,7 @@ void main_planificacion_recibidos(){
 			free(distancia_bloqued);
 		}
 
+
 		list_remove(listaPokemonsRecibidos,i);
 	}
 return;
@@ -65,7 +71,7 @@ return;
 
 void main_planificacion_caught(){
 
-	t_list* entrenadores_esperando_caught;
+	t_list* entrenadores_esperando_caught, *bloquedVacio;
 	t_caught *caught;
 	t_entrenador *entrenador;
 	t_pokemonObjetivo *pokemonCaputrado;
@@ -93,7 +99,13 @@ void main_planificacion_caught(){
 				printf("\nPokemon capturado!\n");
 				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
-				if(list_is_empty(buscar_entrenadores_bloqueados_NOdisponibles(cola_BLOQUED))){
+
+
+				free(entrenador->pokemonCapturando); // SI ROMPE VER ACA
+
+
+				bloquedVacio = buscar_entrenadores_bloqueados_NOdisponibles();
+				if(list_is_empty(bloquedVacio)){
 					sem_post(&sem_deadlcok);
 				}
 				mover_entrenador_bloqueado_a_exit(entrenador);
@@ -106,6 +118,8 @@ void main_planificacion_caught(){
 			}
 
 		}
+		list_destroy(entrenadores_esperando_caught);
+		list_destroy(bloquedVacio);
 	}
 
 }
@@ -142,35 +156,30 @@ void main_planificacion_corto_plazo() {
 
 t_list *buscar_entrenadores_new_disponibles(){
 
-	t_list *lista_libres;
+	bool filtrado_NEW(t_entrenador *entrenador){
+		return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
+	}
+	return list_filter(cola_NEW,(void*)filtrado_NEW);
 
-		bool filtrado_NEW(t_entrenador *entrenador){
-			return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
-		}
-	lista_libres = list_filter(cola_NEW,(void*)filtrado_NEW);
-	return lista_libres;
 }
 
 t_list *buscar_entrenadores_bloqueados_disponibles(){
 
-	t_list *lista_libres;
+	bool filtrado_bloqueados(t_entrenador *entrenador){
+		return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
+	}
 
-		bool filtrado_bloqueados(t_entrenador *entrenador){
-			return entrenador->id_catch == 0 && entrenador->espacioLibre > 0;
-		}
-	lista_libres = list_filter(cola_BLOQUED,(void*)filtrado_bloqueados);
-	return lista_libres;
+	return list_filter(cola_BLOQUED,(void*)filtrado_bloqueados);
+
 }
 
 t_list *buscar_entrenadores_bloqueados_NOdisponibles(){
 
-	t_list *lista_libres;
+	bool filtrado_bloqueados(t_entrenador *entrenador){
+		return entrenador->id_catch != 0;
+	}
+	return list_filter(cola_BLOQUED,(void*)filtrado_bloqueados);
 
-		bool filtrado_bloqueados(t_entrenador *entrenador){
-			return entrenador->id_catch != 0;
-		}
-	lista_libres = list_filter(cola_BLOQUED,(void*)filtrado_bloqueados);
-	return lista_libres;
 }
 
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
@@ -182,11 +191,11 @@ void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
 			break;
 		}
 	}
-	sem_wait(&mutex_mov_colas_time);
-	movimientoTime++;
-	entrenador->seMovioEnTime = movimientoTime;
-	sem_post(&mutex_mov_colas_time);
-	list_add(destino, entrenador);
+/*	sem_wait(&mutex_mov_colas_time);
+ *	movimientoTime++;
+ *	entrenador->seMovioEnTime = movimientoTime;
+ *	sem_post(&mutex_mov_colas_time);
+*/	list_add(destino, entrenador);
 
 }
 
@@ -415,15 +424,17 @@ bool tiene_otro_pokemon(t_entrenador * entrenador){
 
 	for(int i = 0; i < size; i++){
 		pokemonCapturado = list_get(entrenador->pokemonesCapturados, i);
-		list_remove_by_condition(pokemonesObjetivos,_filterPokemonParaSacar);
+		list_remove_and_destroy_by_condition(pokemonesObjetivos,_filterPokemonParaSacar,mensaje_destroyer);
 
 
 	}
 
 
-	//!list_is_empty(pokemonesObjetivos)
+	bool resultado = !list_is_empty(pokemonesObjetivos);
 
-	return !list_is_empty(pokemonesObjetivos) && entrenador->espacioLibre == 0;
+	limpiar_lista_char(pokemonesObjetivos);
+
+	return resultado && entrenador->espacioLibre == 0;
 
 
 }
@@ -434,11 +445,18 @@ t_list* crear_lista_deadlock(t_list* lista){
 	int size = list_size(lista);
 	for (int i = 0; i < size; i++){
 		char* poke = malloc(strlen(list_get(lista,i))+1);
-		poke = (char*)list_get(lista,i);
+		//poke = (char*)list_get(lista,i);
+		memcpy(poke,list_get(lista,i),(strlen(list_get(lista,i))+1));
 		list_add(listaNueva,poke);
 	}
 
 	return listaNueva;
+}
+
+void limpiar_lista_char(t_list* lista){
+
+	list_destroy_and_destroy_elements(lista, mensaje_destroyer);
+
 }
 
 char* pokemon_de_mas(t_entrenador* entrenador){
@@ -509,15 +527,15 @@ bool necesita_pokemon(t_entrenador * entrenador, char* pokemon){
 
 	for(int i = 0; i < size; i++){
 		pokemonCapturado = list_get(entrenador->pokemonesCapturados, i);
-		list_remove_by_condition(pokemonesObjetivos,_filterPokemon);
+		list_remove_and_destroy_by_condition(pokemonesObjetivos,_filterPokemon,mensaje_destroyer);
 	}
 
 	pokemonCapturado = pokemon;
-	return list_any_satisfy(pokemonesObjetivos,_filterPokemon);
+	bool resultado = list_any_satisfy(pokemonesObjetivos,_filterPokemon);
 
-	//limpiar_lista_deadlock(pokemonesObjetivos);
+	limpiar_lista_char(pokemonesObjetivos);
 
-
+	return resultado;
 
 }
 
@@ -536,12 +554,13 @@ t_entrenador* busca_entrenador_que_necesita(char* pokemon){
 	return entrenador;
 }
 
-void main_exit(){
+void main_exit(int termino){
 
-	while(1){
+
+	while(termino==0){
 		sem_wait(&sem_exit);
 		if(todos_terminados()){
-			finalizar();
+			termino=finalizar();
 		}
 	}
 
@@ -558,8 +577,9 @@ bool todos_terminados(){
 	return ready && new && bloqued && exec && exit;
 }
 
-void finalizar(){
+int finalizar(){
 	sem_wait(&sem_fin);
+
 	t_entrenador * entrenador;
 
 	log_info(loggerTEAM,"");
@@ -585,6 +605,7 @@ void finalizar(){
 	log_info(loggerTEAM,"=================================================================");
 
 	finalizar_y_liberar();
+	return 1;
 }
 
 

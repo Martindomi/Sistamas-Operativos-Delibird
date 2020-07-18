@@ -34,7 +34,7 @@ void main_entrenador(t_entrenador*);
 void main_planificacion_caught();
 void main_planificacion_recibidos();
 void main_deadlock();
-void main_exit();
+void main_exit(int);
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador);
 void agregarAColas(t_list* lista, t_entrenador* entrenador);
 t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadores);
@@ -50,6 +50,7 @@ t_list *buscar_entrenadores_bloqueados_NOdisponibles();
 void main_planificacion_corto_plazo() ;
 bool tiene_otro_pokemon(t_entrenador * entrenador);
 t_list* crear_lista_deadlock(t_list* lista);
+void limpiar_lista_char(t_list* lista);
 char* sacar_pokemon_de_mas(t_entrenador* entrenador);
 char* pokemon_de_mas(t_entrenador* entrenador);
 bool todos_bloqueados();
@@ -59,6 +60,7 @@ t_entrenador* busca_entrenador_que_necesita(char* pokemon);
 void detectar_deadlock();
 void mover_bloqueados_a_exit();
 void finalizar_y_liberar();
+int finalizar();
 void mover_entrenador_bloqueado_a_exit(t_entrenador* enternador);
 
 #endif /* LIBRARIES_PLANIFICACION_H_ */
