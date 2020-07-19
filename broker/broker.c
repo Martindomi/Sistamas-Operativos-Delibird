@@ -193,7 +193,7 @@ void process_request(int cod_op, int socket) {
 
 			enviar_mensajes_memoria(mensaje_suscripcion, socket);
 
-			sem_post(&mutexLista[mensaje_suscripcion->cola]);
+			//sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
 			if(mensaje_suscripcion->tiempo == -1) {
 				free(mensaje_suscripcion);
@@ -237,11 +237,11 @@ void desuscribir_cliente(puntero_suscripcion_cola mensaje) {
 	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje->cola);
 	bool encontrar_suscriptor(void* elemento) {
 		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
-		return !strcmp(suscriptor->cliente, mensaje->cliente);
+		return strcmp(suscriptor->cliente, mensaje->cliente) == 0;
 	}
 	void free_suscriptor(void* elemento) {
 		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
-		free(suscriptor->cliente);
+		//free(suscriptor->cliente);
 		free(suscriptor);
 	}
 	list_remove_and_destroy_by_condition(cola_mensaje->suscriptores, encontrar_suscriptor, free_suscriptor);
@@ -290,7 +290,7 @@ void distribuir_mensajes_cola(int cola) {
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			if (!encontre) {
 				printf("Distribucion a %s\n", suscriptor->cliente);
-				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje);
+				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 				// SI NO ESTA, LO AGREGO
@@ -312,13 +312,19 @@ punteroParticion buscar_particion_mensaje(uint32_t idMensaje) {
 	return list_find(particiones, (void*)obtener_particion_id);
 }
 
-void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo) {
+void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo, punteroParticion punteroParticion) {
 	int conexion;
-	char* mensaje_recibido;
+	uint32_t id;
+	uint32_t id_correlativo;
 
 	conexion = suscriptor->socket;
-	uint32_t id = puntero_mensaje_completo->id;
-	uint32_t id_correlativo = puntero_mensaje_completo->id_correlativo;
+	if(punteroParticion == NULL) {
+		id = puntero_mensaje_completo->id;
+		id_correlativo = puntero_mensaje_completo->id_correlativo;
+	} else {
+		id = punteroParticion->id;
+		id_correlativo = punteroParticion->idCorrelativo;
+	}
 	switch(cola) {
 		case NEW_POKEMON: {
 			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
@@ -391,17 +397,29 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		}
 
 	}
+	pthread_t threadACK;
+	puntero_ack punteroAck = malloc(sizeof(t_ack));
+	punteroAck->conexion = conexion;
+	punteroAck->idMensaje = id;
+	punteroAck->suscriptor = suscriptor->cliente;
+	pthread_create(&threadACK, NULL, esperar_mensaje_ack, punteroAck);
+	pthread_detach(threadACK);
 
-	mensaje_recibido = client_recibir_mensaje(conexion);
+	//close(conexion);
+}
+
+void esperar_mensaje_ack(puntero_ack punteroAck) {
+	char* mensaje_recibido;
+
+	mensaje_recibido = client_recibir_mensaje(punteroAck->conexion);
 	printf("RECIBE %s\n", mensaje_recibido);
-	// TODO que hago si no recibo el ACK?
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
-		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(puntero_mensaje_completo->id);
-		list_add(punteroParticionEncontrado->suscriptores_ack, suscriptor->cliente);
+		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
+		list_add(punteroParticionEncontrado->suscriptores_ack, punteroAck->suscriptor);
 	}
 
 	free(mensaje_recibido);
-	//close(conexion);
+	free(punteroAck);
 }
 
 void inicializar_datos() {
@@ -619,6 +637,8 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 }
 
 void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	printf("la lista esta llena %d\n", lista_llena(particiones));
+
 	if(!lista_llena(particiones)){
 		if(strcmp(algoritmoParticionLibre, "FF") == 0) {
 			return buscar_memoria_libre_first_fit(mensajeCompleto, colaMensaje);
@@ -667,6 +687,7 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 				printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
 				printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
+				ver_estado_memoria();
 				return punteroParticionObtenido->punteroMemoria;
 			}
 		}
@@ -912,31 +933,36 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 
 	for(int i = 0; i < list_size(particionesCola); i++ ) {
 		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
-
-		bool encuentra_suscriptor(void* elemento) {
-			puntero_suscriptor sus = (puntero_suscriptor) elemento;
-			return strcmp(sus->cliente, mensajeSuscripcion->cliente) == 0;
-		}
-		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
-		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
-		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
-		if (!encontre) {
-			printf("Distribucion MEMORIA a %s\n", mensajeSuscripcion->cliente);
-
-			puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
-			puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
-			suscriptor->cliente = mensajeSuscripcion->cliente;
-			suscriptor->socket = socket;
-			printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
-			distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje);
-			actualizar_lru_mensaje(punteroMensaje->id);
-			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
-			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
-			// SI NO ESTA, LO AGREGO
-			if(!enviado) {
-				list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
+		if(punteroParticionMensaje->ocupada) {
+			bool encuentra_suscriptor(void* elemento) {
+				char* sus = (char*) elemento;
+				return strcmp(sus, mensajeSuscripcion->cliente) == 0;
 			}
-			free(suscriptor);
+			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
+			printf("SUSCRIPTOR MENSAJE AHORA %s\n", mensajeSuscripcion->cliente);
+			printf("ENCONTRO O NO %d\n", encontre);
+			if (!encontre) {
+				printf("Distribucion MEMORIA a %s\n", mensajeSuscripcion->cliente);
+				printf("Posicion de particion %p\n", punteroParticionMensaje->punteroMemoria);
+				puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
+				puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
+				suscriptor->cliente = mensajeSuscripcion->cliente;
+				suscriptor->socket = socket;
+				printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
+				distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje, punteroParticionMensaje);
+				printf("Pasa distribucion\n");
+				actualizar_lru_mensaje(punteroParticionMensaje->id);
+				printf("Pasa actualizar\n");
+				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
+				// SI NO ESTA, LO AGREGO
+				if(!enviado) {
+					list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
+				}
+				free(suscriptor);
+			}
 		}
 	}
 }
@@ -953,22 +979,22 @@ void actualizar_lru_mensaje(uint32_t idMensaje) {
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion) {
 	switch(particion->colaMensaje) {
 		case NEW_POKEMON: {
-			return obtener_mensaje_new(particion->punteroMemoria);
+			return obtener_mensaje_new_memoria(particion->punteroMemoria);
 		}
 		case APPEARED_POKEMON: {
-			return obtener_mensaje_appeared(particion->punteroMemoria);
+			return obtener_mensaje_appeared_memoria(particion->punteroMemoria);
 		}
 		case GET_POKEMON: {
-			return obtener_mensaje_get(particion->punteroMemoria);
+			return obtener_mensaje_get_memoria(particion->punteroMemoria);
 		}
 		case LOCALIZED_POKEMON: {
-			return obtener_mensaje_localized(particion->punteroMemoria);
+			return obtener_mensaje_localized_memoria(particion->punteroMemoria);
 		}
 		case CAUGHT_POKEMON: {
-			return obtener_mensaje_caught(particion->punteroMemoria);
+			return obtener_mensaje_caught_memoria(particion->punteroMemoria);
 		}
 		case CATCH_POKEMON: {
-			return obtener_mensaje_catch(particion->punteroMemoria);
+			return obtener_mensaje_catch_memoria(particion->punteroMemoria);
 		}
 		case -1: exit(-1);
 	}
@@ -981,38 +1007,36 @@ void guardar_mensaje_memoria(t_mensaje* mensajeCompleto, void* posMemoria, uint3
 	switch(colaMensaje) {
 		case NEW_POKEMON: {
 			puntero_mensaje_new_pokemon punteroMensajeNew = (puntero_mensaje_new_pokemon) mensajeCompleto->mensaje_cuerpo;
-			guardar_mensaje_new(posMemoria, punteroMensajeNew->name_pokemon, punteroMensajeNew->pos_x, punteroMensajeNew->pos_y,
-					punteroMensajeNew->quant_pokemon, id, idCorrelativo);
+			guardar_mensaje_new_memoria(posMemoria, punteroMensajeNew->name_pokemon, punteroMensajeNew->pos_x, punteroMensajeNew->pos_y,
+					punteroMensajeNew->quant_pokemon);
 			break;
 		}
 		case GET_POKEMON: {
 			puntero_mensaje_get_pokemon punteroMensajeGet = (puntero_mensaje_get_pokemon) mensajeCompleto->mensaje_cuerpo;
-			guardar_mensaje_get(posMemoria, punteroMensajeGet->name_pokemon, id, idCorrelativo);
+			guardar_mensaje_get_memoria(posMemoria, punteroMensajeGet->name_pokemon);
 			break;
 		}
 		case LOCALIZED_POKEMON: {
 			puntero_mensaje_localized_pokemon punteroMensajeLocalized = (puntero_mensaje_localized_pokemon) mensajeCompleto->mensaje_cuerpo;
-			guardar_mensaje_localized(posMemoria, punteroMensajeLocalized->name_pokemon, punteroMensajeLocalized->quant_pokemon,
-					punteroMensajeLocalized->coords, id, idCorrelativo);
+			guardar_mensaje_localized_memoria(posMemoria, punteroMensajeLocalized->name_pokemon, punteroMensajeLocalized->quant_pokemon,
+					punteroMensajeLocalized->coords);
 			break;
 		}
 		case APPEARED_POKEMON: {
 			puntero_mensaje_appeared_pokemon punteroMensajeAppeared = (puntero_mensaje_appeared_pokemon) mensajeCompleto->mensaje_cuerpo;
-			guardar_mensaje_appeared(posMemoria, punteroMensajeAppeared->name_pokemon, punteroMensajeAppeared->pos_x, punteroMensajeAppeared->pos_y,
-					id, idCorrelativo);
+			guardar_mensaje_appeared_memoria(posMemoria, punteroMensajeAppeared->name_pokemon, punteroMensajeAppeared->pos_x, punteroMensajeAppeared->pos_y);
 			break;
 		}
 		case CAUGHT_POKEMON: {
 			puntero_mensaje_caught_pokemon punteroMensajeCaught = (puntero_mensaje_caught_pokemon) mensajeCompleto->mensaje_cuerpo;
 			char* caughtPokemon = punteroMensajeCaught->caughtResult == 0 ? "OK" : "FAIL";
 
-			guardar_mensaje_caught(posMemoria, caughtPokemon, id, idCorrelativo);
+			guardar_mensaje_caught_memoria(posMemoria, caughtPokemon);
 			break;
 		}
 		case CATCH_POKEMON: {
 			puntero_mensaje_catch_pokemon punteroMensajeCatch = (puntero_mensaje_catch_pokemon) mensajeCompleto->mensaje_cuerpo;
-			guardar_mensaje_catch(posMemoria, punteroMensajeCatch->name_pokemon, punteroMensajeCatch->pos_x, punteroMensajeCatch->pos_y,
-					id, idCorrelativo);
+			guardar_mensaje_catch_memoria(posMemoria, punteroMensajeCatch->name_pokemon, punteroMensajeCatch->pos_x, punteroMensajeCatch->pos_y);
 			break;
 		}
 		case -1: exit(-1);

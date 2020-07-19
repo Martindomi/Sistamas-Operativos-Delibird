@@ -70,10 +70,17 @@ t_cola_mensaje* localized_pokemon;
 t_cola_mensaje* catch_pokemon;
 t_cola_mensaje* caught_pokemon;
 
+typedef struct {
+	uint32_t idMensaje;
+	char* suscriptor;
+	int conexion;
+} t_ack;
+typedef t_ack* puntero_ack;
+
 int mensajes_nuevos();
 void distribuir_mensajes_cola(int cola);
 t_cola_mensaje* selecciono_cola(int cola);
-void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo);
+void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo, punteroParticion punteroParticion);
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
@@ -109,6 +116,7 @@ uint32_t convertir_decimal(uint32_t decimal);
 uint32_t convertir_hexadecimal_decimal(char* hexadecimal);
 bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
 void manejo_dump_cache(int num);
+void esperar_mensaje_ack(puntero_ack punteroAck);
 
 int cantidad_mensajes;
 
