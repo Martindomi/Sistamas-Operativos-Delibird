@@ -2,14 +2,13 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/log.h>
+
 //#include "TALL-GRASS.c"
 
 
 int main (int argc, char *argv[]) {
 
 	logger = log_create("gamecard.log", "GAMECARD", false, LOG_LEVEL_INFO);
-
-	/*
 	t_config* config;
 
 
@@ -19,107 +18,134 @@ int main (int argc, char *argv[]) {
 
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
-
-	int conexion = crear_conexion(ip_broker, puerto_broker);
-
-	enviar_mensaje("hola", conexion);
-	//recibir mensaje
-	log_info(logger, "mensaje enviado");
-	char*mensaje = client_recibir_mensaje(conexion);
-	//loguear mensaje recibido
-	log_info(logger, "mensaje recibido");
-	log_info(logger, mensaje);
-
-	log_info(logger, "ESTOY LOGEAdsasNDO");
-	log_info(logger, ip_gamecard);
-	log_info(logger, puerto_gamecard);*/
+	tiempo_de_reintento_conexion = config_get_int_value(config,"TIEMPO_DE_REINTENTO_CONEXION");
+	tiempo_de_reintento_operacion = config_get_int_value(config,"TIEMPO_DE_REINTENTO_OPERACION");
+	tiempo_retardo_operacion = config_get_int_value(config,"TIEMPO_RETARDO_OPERACION");
 
 	t_configFS* configTG= crear_config(argc,argv);
 	ptoMontaje = configTG->ptoMontaje;
 	block_size = configTG->block_size;
 	blocks = configTG->blocks;
 
-
 	iniciar_filesystem();
 
-	char*pokemon3 ="charmander";
-	char* pokemon = "pikachu";
-	tratar_mensaje_NEW_POKEMON(2,3,4,pokemon);
-	char*pokemon2 ="delibird";
-	tratar_mensaje_NEW_POKEMON(1,2,4,pokemon2);
-	tratar_mensaje_CATCH_POKEMON(1,2,pokemon2);
-	tratar_mensaje_NEW_POKEMON(1,3,1,pokemon);
-	tratar_mensaje_NEW_POKEMON(4,5,12345,pokemon);
-	tratar_mensaje_NEW_POKEMON(2,3,10,pokemon);
-	tratar_mensaje_NEW_POKEMON(4,2,12345,pokemon);
-	tratar_mensaje_NEW_POKEMON(1,5,12345,pokemon);
-	tratar_mensaje_NEW_POKEMON(4,7,12345,pokemon);
-	tratar_mensaje_NEW_POKEMON(4,7,1,pokemon);
-	tratar_mensaje_NEW_POKEMON(14,51,12345,pokemon);
-	tratar_mensaje_NEW_POKEMON(9,5,12345,pokemon);
-	tratar_mensaje_CATCH_POKEMON(1,3, pokemon);
-	tratar_mensaje_NEW_POKEMON(1,2,4,pokemon3);
+		/*sem_init(&(sem_colas_no_vacias),0,0);
+		sem_init(&(sem_cpu),0,1);
+		sem_init(&(sem_caught),0,0);
+		sem_init(&(sem_recibidos),0,0);
+		sem_init(&(mutex_caught),0,1);
+		sem_init(&(mutex_recibidos),0,1);
+		sem_init(&mutex_mov_colas_time,0,1);
+		sem_init(&sem_exit,0,0);*/
+	sem_init(&(mutex_reconexion),0,1);
+		/*sem_init(&(sem_fin),0,1);
+		sem_init(&sem_deadlcok,0,0);*/
+	sem_init(&mutex_boolReconexion,0,1);
+		/*sem_init((&mutex_ciclos),0,1);
+		sem_init((&mutex_deadlockProd),0,1);
+		sem_init((&mutex_deadlockRes),0,1);
+		sem_init((&mutex_conSwitch),0,1);
+		sem_init((&esperaSuscripcion),0,1);*/
+	sem_init(&mutex_suscripcion,0,0);
+		//sem_init(&sem_entrenador_disponible,0,0);
 
-	tratar_mensaje_GET_POKEMON(pokemon);
-	/*char*mensaje= generar_linea_de_entrada_mensaje(4,2,5);;
-	//crear_files_metadata(pokemon,mensaje);
-	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
+	sem_wait(&mutex_boolReconexion);
+	seCreoHiloReconexion=false;
+	sem_post(&mutex_boolReconexion);
 
-	char*pathBloque =generar_path_bloque("2");
-	escribir_bloque(pathBloque, mensaje);
-	actualizar_bitmap(1,2);
-	agregar_block_al_metadata(2,pathPokemon);
-	actualizar_tamanio_archivo(pathPokemon);
+	ACK="ACK";
 
-	/*
-	char*pokemon2 ="delibird";
-	char*mensaje2=generar_linea_de_entrada_mensaje(1,2,5);
-	crear_files_metadata(pokemon2,mensaje2);
-
-	char*pokemon3 ="charmander";
-	char*mensaje3="charmander va en el block 3 hjkfjshdjajdjskfhncbahsjektmsmtnemak\n";
-	crear_files_metadata(pokemon3,mensaje3);
-
-	char*pokemon4 ="pichu";
-		mensaje_new_pokemon(1, 1, 5 ,pokemon4);
-
-		abrir_archivo(generar_path_archivo_pokemon_metadata(pokemon));
-
-	//char archivoEstado = leer_ultima_pos_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
-	//printf ("estado archivo = %c\n", archivoEstado);
-	//abrir_archivo("/home/utnso/Escritorio/tall-grass/Files/delibird/Metadata.bin");
-
-	//char* ultimaPos = valor_ultima_posicion(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin"),sizeof(obtener_array_de_bloques("/home/utnso/Escritorio/tall-grass/Files/pikachu/Metadata.bin")));
-	//printf("ultima pos = %s \n",ultimaPos);
-
-	char*pokemon2 ="delibird";
-	char*pokemon3 ="charmander";
-	char*pokemon4 ="pichu";
-	char*pokemon5="lucia";
-
-	mensaje_new_pokemon(1, 2, 1 ,pokemon);
-	mensaje_new_pokemon(2,1,5,pokemon3);
-	mensaje_new_pokemon(2,5,5,pokemon2);
-	mensaje_new_pokemon(4, 4, 10 ,pokemon);
-	mensaje_new_pokemon(1, 3, 10 ,pokemon);
-	mensaje_new_pokemon(2,6,8,pokemon3);
-	mensaje_new_pokemon(2,7,4,pokemon5);
-	mensaje_new_pokemon(5,1,6,pokemon4);
-
-
-	int value2 = verificar_existencia_posiciones(2,3,"/home/utnso/Escritorio/tall-grass/Files/charmander/Metadata.bin");
-	printf(string_from_format("%i\n",value2));*/
-
-	//int value = buscar_posicion_linea_en_bloque(1,1,"/home/utnso/Escritorio/tall-grass/Files/Blocks/0.bin");
-	//printf(string_from_format("%i\n",value));
+	socketEscucha = crear_hilo_escucha(ip_gamecard,puerto_gamecard);
+	bool conexionOk = suscribirse_a_colas("../gamecard.config");
+	if(!conexionOk){
+		crear_hilo_reconexion("../gamecard.config");
+	}
 
 
 
-
-	//log_destroy(logger);
+	log_destroy(logger);
 	//liberar_conexion(conexion);
 
 }
 
+int aplica_funcion_escucha(int * socket){
 
+	printf("recibe mensaje del broker\n");
+	op_code cod_op;
+	char *msj;
+	int recv_data;
+
+	recv_data = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	if(recv_data==-1){
+		return -1;
+	}
+	printf("recibio cod op \n");
+	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
+
+	puntero_mensaje mensajeRecibido;
+	uint32_t size;
+	bool encontre;
+
+	bool encuentra_mensaje_propio(void* elemento) {
+		char* el = (char*) elemento;
+		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
+	}
+	int conexion =crear_conexion(ip_broker,puerto_broker);
+	switch(cod_op){
+	case MESSAGE:
+
+		msj = client_recibir_mensaje_SIN_CODEOP(*socket);
+		log_info(logger,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s", msj);
+		free(msj);
+		break;
+
+	case NEW_POKEMON:
+		mensajeRecibido = recibir_new_pokemon(*socket, size);
+		puntero_mensaje_new_pokemon newRecibido = mensajeRecibido->mensaje_cuerpo;
+		tratar_mensaje_NEW_POKEMON(newRecibido->pos_x,newRecibido->pos_y,newRecibido->quant_pokemon,newRecibido->name_pokemon);
+		send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
+		char* mensaje = client_recibir_mensaje(conexion);
+		liberar_conexion(conexion);
+		free(mensajeRecibido);
+		free(mensaje);
+		break;
+
+
+	case CATCH_POKEMON:
+		mensajeRecibido = recibir_catch_pokemon(*socket, size);
+		puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
+		char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
+		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
+		char* mensaje = client_recibir_mensaje(conexion);
+		liberar_conexion(conexion);
+		free(mensajeRecibido);
+		free(mensaje);
+		break;
+
+	case GET_POKEMON:
+
+		mensajeRecibido = recibir_get_pokemon(*socket, size);
+		puntero_mensaje_get_pokemon getRecibido = mensajeRecibido->mensaje_cuerpo;
+		t_list* listadoPosiciones = tratar_mensaje_GET_POKEMON(getRecibido->name_pokemon);
+		uint32_t cantidadPos = (list_size(listadoPosiciones))/2;
+		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPosiciones,0,mensajeRecibido->id,conexion);
+		char* mensaje = client_recibir_mensaje(conexion);
+		liberar_conexion(conexion);
+		free(mensajeRecibido);
+		free(mensaje);
+	    free(listadoPosiciones);
+
+		break;
+	}
+
+	return 0;
+
+
+
+	//liberar_conexion(*socket);
+	//free(mensajeRecibido);
+	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
+	/*sleep(10);
+	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);*/
+}
 
