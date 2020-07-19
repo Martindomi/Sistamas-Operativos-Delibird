@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+
 typedef enum
 {
 	MESSAGE=1,
@@ -52,16 +53,10 @@ typedef struct
 typedef struct {
 	uint32_t id;
 	uint32_t id_correlativo;
+	uint32_t size_mensaje_cuerpo;
 	void* mensaje_cuerpo;
 } t_mensaje;
 typedef t_mensaje* puntero_mensaje;
-
-typedef struct {
-	t_mensaje* mensaje;
-	t_list* suscriptores_enviados;
-	t_list* suscriptores_ack;
-} t_mensaje_completo;
-typedef t_mensaje_completo* puntero_mensaje_completo;
 
 typedef struct {
 	uint32_t name_size;
@@ -110,8 +105,7 @@ typedef t_mensaje_catch_pokemon* puntero_mensaje_catch_pokemon;
 
 
 typedef struct {
-	uint32_t caught_size;
-	char* caught_pokemon;
+	uint32_t caughtResult;
 } t_mensaje_caught_pokemon;
 
 typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
@@ -119,8 +113,15 @@ typedef t_mensaje_caught_pokemon* puntero_mensaje_caught_pokemon;
 typedef struct {
 	op_code cola;
 	char* cliente;
+	int tiempo;
 } t_suscripcion_cola;
 typedef t_suscripcion_cola* puntero_suscripcion_cola;
+
+typedef struct {
+	char* cliente;
+	int socket;
+} t_suscriptor;
+typedef t_suscriptor* puntero_suscriptor;
 
 
 t_log* logger_global;
@@ -128,7 +129,7 @@ t_log* logger_global;
 // Server
 
 void* recibir_buffer(int*, int);
-void iniciar_servidor(char* path_config, char* ip_config, char* port_config);
+void iniciar_servidor();
 void esperar_cliente(int);
 void* server_recibir_mensaje(int socket_cliente, uint32_t* size);
 int recibir_operacion(int);
@@ -138,17 +139,28 @@ void* serializar_mensaje(t_package* paquete, int *bytes);
 void devolver_mensaje(void* payload, int size, int socket_cliente);
 
 // Client
-
+int crear_conexion_servidor(char* ip, char* puerto);
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 char* client_recibir_mensaje(int socket_cliente);
+char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente);
 void eliminar_paquete(t_package* paquete);
 void liberar_conexion(int socket_cliente);
 void* serializar_paquete(t_package* paquete, int* bytes);
 
+
 // HILO ESCUCHA
-void crear_hilo_escucha(char* ip, char* puerto);
-void* hilo_escucha(int* socket);
+int crear_hilo_escucha(char* ip, char* puerto);
+void* hilo_escucha(int socket);
+
+
+// obtener mensajes
+puntero_mensaje obtener_mensaje_new(void* buffer);
+puntero_mensaje obtener_mensaje_get(void* buffer);
+puntero_mensaje obtener_mensaje_localized(void* buffer);
+puntero_mensaje obtener_mensaje_caught(void* buffer);
+puntero_mensaje obtener_mensaje_catch(void* buffer);
+puntero_mensaje obtener_mensaje_appeared(void* buffer);
 
 // INICIALIZACION CONFIG/LOGGER
 

@@ -18,13 +18,7 @@
 t_list* lista_objetivo;
 
 
-t_list *cola_NEW;
-t_list *cola_READY;
-t_list *cola_EXEC;
-t_list *cola_BLOQUED_terminadoOK;
-//t_list *cola_BLOQUED_terminadoDeadlock; Y esto?
-//t_list *cola_BLOQUED_noTerminado; Y esto?
-t_list *cola_EXIT;
+
 /*
 
 
@@ -58,7 +52,6 @@ void imprimirEntrenador(t_entrenador* entrenador);
 /*
  * LISTA OBJETIVO
  */
-
 void imprimirListaObjetivo();
 void crearListaObjetivo();
 void cargarObjetivosGlobales();
@@ -66,9 +59,11 @@ void agregarPokemonALista(char* pokemon);
 t_pokemonObjetivo* buscarPokemon(char* pokemon);
 void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list);
 void quitarPokemonDeLista(char* pokemon);
-
-
-
-
+void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino);
+void analizarCaptura(t_entrenador* entrenador);
+void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock);
+void contar_ciclos_entrenador(t_entrenador * entrenador, int ciclos);
+bool entrenador_tiene_menor_rafaga(t_entrenador* entrenador, int *sizeAntes);
+void analizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock);
 
 #endif /* LIBRARIES_ENTRENADORES_H_ */

@@ -6,30 +6,77 @@
 //NEW/
 //READY/E1
 //EXEC/ E2
-void* main_entrenador(t_entrenador* entrenador){
+void main_entrenador(t_entrenador* entrenador){
 	while(1) {
+
 		sem_wait(&(entrenador->sem_entrenador));
-		int xDestino =  entrenador->pokemonCapturando->x;
-		int yDestino =  entrenador->pokemonCapturando->y;
-		printf("Entrenador iniciado: %d\n", entrenador->id);
-		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,xDestino, yDestino);
-		entrenador->x = xDestino;
-		entrenador->y = yDestino;
-		capturoPokemon(entrenador);
-		printf("Capturo pokemon\n");
+		moverColas(cola_READY, cola_EXEC, entrenador);
+		log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: READY -> EXEC. Motivo: Entrenador comienza a moverse hacia el objetivo", entrenador->id);
+		contar_context_switch();
+
 		if(list_size(entrenador->pokemonesObjetivo)!=list_size(entrenador->pokemonesCapturados)){
-			//Ak tiene q ir a block
-			moverColas(cola_EXEC,cola_NEW, entrenador);
-			printf("Entrenador %d: me quedan pokemons, vuelvo a ready\n", entrenador->id);
+			moverEntrenador(entrenador, entrenador->pokemonCapturando->x,entrenador->pokemonCapturando->y);
+			analizarCaptura(entrenador);
 		}else {
-			moverColas(cola_READY,cola_EXIT, entrenador);
-			printf("Entrenador %d: no me quedan pokemons, me cierro\n", entrenador->id);
+			t_entrenador* entrenadorDeadlock = (t_entrenador*) (entrenador->entrenadorDeadlock);
+
+			moverEntrenador(entrenador, entrenadorDeadlock->x,entrenadorDeadlock->y);
+			analizarIntercambio(entrenador,entrenadorDeadlock);
+
 		}
+
 		sem_post(&(sem_cpu));
 	}
 }
 
+void analizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock){
+
+	if(entrenador->x==entrenadorDeadlock->x && entrenador->y==entrenadorDeadlock->y){
+		realizarIntercambio(entrenador,entrenadorDeadlock);
+
+			if(tiene_otro_pokemon(entrenador)){
+				moverColas(cola_EXEC,cola_BLOQUED,entrenador);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> BLOCKED. Motivo: Realiza intercambio pero sigue en deadlock", entrenador->id);
+			}else{
+				moverColas(cola_EXEC,cola_EXIT,entrenador);
+				printf("entrenador %d se fue a EXIT \n", entrenador->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenador->id);
+				sem_post(&sem_exit);
+			}
+			if(!tiene_otro_pokemon(entrenadorDeadlock)){
+				moverColas(cola_BLOQUED,cola_EXIT,entrenador->entrenadorDeadlock);
+				printf("entrenador %d se fue a EXIT \n", entrenadorDeadlock->id);
+				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenadorDeadlock->id);
+				sem_post(&sem_exit);
+			}
+
+			if(tiene_otro_pokemon(entrenador) || tiene_otro_pokemon(entrenadorDeadlock)){
+				sem_post(&sem_deadlcok);
+			}
+
+
+	}else{
+		moverColas(cola_EXEC,cola_READY,entrenador);
+		sem_post(&sem_colas_no_vacias);
+	}
+}
+
+void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadlock){
+
+	char* pokemonACambiar1 = sacar_pokemon_de_mas(entrenador);
+	char* pokemonACambiar2 = sacar_pokemon_de_mas(entrenadorDeadlock);
+	tarda(5);
+	list_add(entrenador->pokemonesCapturados,pokemonACambiar2);
+	list_add(entrenadorDeadlock->pokemonesCapturados,pokemonACambiar1);
+	log_info(loggerTEAM,"INTERCAMBIO; Entrenador: %d recibe pokemon %s y Entrenador: %d recibe pokemon %s",entrenador->id, pokemonACambiar2,entrenadorDeadlock->id, pokemonACambiar1);
+	contar_ciclos_entrenador(entrenador, 5);
+	contar_deadlock_resuelto();
+
+}
+
+//cuando recibe caught esto
 void capturoPokemon(t_entrenador* entrenador){
+
 	bool _filterPokemon(char* pokemonNombre){
 		return !strcmp(entrenador->pokemonCapturando->especie,pokemonNombre);
 	}
@@ -49,13 +96,14 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	char ** posiciones;
 	t_entrenador *unEntrenador;
 
-	t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
+	//t_config *config = config_create("/home/utnso/tp-2020-1c-Elite-Four/team/team.config");
 
-	char** read_posiciones= config_get_array_value(config,"POSICIONES_ENTRENADORES");
-	char** read_pokemones= config_get_array_value(config,"POKEMON_ENTRENADORES");
-	char** read_objetivos= config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
-	int id = 0;
+	char** read_posiciones= configData->posicionesEntrenadores;//config_get_array_value(config,"POSICIONES_ENTRENADORES");
+	char** read_pokemones= configData->pokemonesEntrenadores;//config_get_array_value(config,"POKEMON_ENTRENADORES");
+	char** read_objetivos= configData->objetivosEntrenadores;//config_get_array_value(config,"OBJETIVOS_ENTRENADORES");
+	int id = 0, no_hay_mas = 0;
 	crearListaObjetivo();
+
 
 	while(read_posiciones[i]!= NULL){
 		id++;
@@ -63,16 +111,22 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		unEntrenador = malloc(sizeof(t_entrenador));
 		unEntrenador->estado= NEW;
 		unEntrenador->id = id;
+		unEntrenador->id_catch= 0;
 		posiciones = string_split(read_posiciones[i], "|");
 		unEntrenador->x = atoi(*(posiciones));
 		unEntrenador->y = atoi(*(posiciones+1));
-
+		unEntrenador->ciclos = 0;
+		unEntrenador->estimacion = configData->estmacionInicial;
+		unEntrenador->rafagaReal = configData->estmacionInicial;
+		unEntrenador->estimacionRestante = configData->estmacionInicial;
+		unEntrenador->pokemonCapturando=NULL;
 		//printf("%d\n",unEntrenador->x);
 		//printf("%d\n",unEntrenador->y);
 		unEntrenador->pokemonesCapturados = list_create();
 		unEntrenador->pokemonesObjetivo = list_create();
-		if(strcmp(read_pokemones[i],"")==0){
-			//printf("NO HAY\n");
+		if( no_hay_mas == 1|| read_pokemones[i]==NULL){
+			printf("No tiene pokemones capturados\n");
+			no_hay_mas = 1;
 		} else {
 			char** tempCapt = string_split(read_pokemones[i], "|");
 			int capturadosContador = 0;
@@ -81,7 +135,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 				capturadosContador++;
 			}
 
+			free(tempCapt);
 		}
+
 		//printf("%s\n",*unEntrenador.pokemonesCapturados);
 		//puts(*(unEntrenador.pokemonesCapturados +1));
 		//puts(*(unEntrenador.pokemonesCapturados+2));
@@ -92,6 +148,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 			list_add(unEntrenador->pokemonesObjetivo,tempObjetivos[objetivoContador]);
 			objetivoContador++;
 		}
+		free(tempObjetivos);
 
 
 		cargarObjetivosGlobales(unEntrenador->pokemonesObjetivo);
@@ -118,12 +175,12 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		liberarArrayDeStrings(posiciones);
 
 	}
-
+	printf("Se calcula lista objetivos segun objetivos individuales:\n");
 	imprimirListaObjetivo();
 
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
-
+	printf("Se quitan los pokemones ya capturados:\n");
 	imprimirListaObjetivo();
 
 
@@ -132,10 +189,9 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 	liberarArrayDeStrings(read_pokemones);
 	liberarArrayDeStrings(read_posiciones);
 
-	config_destroy(config);
+	//config_destroy(config);
 
 }
-
 
 void liberarArrayDeStrings(char** options){
 	int j=0;
@@ -143,21 +199,6 @@ void liberarArrayDeStrings(char** options){
 		free(options[j]);
 		j++;
 	}free(options);
-}
-
-
-int sizeVectorString(char **lista){
-
-	int i = 0;
-	char** aux = lista;
-
-	while(*(aux + i) != NULL){
-		i++;
-	}
-
-	//printf("%d\n",i);
-	return i;
-
 }
 
 void imprimirListaEntrenadores(t_list* entrenadores_list){
@@ -188,6 +229,8 @@ void imprimirEntrenador(t_entrenador* entrenador) {
 void imprimirListaObjetivo(){
 
 	printf("------------\n");
+	printf("Lista objetivo:\n");
+	printf("------------\n");
 	for(int i = 0; i < list_size(lista_objetivo);i++){
 
 		t_pokemonObjetivo *poke = list_get(lista_objetivo,i);
@@ -198,18 +241,13 @@ void imprimirListaObjetivo(){
 	printf("------------\n");
 }
 
-
-
-
-
-
 void crearListaObjetivo(){
 
 	if(lista_objetivo==NULL){
-		printf("crea lista\n");
+		printf("creando lista de todos los objetivos\n");
 		lista_objetivo=list_create();
 	}
-	printf("lista craeda\n");
+	printf("lista de objetivos creada\n");
 
 
 
@@ -227,11 +265,9 @@ void cargarObjetivosGlobales(t_list* pokemones){
 	}*/
 }
 
-
-
 void agregarPokemonALista(char* pokemon){
 
-	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(pokemonObjetivo));
+	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(t_pokemonObjetivo));
 
 	//strcpy(pokemonObjetivo->pokemon,pokemon);
 
@@ -245,6 +281,7 @@ void agregarPokemonALista(char* pokemon){
 		strcpy(pokemonObjetivo->pokemon,pokemon);
 		//pokemonObjetivo->pokemon = pokemon;
 		pokemonObjetivo->cantidad = 1;
+		printf("%d\n",pokemonObjetivo->cantidad);
 		list_add(lista_objetivo,pokemonObjetivo);
 
 
@@ -252,6 +289,7 @@ void agregarPokemonALista(char* pokemon){
 
 		pokemonBuscado->cantidad = pokemonBuscado->cantidad +1;
 
+		printf("%d\n",pokemonBuscado->cantidad);
 	}
 
 
@@ -274,6 +312,7 @@ void quitarPokemonesDeListaObjetivo(t_list* entrenadores_list){
 }
 
 }
+
 void quitarPokemonDeLista(char* pokemon){
 
 	t_pokemonObjetivo *pokemonBuscado = buscarPokemon(pokemon);
@@ -295,6 +334,107 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 
 }
 
+void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
+	int cantidadAMoverseX = xDestino - entrenador->x;
+	int cantidadAMoverseY = yDestino - entrenador->y;
+	int xInicial = entrenador->x;
+	int yInicial = entrenador->y;
+
+	bool esRRo = esRR();
+	//int cantDeMovs=0;
+	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
+	//Si entrenador->movsDisponibles != 0 entonces es RR
+	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
+
+	int sizeAntes = list_size(cola_READY);
+
+	//t_entrenador* entrenadorAComparar;
+	entrenador->rafagaReal=0;
+	entrenador->movsDisponibles=configData->quantum;
+
+	for(int cantDeMovs =0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo) ; cantDeMovs++){
+			if(xDestino != entrenador->x) {
+				int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
+				entrenador->x = entrenador->x + direccionEnX;
+			}else if(yDestino != entrenador->y) {
+				int direccionEnY = cantidadAMoverseY/abs(cantidadAMoverseY);
+				entrenador->y = entrenador->y + direccionEnY;
+			}else {
+				//Llego, no deberia entrar ak, hay algo mal
+				exit(6);
+			}
+
+			entrenador->rafagaReal++;
+			entrenador->estimacionRestante--;
+			printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
+			tarda(1);
+			contar_ciclos_entrenador(entrenador, 1);
+
+			if(entrenador_tiene_menor_rafaga(entrenador,&sizeAntes)){
+				break;
+
+			}
+
+
+		}
+
+
+	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio desde la posicion: (%d;%d) a la posicion: (%d;%d)",entrenador->id, xInicial, yInicial, entrenador->x, entrenador->y);
+
+
+}
+
+
+bool entrenador_tiene_menor_rafaga(t_entrenador* entrenador, int *sizeAntes){
+
+
+
+	t_entrenador* entrenadorAComparar;
+
+	if(*sizeAntes < list_size(cola_READY) && esSJFconDesalojo()){
+
+		(*sizeAntes)++;
+		entrenadorAComparar = buscar_entrenador_con_rafaga_mas_corta();
+
+		if(entrenador->estimacionRestante > entrenadorAComparar->estimacionRestante){
+			return true;
+		}
+
+	}
+
+	return false;
+
+}
+
+void contar_ciclos_entrenador(t_entrenador * entrenador, int ciclos){
+
+	entrenador->ciclos+= ciclos;
+
+}
+
+void analizarCaptura(t_entrenador* entrenador) {
+	if(entrenador->x == entrenador->pokemonCapturando->x && entrenador->y == entrenador->pokemonCapturando->y){
+		entrenador->id_catch = -1;
+		moverColas(cola_EXEC,cola_BLOQUED,entrenador);
+		log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> BLOCKED. Motivo: Entrenador llega a posicion del pokemon a atrapar", entrenador->id);
+		enviar_mensaje_catch_pokemon(entrenador, entrenador->pokemonCapturando->especie,entrenador->x ,entrenador->y);
+
+		//wait()
+		//lo capturo
+		//mando catch de ak?, y paso a block
+		//capturoPokemon(entrenador);
+	}else {
+
+		moverColas(cola_EXEC,cola_READY,entrenador);
+		if(esRR()){
+			log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> READY. Motivo: Desalojo por fin de Quantum", entrenador->id);
+		}else{
+			log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d:  EXEC -> READY. Motivo: Desalojo por otro entrenador con rafaga mas corta", entrenador->id);
+		}
+		sem_post(&sem_colas_no_vacias);
+	}
+
+}
 
 
 
