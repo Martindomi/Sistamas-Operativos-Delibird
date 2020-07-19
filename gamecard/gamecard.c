@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
 	char*pokemon2 ="delibird";
 	tratar_mensaje_NEW_POKEMON(1,2,4,pokemon2);
 	tratar_mensaje_CATCH_POKEMON(1,2,pokemon2);
-	//tratar_mensaje_NEW_POKEMON(1,3,1,pokemon);
+	tratar_mensaje_NEW_POKEMON(1,3,1,pokemon);
 	tratar_mensaje_NEW_POKEMON(4,5,12345,pokemon);
 	tratar_mensaje_NEW_POKEMON(2,3,10,pokemon);
 	tratar_mensaje_NEW_POKEMON(4,2,12345,pokemon);
@@ -59,6 +59,8 @@ int main (int argc, char *argv[]) {
 	tratar_mensaje_NEW_POKEMON(9,5,12345,pokemon);
 	tratar_mensaje_CATCH_POKEMON(1,3, pokemon);
 	tratar_mensaje_NEW_POKEMON(1,2,4,pokemon3);
+
+	tratar_mensaje_GET_POKEMON(pokemon);
 	/*char*mensaje= generar_linea_de_entrada_mensaje(4,2,5);;
 	//crear_files_metadata(pokemon,mensaje);
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);

@@ -33,7 +33,6 @@ char* generar_path_bloque(char* bloque){
 		string_append(&pathBloque,".bin");
 		return pathBloque;
 }
-
 char** obtener_array_de_bloques(char*path){
 	 t_config* c = config_create(path);
 	 char**bloques = config_get_array_value(c,"BLOCKS");
@@ -71,7 +70,6 @@ int crear_block(){
 		log_debug(logger, "se crearon %i bloques",i-1);
 		return 1;
 }
-
 int cantidad_digitos(int numero) {
 	int count = 0;
 	while(numero != 0) {
@@ -80,7 +78,6 @@ int cantidad_digitos(int numero) {
 	}
 	return count;
 }
-
 int validar_existencia_archivo(char*path){
 	log_debug(logger,"Verificando si existe el archivo %d en el sistema de archivos", path);
 	int archivo_fd= open(path,O_RDWR,0664);
@@ -270,7 +267,6 @@ void iniciar_files_dir(){
 }
 }
 void iniciar_blocks_dir(){
-	//crear_metadata_directorio(string_from_format("%s/Blocks",ptoMontaje));
 	if(bitmap_vacio(string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje))){
 	crear_directorio(string_from_format("%s/Blocks",ptoMontaje));
 	crear_block();
@@ -278,12 +274,10 @@ void iniciar_blocks_dir(){
 }
 }
 void iniciar_metadata_dir(){
-	//crear_directorio(string_from_format("%s/Metadata", ptoMontaje));
 	iniciar_metadata();
 	iniciar_bitmap();
 }
 void iniciar_filesystem(){
-
 	log_debug(logger,"inicializando filesystem TALLGRASS");
 	iniciar_metadata_dir();
 	iniciar_blocks_dir();
@@ -783,12 +777,8 @@ int calcular_tamanio_archivo(char*path){
 
 	for(i=0; i<(tam_array_bloques(blocks));i++)
 	{
-		//int numBloque = blocks[i];
 		char* pathBlock = generar_path_bloque(blocks[i]);
-		/*if (block_completo(pathBlock)){
-			tamanio=tamanio+block_size;
-		}else {*/
-			tamanio = tamanio + tamanio_ocupado_bloque(pathBlock);
+		tamanio = tamanio + tamanio_ocupado_bloque(pathBlock);
 		}
 
 	return tamanio;
@@ -952,22 +942,18 @@ void tratar_contenido_en_bloques(char*contenido,char* pathPokemon){
 				}
 			}
 		}
-
 void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon){
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 	if(validar_existencia_archivo(pathPokemon)){
 		//if(!archivo_abierto(pathPokemon)){
 		abrir_archivo(pathPokemon);
 		char* mensaje = generar_linea_de_entrada_mensaje(posX, posY,cant);
-		int tamMensaje = string_length(mensaje);
 		int i=0;
-		int tamR = tamanio_real_archivo(pathPokemon);
 		char* contenidoBloques = string_new();
 		char** bloques = obtener_array_de_bloques(pathPokemon);
 
 		for(i=0; i<tam_array_bloques(bloques);i++){
 			char*pathBloque = generar_path_bloque(bloques[i]);
-			//int tamOcupado = tamanio_ocupado_bloque(pathBloque);
 			int bloque_fd = open (pathBloque,O_RDWR,0664);
 
 			if(bloque_fd<0){
@@ -1019,21 +1005,18 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon){
 
 }
 }
-int tratar_mensaje_CATCH_POKEMON(int posX,int posY, char*pokemon){
+char* tratar_mensaje_CATCH_POKEMON(int posX,int posY, char*pokemon){
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 		if(validar_existencia_archivo(pathPokemon)){
 			//if(!archivo_abierto(pathPokemon)){
 			abrir_archivo(pathPokemon);
 			char* mensaje = string_from_format("%i-%i=",posX,posY);;
-			int tamMensaje = string_length(mensaje);
 			int i=0;
-			int tamR = tamanio_real_archivo(pathPokemon);
 			char* contenidoBloques = string_new();
 			char** bloques = obtener_array_de_bloques(pathPokemon);
 
 			for(i=0; i<tam_array_bloques(bloques);i++){
 				char*pathBloque = generar_path_bloque(bloques[i]);
-
 				int bloque_fd = open (pathBloque,O_RDWR,0664);
 
 				if(bloque_fd<0){
@@ -1068,12 +1051,12 @@ int tratar_mensaje_CATCH_POKEMON(int posX,int posY, char*pokemon){
 				int nuevaCantidad = cantActual-1;
 				char*contenidoFinal = string_new();
 				if(nuevaCantidad == 0){
-					string_append(&contenidoFinal,string_substring_until(contenidoBloques,(i)));
-					string_append(&contenidoFinal,string_substring_from(stringCant,(i+string_length(mensaje)+cantidad_digitos(cantActual))));
+					string_append(&contenidoFinal,string_substring_until(contenidoBloques,(i-1)));
+					string_append(&contenidoFinal,string_substring_from(stringCant,(cantidad_digitos(cantActual))));
 				}else{
 					if(nuevaCantidad<0){
 						log_error(logger,"Ocurrio un error con las posiciones mencionadas");
-						return false;
+						return "fail";
 					}else{
 				string_append(&contenidoFinal,string_substring_until(contenidoBloques,(i+(string_length(mensaje)))));
 				string_append(&contenidoFinal,string_itoa(nuevaCantidad));
@@ -1083,10 +1066,64 @@ int tratar_mensaje_CATCH_POKEMON(int posX,int posY, char*pokemon){
 			}tratar_contenido_en_bloques(contenidoFinal,pathPokemon);
 			actualizar_tamanio_archivo(pathPokemon);
 			cerrar_archivo(pathPokemon);
-			return true;
+			return "OK";
 
 }log_error(logger,"No hay ningun pokemon %s en la posicion %i-%i solicitada",pokemon,posX,posY);
-return false;
+return "FAIL";
 } log_error(logger,"No existe el pokemon %s dentro del sistema de archivos",pokemon);
-return false;
+return "FAIL";
+}
+t_list* tratar_mensaje_GET_POKEMON(char*pokemon){
+	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
+	t_list* listadoPos = list_create();
+		if(validar_existencia_archivo(pathPokemon)){
+			//if(!archivo_abierto(pathPokemon)){
+					abrir_archivo(pathPokemon);
+					int i=0;
+					char* contenidoBloques = string_new();
+					char** bloques = obtener_array_de_bloques(pathPokemon);
+
+					for(i=0; i<tam_array_bloques(bloques);i++){
+						char*pathBloque = generar_path_bloque(bloques[i]);
+						int bloque_fd = open (pathBloque,O_RDWR,0664);
+
+						if(bloque_fd<0){
+							log_error(logger,"No se pudo abrir el archivo");
+							error(1);
+							}
+						struct stat stats;
+						stat(pathBloque,&stats);
+
+						char*data = malloc(stats.st_size);
+						read(bloque_fd,data,stats.st_size);
+
+						string_append(&contenidoBloques,string_substring_until(data,stats.st_size));
+						free(data);
+						free(pathBloque);
+						close(bloque_fd);
+					}
+					int h,j;
+					int siguientePos;
+
+					for(h=0;h<string_length(contenidoBloques);h=siguientePos){
+						for(j=h;contenidoBloques[j]!= '\n';j++);
+
+						char*mensajeAux = string_new();
+						char*mensajeAux2 =string_substring_from(contenidoBloques,h);
+						string_append(&mensajeAux,string_substring_until(mensajeAux2,j-h));
+
+						char** listaMensajeAux = string_n_split(mensajeAux,2,"=");
+						char**listaMensaje = string_n_split(listaMensajeAux[0],2,"-");
+
+						list_add(listadoPos,atoi (listaMensaje[0]));
+						list_add(listadoPos,atoi (listaMensaje[1]));
+
+						siguientePos = j+1;
+					}
+					return listadoPos;
+}else{
+	log_error(logger,"No existe el pokemon %s dentro del file system",pokemon);
+	list_clean(listadoPos);
+	return listadoPos ;
+}
 }
