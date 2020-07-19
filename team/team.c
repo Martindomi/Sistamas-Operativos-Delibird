@@ -4,12 +4,19 @@
 
 
 
- int main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
+
+	 if(argc != 2) {
+		 printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
+		 exit(-1);
+	 }
+
+	 pathConfig = argv[1];
 
 	sem_t esperaSuscripcion;
 	inicializar_config_data();
 
-	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+//	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
 
 	lista_entrenadores = list_create();
 	listaPokemonsRecibidos = list_create();
@@ -51,14 +58,15 @@
 	deadlocksResueltos= 0;
 	contextSwitch= 0;
 
-	movimientoTime = 0;//sirve como timestamp de los movs de las colas
+	//movimientoTime = 0;//sirve como timestamp de los movs de las colas
 
 	pthread_t hiloRecibidos, hiloCaught, hiloCortoPlazo, hiloDeadlock, hiloExit;
 	pthread_create(&hiloRecibidos,NULL,(void*)main_planificacion_recibidos,NULL);
 	pthread_create(&hiloCaught,NULL,(void*)main_planificacion_caught,NULL);
 	pthread_create(&hiloCortoPlazo,NULL,(void*)main_planificacion_corto_plazo,NULL);
 	pthread_create(&hiloDeadlock,NULL,(void*)detectar_deadlock,NULL);
-	pthread_create(&hiloExit,NULL,(void*)main_exit,NULL);
+	int termino=0;
+	pthread_create(&hiloExit,NULL,(void*)main_exit,termino);
 
 
 	inicializar_entrenadores(lista_entrenadores);
@@ -66,15 +74,21 @@
 	crear_hilo_entrenadores(lista_entrenadores);
 
 	socketEscucha = crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
-	bool conexionOK =suscribirse_a_colas("./team.config");
+	bool conexionOK =suscribirse_a_colas(pathConfig);
 	if(!conexionOK){
-		crear_hilo_reconexion("./team.config");
+		crear_hilo_reconexion(pathConfig);
 	}
 
 	enviar_get_objetivos();
 
 	//esperar_finalizacion_team();
+	pthread_detach(hiloRecibidos);
+	pthread_detach(hiloCaught);
+	pthread_detach(hiloCortoPlazo);
+	pthread_detach(hiloDeadlock);
 	pthread_join(hiloExit,NULL);
+
+	return EXIT_SUCCESS;
 }
 /*
 t_mensajeTeam esperoMensaje() {
@@ -102,7 +116,7 @@ void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 		mover_entrenador_new_sin_espacio(unEntrenador);
 
 		pthread_create(&(unEntrenador->th),NULL,(void*)main_entrenador,unEntrenador);
-		//pthread_join((unEntrenador->th), NULL);
+		pthread_detach((unEntrenador->th));
 		i++;
 	}
 }
@@ -164,6 +178,7 @@ int aplica_funcion_escucha(int * socket){
 	case APPEARED_POKEMON:
 		mensajeRecibido = recibir_appeared_pokemon(*socket, size);
 		puntero_mensaje_appeared_pokemon appearedRecibido = mensajeRecibido->mensaje_cuerpo;
+		free(mensajeRecibido);
 		procesar_appeared(appearedRecibido);
 
 		break;
@@ -172,6 +187,7 @@ int aplica_funcion_escucha(int * socket){
 	case CAUGHT_POKEMON:
 		mensajeRecibido = recibir_caught_pokemon(*socket, size);
 		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
+		free(mensajeRecibido);
 		printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
@@ -188,7 +204,7 @@ int aplica_funcion_escucha(int * socket){
 
 		mensajeRecibido = recibir_localized_pokemon(*socket, size);
 		puntero_mensaje_localized_pokemon localizedRecibido = mensajeRecibido->mensaje_cuerpo;
-
+		free(mensajeRecibido);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
@@ -237,6 +253,9 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 		j++;
 	}
 
+	free(localizedRecibido->name_pokemon);
+	list_destroy(localizedRecibido->coords);
+	free(localizedRecibido);
 
 }
 
@@ -256,6 +275,8 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 
 		break;
 	}
+
+	free(caughtRecibido);
 	sem_wait(&mutex_caught);
 	list_add(listaPokemonesCaught,caughts);
 	sem_post(&mutex_caught);
@@ -274,7 +295,8 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	if(poke->cantidad <= 0){
 		return;
 	}
-
+	free(appearedRecibido->name_pokemon);
+	free(appearedRecibido);
 	sem_wait(&mutex_recibidos);
 	list_add(listaPokemonsRecibidos,pokemon);
 	sem_post(&mutex_recibidos);

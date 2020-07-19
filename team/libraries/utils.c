@@ -3,6 +3,8 @@
  op_code vectorDeColas[]={ CAUGHT_POKEMON, LOCALIZED_POKEMON,APPEARED_POKEMON  };
 //--------------------------------------------------------------------------------------------------------------------//
 
+
+
 bool suscribirse_a_colas(char* path){
 
 	bool conexionOK=false;
@@ -59,7 +61,7 @@ void crear_hilo_escucha_suscripcion(int conexion){
 		result_recv = aplica_funcion_escucha(&conexion);
 		if(result_recv == -1){
 			liberar_conexion(conexion);
-			crear_hilo_reconexion("./team.config");
+			crear_hilo_reconexion(pathConfig);
 			return;
 		}
 	}
@@ -75,6 +77,7 @@ void crear_hilo_reconexion(char* path){
 		sem_post(&mutex_reconexion);
 		pthread_t th_reconexion;
 		pthread_create(&th_reconexion,NULL,(void*)_reintentar_conexion,path);
+		pthread_detach(th_reconexion);
 	}else{
 		sem_post(&mutex_reconexion);
 	}
@@ -354,11 +357,8 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	mensaje=client_recibir_mensaje(conexion);
 	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE, Contenido: [id del mensaje enviado es] %s",mensaje);
 	list_add(ids_mensajes_enviados, mensaje);
-
-	liberar_conexion(conexion);
-
 	}
-
+	liberar_conexion(conexion);
 }
 
 
@@ -393,6 +393,11 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 			sem_post(&sem_deadlcok);
 		}
 		list_destroy(entrenadores_no_disponibles);
+
+
+
+
+
 		//log_info(loggerTEAM,"Mensaje Recibido; Tipo: CAUGHT, Resultado: OK (por Default)");
 		log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 		mover_entrenador_bloqueado_a_exit(entrenador);
@@ -465,7 +470,7 @@ void inicializar_log_team(){
 }
 void inicializar_config_data(){
 
-	inicializar_config_team("./team.config");
+	inicializar_config_team(pathConfig);
 	configData = malloc(sizeof(data_config));
 	int sizeALG, sizeIPB, sizePB, sizeIPT, sizePT,sizeID;
 	sizeALG = strlen(config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"))+1;
@@ -538,7 +543,7 @@ void liberar_lista_objetivos(){
 void pokemon_destroyer(t_pokemon* pokemon){
 
 	if(pokemon!=NULL){
-	free(pokemon);
+	//free(pokemon);
 	}
 }
 
@@ -560,8 +565,8 @@ void liberar_lista_pokemons_caught(){
 
 void entrenador_destroyer(t_entrenador* entrenador){
 
-	list_clean_and_destroy_elements(entrenador->pokemonesCapturados, mensaje_destroyer);
-	list_clean_and_destroy_elements(entrenador->pokemonesObjetivo, mensaje_destroyer);
+	list_destroy_and_destroy_elements(entrenador->pokemonesCapturados, (void*)mensaje_destroyer);
+	list_destroy_and_destroy_elements(entrenador->pokemonesObjetivo, (void*)mensaje_destroyer);
 	pokemon_destroyer(entrenador->pokemonCapturando);
 	free(entrenador);
 }
@@ -597,7 +602,7 @@ void finalizar_y_liberar(){
 	list_destroy(cola_READY);
 	list_destroy(lista_entrenadores);
 
-	exit(0);
+
 
 }
 
