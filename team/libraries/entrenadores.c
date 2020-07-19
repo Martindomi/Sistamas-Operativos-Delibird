@@ -124,7 +124,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		//printf("%d\n",unEntrenador->y);
 		unEntrenador->pokemonesCapturados = list_create();
 		unEntrenador->pokemonesObjetivo = list_create();
-		if(read_pokemones[i]==NULL || no_hay_mas == 1){
+		if( no_hay_mas == 1|| read_pokemones[i]==NULL){
 			printf("No tiene pokemones capturados\n");
 			no_hay_mas = 1;
 		} else {
@@ -341,17 +341,18 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	int yInicial = entrenador->y;
 
 	bool esRRo = esRR();
-	int cantDeMovs;
+	//int cantDeMovs=0;
 	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
 	//Si entrenador->movsDisponibles != 0 entonces es RR
 	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
 
 	int sizeAntes = list_size(cola_READY);
 
-	t_entrenador* entrenadorAComparar;
+	//t_entrenador* entrenadorAComparar;
 	entrenador->rafagaReal=0;
+	entrenador->movsDisponibles=configData->quantum;
 
-	for(cantDeMovs = 0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo) ; cantDeMovs++){
+	for(int cantDeMovs =0;cantDeMovs<(abs(cantidadAMoverseX) + abs(cantidadAMoverseY)) && (cantDeMovs<entrenador->movsDisponibles || !esRRo) ; cantDeMovs++){
 			if(xDestino != entrenador->x) {
 				int direccionEnX = cantidadAMoverseX/abs(cantidadAMoverseX);
 				entrenador->x = entrenador->x + direccionEnX;
