@@ -1,8 +1,9 @@
 
 #include "utils.h"
  op_code vectorDeColas[]={ CAUGHT_POKEMON, LOCALIZED_POKEMON,APPEARED_POKEMON  };
- int conexiones[3];
 //--------------------------------------------------------------------------------------------------------------------//
+
+
 
 bool suscribirse_a_colas(char* path){
 
@@ -35,7 +36,6 @@ bool suscribirse_a_colas(char* path){
 			enviar_mensaje_suscribir_con_id(cola, id, socketSuscripcion, -1);
 			printf("envio suscipcion\n");
 			tarda(1);
-			conexiones[i]=socketSuscripcion;
 			i++;
 
 
@@ -61,7 +61,7 @@ void crear_hilo_escucha_suscripcion(int conexion){
 		result_recv = aplica_funcion_escucha(&conexion);
 		if(result_recv == -1){
 			liberar_conexion(conexion);
-			crear_hilo_reconexion("../team.config");
+			crear_hilo_reconexion(pathConfig);
 			return;
 		}
 	}
@@ -470,7 +470,7 @@ void inicializar_log_team(){
 }
 void inicializar_config_data(){
 
-	inicializar_config_team("../team.config");
+	inicializar_config_team(pathConfig);
 	configData = malloc(sizeof(data_config));
 	int sizeALG, sizeIPB, sizePB, sizeIPT, sizePT,sizeID;
 	sizeALG = strlen(config_get_string_value(configTEAM,"ALGORITMO_PLANIFICACION"))+1;

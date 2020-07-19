@@ -30,6 +30,7 @@ t_list *colas_a_suscribir;
 
 int socketEscucha;
 int socketSuscripcion;
+char* pathConfig;
 
 uint32_t ciclosCPU;
 uint32_t deadlocksProducidos;

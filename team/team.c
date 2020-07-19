@@ -4,12 +4,19 @@
 
 
 
- int main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
+
+	 if(argc != 2) {
+		 printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
+		 exit(-1);
+	 }
+
+	 pathConfig = argv[1];
 
 	sem_t esperaSuscripcion;
 	inicializar_config_data();
 
-	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
+//	op_code vectorDeColas[]={ APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON };
 
 	lista_entrenadores = list_create();
 	listaPokemonsRecibidos = list_create();
@@ -67,9 +74,9 @@
 	crear_hilo_entrenadores(lista_entrenadores);
 
 	socketEscucha = crear_hilo_escucha(configData->ipTeam,configData->puertoTeam);
-	bool conexionOK =suscribirse_a_colas("../team.config");
+	bool conexionOK =suscribirse_a_colas(pathConfig);
 	if(!conexionOK){
-		crear_hilo_reconexion("../team.config");
+		crear_hilo_reconexion(pathConfig);
 	}
 
 	enviar_get_objetivos();
