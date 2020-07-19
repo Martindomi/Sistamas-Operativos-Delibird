@@ -76,11 +76,16 @@ t_cola_mensaje* selecciono_cola(int cola);
 void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo);
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
+
+void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
+
+void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje);
 void* buscar_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 
+void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* bs_segun_algoritmo(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
