@@ -8,16 +8,34 @@
 
 int main (int argc, char *argv[]) {
 
-	logger = log_create("gamecard.log", "GAMECARD", false, LOG_LEVEL_INFO);
-	t_config* config;
+	informacion = malloc(sizeof(char)*5);
+	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
 
+	int ipBrokerSize = strlen(config_get_string_value(config, "IP_BROKER"))+1;
+	informacion->ipBroker = malloc(ipBrokerSize);
+	memcpy(informacion->ipBroker, config_get_string_value(config, "IP_BROKER"), ipBrokerSize);
 
-	config = config_create("gamecard.config");
-	ip_gamecard = config_get_string_value(config, "IP_GAMECARD");
-	puerto_gamecard = config_get_string_value(config, "PUERTO_GAMECARD");
+	int puertoBrokerSize = strlen(config_get_string_value(config, "PUERTO_BROKER"))+1;
+	informacion->puertoBroker = malloc(puertoBrokerSize);
+	memcpy(informacion->puertoBroker, config_get_string_value(config, "PUERTO_BROKER"), puertoBrokerSize);
 
-	ip_broker = config_get_string_value(config, "IP_BROKER");
-	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
+	int ipGamecardSize = strlen(config_get_string_value(config, "IP_GAMECARD"))+1;
+	informacion->ipGamecard = malloc(ipGamecardSize);
+	memcpy(informacion->ipGamecard, config_get_string_value(config, "IP_GAMECARD"), ipGamecardSize);
+
+	int puertoGamecardSize = strlen(config_get_string_value(config, "PUERTO_GAMECARD"))+1;
+	informacion->puertoGamecard = malloc(puertoGamecardSize);
+	memcpy(informacion->puertoGamecard, config_get_string_value(config, "PUERTO_GAMECARD"), puertoGamecardSize);
+
+	int idGamecardSize = strlen(config_get_string_value(config, "ID"))+1;
+	informacion->idGamecard = malloc(idGamecardSize);
+	memcpy(informacion->idGamecard, config_get_string_value(config, "ID"), idGamecardSize);
+
+	if((logger= log_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.log", informacion->idGamecard, true, LOG_LEVEL_INFO))==NULL){
+		printf("No se pudo crear log\n");
+		exit(3);
+	}
+
 	tiempo_de_reintento_conexion = config_get_int_value(config,"TIEMPO_DE_REINTENTO_CONEXION");
 	tiempo_de_reintento_operacion = config_get_int_value(config,"TIEMPO_DE_REINTENTO_OPERACION");
 	tiempo_retardo_operacion = config_get_int_value(config,"TIEMPO_RETARDO_OPERACION");
@@ -26,6 +44,9 @@ int main (int argc, char *argv[]) {
 	ptoMontaje = configTG->ptoMontaje;
 	block_size = configTG->block_size;
 	blocks = configTG->blocks;
+	/*ptoMontaje = config_get_int_value(config,"PUNTO_MONTAJE_TALLGRASS");
+	block_size = config_get_int_value(config,"BLOCK_SIZE");
+	blocks = config_get_int_value(config,"BLOCKS");*/
 
 	iniciar_filesystem();
 
@@ -55,17 +76,17 @@ int main (int argc, char *argv[]) {
 
 	ACK="ACK";
 
-	socketEscucha = crear_hilo_escucha(ip_gamecard,puerto_gamecard);
-	bool conexionOk = suscribirse_a_colas("../gamecard.config");
+	socketEscucha = crear_hilo_escucha(informacion->ipGamecard,informacion->puertoGamecard);
+	bool conexionOk = suscribirse_a_colas_gameboy("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
 	if(!conexionOk){
-		crear_hilo_reconexion("../gamecard.config");
+		crear_hilo_reconexion("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
 	}
 
 
 
 	log_destroy(logger);
 	//liberar_conexion(conexion);
-
+	sleep(50000);
 }
 
 int aplica_funcion_escucha(int * socket){
@@ -85,12 +106,13 @@ int aplica_funcion_escucha(int * socket){
 	puntero_mensaje mensajeRecibido;
 	uint32_t size;
 	bool encontre;
-
+	char* mensaje;
 	bool encuentra_mensaje_propio(void* elemento) {
 		char* el = (char*) elemento;
 		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
-	int conexion =crear_conexion(ip_broker,puerto_broker);
+	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
+
 	switch(cod_op){
 	case MESSAGE:
 
@@ -104,8 +126,7 @@ int aplica_funcion_escucha(int * socket){
 		puntero_mensaje_new_pokemon newRecibido = mensajeRecibido->mensaje_cuerpo;
 		tratar_mensaje_NEW_POKEMON(newRecibido->pos_x,newRecibido->pos_y,newRecibido->quant_pokemon,newRecibido->name_pokemon);
 		send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
-		char* mensaje = client_recibir_mensaje(conexion);
-		liberar_conexion(conexion);
+		mensaje = client_recibir_mensaje(conexion);
 		free(mensajeRecibido);
 		free(mensaje);
 		break;
@@ -115,9 +136,9 @@ int aplica_funcion_escucha(int * socket){
 		mensajeRecibido = recibir_catch_pokemon(*socket, size);
 		puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
 		char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
+		printf("respuesta %s\n", respuesta);
 		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
-		char* mensaje = client_recibir_mensaje(conexion);
-		liberar_conexion(conexion);
+		mensaje = client_recibir_mensaje(conexion);
 		free(mensajeRecibido);
 		free(mensaje);
 		break;
@@ -127,16 +148,21 @@ int aplica_funcion_escucha(int * socket){
 		mensajeRecibido = recibir_get_pokemon(*socket, size);
 		puntero_mensaje_get_pokemon getRecibido = mensajeRecibido->mensaje_cuerpo;
 		t_list* listadoPosiciones = tratar_mensaje_GET_POKEMON(getRecibido->name_pokemon);
-		uint32_t cantidadPos = (list_size(listadoPosiciones))/2;
+		for(int i = 0; i<list_size(listadoPosiciones); i++ ) {
+			printf("ITEM %d\n", list_get(listadoPosiciones, i));
+		}
+		uint32_t cantidadPos = (list_size(listadoPosiciones)/2);
 		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPosiciones,0,mensajeRecibido->id,conexion);
-		char* mensaje = client_recibir_mensaje(conexion);
-		liberar_conexion(conexion);
+		mensaje = client_recibir_mensaje(conexion);
 		free(mensajeRecibido);
 		free(mensaje);
 	    free(listadoPosiciones);
 
 		break;
 	}
+
+	liberar_conexion(conexion);
+
 
 	return 0;
 

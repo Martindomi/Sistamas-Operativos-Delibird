@@ -20,7 +20,7 @@
 #define PTO_MONTAJE "PTO_MONTAJE"
 #define NO_MORE_BLOCKS -1
 #define CONFIG_FIELDS_N_ 3
-#define configuracionFS "/home/utnso/Documentos/tp-2020-1c-Elite-Four/gamecard/gamecard.config"
+#define configuracionFS "/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config"
 #define AGREGAR 0
 #define MODIFICAR 1
 
@@ -43,12 +43,6 @@ typedef struct{
 	int block_size;
 	int blocks;
 }t_configFS;
-
-
-char* ptoMontaje;
-int block_size;
-int blocks;
-char* magic_number;
 
 
 t_bitarray* bitmap;

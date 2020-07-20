@@ -51,11 +51,11 @@ int tam_array_bloques(char** bloques) {
 }
 int buscar_block_disponible() {
 	int bloqueLibre;
-	log_info(logger, "buscando espacio disponible");
+	//log_info(logger, "buscando espacio disponible");
 	for (bloqueLibre = 0;
 			bitarray_test_bit(bitmap, bloqueLibre) && (bloqueLibre < blocks);
 			bloqueLibre++) {
-		log_info(logger, "el bloque disponible es %i", bloqueLibre);
+		//log_info(logger, "el bloque disponible es %i", bloqueLibre);
 	}
 	if (bloqueLibre >= blocks)
 		return NO_MORE_BLOCKS;
@@ -142,7 +142,7 @@ int archivo_abierto(char* path) {
 	t_config* configuracion = config_create(path);
 	char* estado = config_get_string_value(configuracion, "OPEN");
 
-	if (strcmp(estado, "Y")) {
+	if (strcmp(estado, "Y") == 0) {
 		return true;
 	} else
 		return false;
@@ -723,8 +723,6 @@ void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 	fprintf(archivo, string_from_format("OPEN=%s", "N"));
 	fclose(archivo);
 
-	log_info(logger,
-			string_from_format("El archivo se ha creado exitosamente"));
 	return;
 }
 void quitar_bloque_de_metadata(char*path, char* bloque) {
@@ -1074,14 +1072,16 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 			} else {
 				agregar_nuevo_mensaje(mensaje, pathPokemon);
 			}
+			printf("Cerrar archivo %d\n", tiempo_retardo_operacion);
 			sleep(tiempo_retardo_operacion);
 			cerrar_archivo(pathPokemon);
 		} else {
+			printf("Reintenta operacion\n");
 			sleep(tiempo_de_reintento_operacion);
 			tratar_mensaje_NEW_POKEMON(posX,posY,cant,pokemon);
 		}
 	} else {
-
+		printf("No existe archivo\n");
 		char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
 		crear_archivo_pokemon_metadata(pokemon, mensaje);
 		sleep(tiempo_retardo_operacion);
@@ -1143,11 +1143,16 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 				int nuevaCantidad = cantActual - 1;
 				char*contenidoFinal = string_new();
 				if (nuevaCantidad == 0) {
-					string_append(&contenidoFinal,
-							string_substring_until(contenidoBloques, (i - 1)));
-					string_append(&contenidoFinal,
-							string_substring_from(stringCant,
-									(cantidad_digitos(cantActual))));
+					if(i == 0) {
+						string_append(&contenidoFinal,
+								string_substring_from(contenidoBloques, (i + string_length(mensaje) + cantidad_digitos(cantActual) + 1)));
+					} else {
+						string_append(&contenidoFinal,
+								string_substring_until(contenidoBloques, (i - 1)));
+						string_append(&contenidoFinal,
+								string_substring_from(stringCant,
+										(cantidad_digitos(cantActual))));
+					}
 				} else {
 					if (nuevaCantidad < 0) {
 						log_error(logger,
