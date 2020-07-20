@@ -1213,6 +1213,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		particionInicial->tamanoMensaje = particionInicial->tamanoMensaje / 2;
 		particionInicial->izq = true;
 		particionInicial->der = false;
+		particionInicial->lruHora = time(NULL);
 		printf("Crea particion izquierda\n");
 
 		// particion derecha
@@ -1223,6 +1224,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		nuevaParticion->ocupada = false;
 		nuevaParticion->izq = false;
 		nuevaParticion->der = true;
+		nuevaParticion->lruHora = time(NULL);
 		nuevaParticion->historicoBuddy = list_duplicate(particionInicial->historicoBuddy);
 		list_add(nuevaParticion->historicoBuddy,"D");
 
@@ -1269,6 +1271,9 @@ void bs_consolidar(){
 
 						// "UNIFICO" los buddys
 						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
+						buddyIzq->lruHora = time(NULL);
+						buddyIzq->id = NULL;
+						buddyIzq->colaMensaje = NULL;
 						// analizo si el buddy que consolidé
 						// es un buddy derecho o izquierdo
 
