@@ -1241,7 +1241,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		list_add_in_index(particiones,index + 1, nuevaParticion);
 		printf("La particion derecha está en el indice %d\n", index + 1);
 		printf("Divide\n");
-		ver_estado_memoria();
+		//ver_estado_memoria();
 		// vuelvo a dividir la particion izquierda
 		dividir_particiones(particionInicial, index ,tamanioNecesario);
 	}
@@ -1262,10 +1262,14 @@ void bs_consolidar(){
 			if(indexBuddyDer <= list_size(particiones)){
 				buddyDer = list_get(particiones, indexBuddyDer);
 			}
+
+			uint32_t tamanioBuddyIzq = buddyIzq->tamanoMensaje;
+			uint32_t tamanioBuddyDer = buddyDer->tamanoMensaje;
+
 			if(!buddyIzq->ocupada){
 				// Chequeo si las dos particiones que tomo son buddys
 				if(buddyDer != NULL){
-					if((buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada)){
+					if((buddyIzq->izq == true) && (buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada) && (tamanioBuddyIzq == tamanioBuddyDer)){
 
 						printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
 
@@ -1303,7 +1307,7 @@ void bs_consolidar(){
 						list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
 						printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
 						cambios++;
-						ver_estado_memoria();
+						//ver_estado_memoria();
 						break; // detiene el for para que no se buguee la lista
 					}// fin if
 				}
@@ -1357,6 +1361,9 @@ void bs_eliminar_particion_fifo(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+		printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
+		punteroParticionMenorId->id = NULL;
+		punteroParticionMenorId->colaMensaje = NULL;
 	}
 }
 
