@@ -22,7 +22,7 @@ void main_planificacion_recibidos(){
 	}
 
 	while(1){
-		printf("esperando localized\n");
+		//printf("esperando localized\n");
 		sem_wait(&sem_recibidos);
 		pokemon = list_get(listaPokemonsRecibidos,i);
 		pokemonsObjetivo =list_find(lista_objetivo,(void*)_filterPokemon);
@@ -87,18 +87,18 @@ void main_planificacion_caught(){
 		caught = list_get(listaPokemonesCaught,0);
 		list_remove(listaPokemonesCaught,0);
 		entrenador = list_find(entrenadores_esperando_caught,(void*)_filterEntrenadorCaught);
-		printf("se encontro entrenador %d esperando caught\n", entrenador->id);
+		//printf("se encontro entrenador %d esperando caught\n", entrenador->id);
 		if(entrenador!=NULL){
 			entrenador->id_catch=0;
 			if(caught->atrapado==OK){
-				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
+				//printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
 				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
 				pokemonCaputrado->cantidad--;
 				entrenador->espacioLibre--;
-				printf("\nPokemon capturado!\n");
-				printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
-				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion: X = %d Y = %d", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
+				//printf("\nPokemon capturado!\n");
+				//printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
+				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion = (%d;%d)", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 
 
 				free(entrenador->pokemonCapturando); // SI ROMPE VER ACA
@@ -109,8 +109,9 @@ void main_planificacion_caught(){
 					sem_post(&sem_deadlcok);
 				}
 				mover_entrenador_bloqueado_a_exit(entrenador);
+				list_destroy(bloquedVacio);
 			}else{
-				printf("no lo pudo capturar :( :( :( \n");
+				//printf("no lo pudo capturar :( :( :( \n");
 			}
 
 			if(entrenador->espacioLibre!=0){
@@ -118,8 +119,9 @@ void main_planificacion_caught(){
 			}
 
 		}
+		caught_destroyer(caught);
 		list_destroy(entrenadores_esperando_caught);
-		list_destroy(bloquedVacio);
+
 	}
 
 }
@@ -136,16 +138,16 @@ void main_planificacion_corto_plazo() {
 		sem_wait(&(sem_colas_no_vacias));
 		t_entrenador* entrenadorACorrer ;
 		if(esSJFsinDesalojo()){
-			printf("caclulo entrenador por SJF SIN desalojo \n");
+		//	printf("caclulo entrenador por SJF SIN desalojo \n");
 			entrenadorACorrer = planificacionSJFSD(cola_READY);
 		}else if(esSJFconDesalojo()){
-			printf("caclulo entrenador por SJF CON desalojo \n");
+			//printf("caclulo entrenador por SJF CON desalojo \n");
 			entrenadorACorrer = planificacionSJFCD(cola_READY);
 		}else if(!esRR()) {
-			printf("calculo entrenador por fifo\n");
+			//printf("calculo entrenador por fifo\n");
 			entrenadorACorrer = planificacionFifo(cola_READY);
 		}else {
-			printf("calculo entrenador por RR\n");
+			//printf("calculo entrenador por RR\n");
 			entrenadorACorrer = planificacionRR(cola_READY);
 		}
 
@@ -220,7 +222,7 @@ void calcular_rafaga(t_entrenador * entrenador){
 	float a = configData->alpha;
 	entrenador->estimacion = (entrenador->rafagaReal)*a + (entrenador->estimacion)*(1-a);
 	entrenador->estimacionRestante = entrenador->estimacion;
-	printf("-----------------------entrenador:%d rafaga: %f\n",entrenador->id,entrenador->estimacion);
+//	printf("-----------------------entrenador:%d rafaga: %f\n",entrenador->id,entrenador->estimacion);
 }
 
 
@@ -236,7 +238,7 @@ t_entrenador* buscar_entrenador_con_rafaga_mas_corta(){
 			list_sort(cola_READY, comparar_rafagas);
 		}
 		proximoEntrenador = list_get(cola_READY,0);
-		printf("--------------------------------------------------------------entrenador %d que tiene estimacion de %f\n", proximoEntrenador->id, proximoEntrenador->estimacion);
+//		printf("--------------------------------------------------------------entrenador %d que tiene estimacion de %f\n", proximoEntrenador->id, proximoEntrenador->estimacion);
 
 		return proximoEntrenador;
 
@@ -336,7 +338,7 @@ t_distancia* entrenadorMasCerca(t_pokemon* pokemonNuevo,t_list* listaEntrenadore
 		}
 	}
 	//log despues sacar o modificar
-	printf("Distancia Menor: %f \n",distanciaResultado->distancia);
+	//printf("Distancia Menor: %f \n",distanciaResultado->distancia);
 
 
 	return distanciaResultado;
@@ -350,11 +352,11 @@ double calcularDistancia(t_entrenador* entrenador, t_pokemon* pokemon) {
 
 void detectar_deadlock(){
 	while(1){
-		printf("esperando deadlock\n");
+		//printf("esperando deadlock\n");
 		sem_wait(&sem_deadlcok);
-		printf("analizando deadlock\n");
+		//printf("analizando deadlock\n");
 		if(todos_bloqueados() && todos_sin_espacio()){
-			printf("estan bloqueados\n");
+		//	printf("estan bloqueados\n");
 			log_info(loggerTEAM,"DEADLOCK; Inicio de algoritmo de deteccion de Deadlock");
 			if(list_any_satisfy(cola_BLOQUED, tiene_otro_pokemon)){
 				contar_deadlock_producido();
@@ -374,7 +376,7 @@ void mover_bloqueados_a_exit(){
 	for(int i = 0; i < size; i ++){
 		entrenador = list_get(cola_BLOQUED,0);
 		moverColas(cola_BLOQUED,cola_EXIT,entrenador);
-		printf("entrenador %d se fue a EXIT \n", entrenador->id);
+	//	printf("entrenador %d se fue a EXIT \n", entrenador->id);
 		log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Entrenador cumple su objetivo!", entrenador->id);
 		sem_post(&sem_exit);
 
@@ -585,22 +587,22 @@ int finalizar(){
 	log_info(loggerTEAM,"");
 	log_info(loggerTEAM,"=================================================================");
 	log_info(loggerTEAM,"");
-	log_info(loggerTEAM,"					HAS ATRAPADO A TODOS LOS POKEMONES!!!");
+	log_info(loggerTEAM,"		HAS ATRAPADO A TODOS LOS POKEMONES!!!");
 	log_info(loggerTEAM,"");
 	log_info(loggerTEAM,"=================================================================");
 	log_info(loggerTEAM,"=================================================================");
 	log_info(loggerTEAM,"");
-	log_info(loggerTEAM,"	RESULTADO DEL TEAM:");
+	log_info(loggerTEAM," RESULTADO DEL TEAM:");
 	log_info(loggerTEAM,"");
-	log_info(loggerTEAM,"		- Cantidad de ciclos de CPU totales: %d", ciclosCPU);
-	log_info(loggerTEAM,"		- Cantidad de cambios de contexto realizados: %d", contextSwitch);
-	log_info(loggerTEAM,"		- Cantidad de ciclos de CPU realizados por entrenador:");
+	log_info(loggerTEAM,"	- Cantidad de ciclos de CPU totales: %d", ciclosCPU);
+	log_info(loggerTEAM,"	- Cantidad de cambios de contexto realizados: %d", contextSwitch);
+	log_info(loggerTEAM,"	- Cantidad de ciclos de CPU realizados por entrenador:");
 	for(int i = 0; i < list_size(cola_EXIT); i++){
 		entrenador = list_get(cola_EXIT,i);
-		log_info(loggerTEAM,"     		· Entrenador %d => Ciclos: %d", entrenador->id, entrenador->ciclos);
+		log_info(loggerTEAM,"  		· Entrenador %d => Ciclos: %d", entrenador->id, entrenador->ciclos);
 	}
-	log_info(loggerTEAM,"		- Cantidad de Deadlocks producidos: %d", deadlocksProducidos);
-	log_info(loggerTEAM,"		- Cantidad de Deadlocks resueltos: %d", deadlocksResueltos);
+	log_info(loggerTEAM,"	- Cantidad de Deadlocks producidos: %d", deadlocksProducidos);
+	log_info(loggerTEAM,"	- Cantidad de Deadlocks resueltos: %d", deadlocksResueltos);
 	log_info(loggerTEAM,"");
 	log_info(loggerTEAM,"=================================================================");
 

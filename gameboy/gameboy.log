@@ -1198,3 +1198,210 @@
 [INFO] 22:21:59:337 GAMEBOY/(15189:15189): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
 [INFO] 22:21:59:346 GAMEBOY/(15190:15190): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
 [INFO] 22:21:59:353 GAMEBOY/(15191:15191): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 15:30:58:927 GAMEBOY/(12629:12629): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:34:48:56 GAMEBOY/(12716:12716): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:34:54:632 GAMEBOY/(12719:12719): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:35:05:537 GAMEBOY/(12722:12722): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:45:42:522 GAMEBOY/(13312:13312): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:45:52:219 GAMEBOY/(13320:13320): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:46:05:329 GAMEBOY/(13323:13323): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:51:22:943 GAMEBOY/(13481:13481): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:51:35:246 GAMEBOY/(13491:13491): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:52:05:542 GAMEBOY/(13494:13494): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:56:10:133 GAMEBOY/(13642:13642): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:56:28:390 GAMEBOY/(13645:13645): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 15:56:36:981 GAMEBOY/(13650:13650): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:07:13:196 GAMEBOY/(14057:14057): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:07:33:93 GAMEBOY/(14065:14065): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:09:16:420 GAMEBOY/(14125:14125): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:09:23:909 GAMEBOY/(14128:14128): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:09:37:805 GAMEBOY/(14135:14135): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:10:19:62 GAMEBOY/(14148:14148): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:10:36:917 GAMEBOY/(14152:14152): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:13:14:284 GAMEBOY/(14225:14225): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:13:26:812 GAMEBOY/(14228:14228): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:13:38:236 GAMEBOY/(14236:14236): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:13:51:106 GAMEBOY/(14238:14238): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:14:10:438 GAMEBOY/(14240:14240): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:15:46:420 GAMEBOY/(14356:14356): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:15:59:20 GAMEBOY/(14359:14359): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:16:16:708 GAMEBOY/(14362:14362): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:16:35:110 GAMEBOY/(14366:14366): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:16:50:748 GAMEBOY/(14368:14368): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:18:29:789 GAMEBOY/(14424:14424): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:19:03:733 GAMEBOY/(14429:14429): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:19:18:611 GAMEBOY/(14432:14432): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:20:17:364 GAMEBOY/(14436:14436): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:20:32:147 GAMEBOY/(14438:14438): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:21:36:232 GAMEBOY/(14548:14548): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:44:30:870 GAMEBOY/(15082:15082): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:44:40:312 GAMEBOY/(15087:15087): Se realiza conexion al proceso: BROKER, enviando mensaje a cola: CAUGHT_POKEMON
+[INFO] 16:45:22:759 GAMEBOY/(15100:15100): Mensaje invalido
+[INFO] 16:45:40:414 GAMEBOY/(15103:15103): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:47:21:446 GAMEBOY/(15228:15228): CONEXION: Fallo la conexion con el Team.
+[INFO] 16:47:30:678 GAMEBOY/(15229:15229): CONEXION: Fallo la conexion con el Broker.
+[INFO] 16:47:45:942 GAMEBOY/(15246:15246): Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:53:20:783 GAMEBOY/(15410:15410): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:53:20:783 GAMEBOY/(15410:15410): ACK; Espera confirmacion del proceso... 
+[INFO] 16:53:20:783 GAMEBOY/(15410:15410): ACK; recibido: ACK 
+[INFO] 16:55:59:326 GAMEBOY/(15522:15522): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:55:59:327 GAMEBOY/(15522:15522): ACK; Espera confirmacion del proceso... 
+[INFO] 16:55:59:327 GAMEBOY/(15522:15522): ACK; recibido: ACK 
+[INFO] 16:56:56:298 GAMEBOY/(15619:15619): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 16:56:56:298 GAMEBOY/(15619:15619): ACK; Espera confirmacion del proceso... 
+[INFO] 16:56:56:298 GAMEBOY/(15619:15619): ACK; recibido: ACK 
+[INFO] 16:57:04:38 GAMEBOY/(15620:15620): Mensaje invalido
+[INFO] 16:57:48:967 GAMEBOY/(15636:15636): CONEXION: Fallo la conexion con el Team.
+[INFO] 16:59:53:119 GAMEBOY/(15750:15750): CONEXION: Fallo la conexion con el Team.
+[INFO] 17:00:54:669 GAMEBOY/(15862:15862): CONEXION: Fallo la conexion con el proceso: TEAM
+[INFO] 17:01:05:465 GAMEBOY/(15863:15863): Mensaje invalido
+[INFO] 17:01:17:144 GAMEBOY/(15864:15864): CONEXION: Fallo la conexion con el proceso: BROKER
+[INFO] 17:02:05:803 GAMEBOY/(15960:15960): ERROR; Mensaje invalido
+[INFO] 17:02:09:312 GAMEBOY/(15961:15961): CONEXION: Fallo la conexion con el proceso: BROKER
+[INFO] 17:02:13:496 GAMEBOY/(15962:15962): ERROR; Ingrese una cola valida.
+[INFO] 17:02:18:448 GAMEBOY/(15963:15963): ERROR; Faltan argumentos.
+[INFO] 17:06:45:20 GAMEBOY/(16078:16078): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:06:45:20 GAMEBOY/(16078:16078): ACK; Espera confirmacion del proceso... 
+[INFO] 17:06:45:20 GAMEBOY/(16078:16078): ACK; Recibido: ACK 
+[INFO] 17:06:45:42 GAMEBOY/(16080:16080): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:06:45:42 GAMEBOY/(16080:16080): ACK; Espera confirmacion del proceso... 
+[INFO] 17:06:45:42 GAMEBOY/(16080:16080): ACK; Recibido: ACK 
+[INFO] 17:06:45:44 GAMEBOY/(16082:16082): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:06:45:44 GAMEBOY/(16082:16082): ACK; Espera confirmacion del proceso... 
+[INFO] 17:06:45:44 GAMEBOY/(16082:16082): ACK; Recibido: ACK 
+[INFO] 17:06:45:48 GAMEBOY/(16084:16084): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:06:45:55 GAMEBOY/(16084:16084): ACK; Espera confirmacion del proceso... 
+[INFO] 17:06:45:530 GAMEBOY/(16084:16084): ACK; Recibido: (null) 
+[INFO] 17:06:45:549 GAMEBOY/(16085:16085): CONEXION: Fallo la conexion con el proceso: TEAM
+[INFO] 17:07:25:819 GAMEBOY/(16104:16104): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:25:824 GAMEBOY/(16104:16104): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:25:826 GAMEBOY/(16104:16104): ACK; Recibido: ACK 
+[INFO] 17:07:25:830 GAMEBOY/(16106:16106): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:25:830 GAMEBOY/(16106:16106): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:25:831 GAMEBOY/(16106:16106): ACK; Recibido: ACK 
+[INFO] 17:07:25:832 GAMEBOY/(16107:16107): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:25:832 GAMEBOY/(16107:16107): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:25:832 GAMEBOY/(16107:16107): ACK; Recibido: ACK 
+[INFO] 17:07:25:863 GAMEBOY/(16109:16109): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:25:863 GAMEBOY/(16109:16109): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:26:332 GAMEBOY/(16109:16109): ACK; Recibido: (null) 
+[INFO] 17:07:26:356 GAMEBOY/(16110:16110): CONEXION: Fallo la conexion con el proceso: TEAM
+[INFO] 17:07:52:374 GAMEBOY/(16135:16135): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:52:374 GAMEBOY/(16135:16135): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:52:374 GAMEBOY/(16135:16135): ACK; Recibido: ACK 
+[INFO] 17:07:52:376 GAMEBOY/(16136:16136): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:52:376 GAMEBOY/(16136:16136): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:52:377 GAMEBOY/(16136:16136): ACK; Recibido: ACK 
+[INFO] 17:07:52:379 GAMEBOY/(16137:16137): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:52:379 GAMEBOY/(16137:16137): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:52:379 GAMEBOY/(16137:16137): ACK; Recibido: ACK 
+[INFO] 17:07:52:381 GAMEBOY/(16139:16139): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:07:52:381 GAMEBOY/(16139:16139): ACK; Espera confirmacion del proceso... 
+[INFO] 17:07:52:776 GAMEBOY/(16139:16139): ACK; Recibido: (null) 
+[INFO] 17:07:52:780 GAMEBOY/(16141:16141): CONEXION: Fallo la conexion con el proceso: TEAM
+[INFO] 17:09:16:252 GAMEBOY/(16252:16252): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:09:16:253 GAMEBOY/(16252:16252): ACK; Espera confirmacion del proceso... 
+[INFO] 17:09:16:253 GAMEBOY/(16252:16252): ACK; Recibido: ACK 
+[INFO] 17:09:16:254 GAMEBOY/(16253:16253): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:09:16:254 GAMEBOY/(16253:16253): ACK; Espera confirmacion del proceso... 
+[INFO] 17:09:16:254 GAMEBOY/(16253:16253): ACK; Recibido: ACK 
+[INFO] 17:09:16:256 GAMEBOY/(16254:16254): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:09:16:256 GAMEBOY/(16254:16254): ACK; Espera confirmacion del proceso... 
+[INFO] 17:09:16:256 GAMEBOY/(16254:16254): ACK; Recibido: ACK 
+[INFO] 17:09:16:258 GAMEBOY/(16256:16256): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:09:16:258 GAMEBOY/(16256:16256): ACK; Espera confirmacion del proceso... 
+[INFO] 17:09:16:634 GAMEBOY/(16256:16256): ACK; Recibido: (null) 
+[INFO] 17:09:16:637 GAMEBOY/(16258:16258): CONEXION: Fallo la conexion con el proceso: TEAM
+[INFO] 17:10:41:885 GAMEBOY/(16284:16284): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:10:41:885 GAMEBOY/(16284:16284): ACK; Espera confirmacion del proceso... 
+[INFO] 17:10:41:886 GAMEBOY/(16284:16284): ACK; Recibido: ACK 
+[INFO] 17:10:41:887 GAMEBOY/(16285:16285): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:10:41:887 GAMEBOY/(16285:16285): ACK; Espera confirmacion del proceso... 
+[INFO] 17:10:41:887 GAMEBOY/(16285:16285): ACK; Recibido: ACK 
+[INFO] 17:10:41:889 GAMEBOY/(16286:16286): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:10:41:889 GAMEBOY/(16286:16286): ACK; Espera confirmacion del proceso... 
+[INFO] 17:10:41:889 GAMEBOY/(16286:16286): ACK; Recibido: ACK 
+[INFO] 17:10:41:890 GAMEBOY/(16287:16287): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:10:41:890 GAMEBOY/(16287:16287): ACK; Espera confirmacion del proceso... 
+[INFO] 17:10:41:891 GAMEBOY/(16287:16287): ACK; Recibido: ACK 
+[INFO] 17:10:41:900 GAMEBOY/(16288:16288): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:10:41:900 GAMEBOY/(16288:16288): ACK; Espera confirmacion del proceso... 
+[INFO] 17:10:41:900 GAMEBOY/(16288:16288): ACK; Recibido: ACK 
+[INFO] 17:17:52:873 GAMEBOY/(16480:16480): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:17:52:874 GAMEBOY/(16480:16480): ACK; Espera confirmacion del proceso... 
+[INFO] 17:17:52:874 GAMEBOY/(16480:16480): ACK; Recibido: ACK 
+[INFO] 17:17:52:875 GAMEBOY/(16481:16481): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:17:52:875 GAMEBOY/(16481:16481): ACK; Espera confirmacion del proceso... 
+[INFO] 17:17:52:875 GAMEBOY/(16481:16481): ACK; Recibido: ACK 
+[INFO] 17:17:52:876 GAMEBOY/(16482:16482): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:17:52:877 GAMEBOY/(16482:16482): ACK; Espera confirmacion del proceso... 
+[INFO] 17:17:52:877 GAMEBOY/(16482:16482): ACK; Recibido: ACK 
+[INFO] 17:17:52:878 GAMEBOY/(16483:16483): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:17:52:878 GAMEBOY/(16483:16483): ACK; Espera confirmacion del proceso... 
+[INFO] 17:17:52:878 GAMEBOY/(16483:16483): ACK; Recibido: ACK 
+[INFO] 17:17:52:879 GAMEBOY/(16484:16484): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:17:52:880 GAMEBOY/(16484:16484): ACK; Espera confirmacion del proceso... 
+[INFO] 17:17:52:880 GAMEBOY/(16484:16484): ACK; Recibido: ACK 
+[INFO] 17:20:24:120 GAMEBOY/(16530:16530): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:20:24:121 GAMEBOY/(16530:16530): ACK; Espera confirmacion del proceso... 
+[INFO] 17:20:24:121 GAMEBOY/(16530:16530): ACK; Recibido: ACK 
+[INFO] 17:26:28:131 GAMEBOY/(16709:16709): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:26:28:131 GAMEBOY/(16709:16709): ACK; Espera confirmacion del proceso... 
+[INFO] 17:26:28:131 GAMEBOY/(16709:16709): ACK; Recibido: ACK 
+[INFO] 17:26:28:133 GAMEBOY/(16710:16710): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:26:28:134 GAMEBOY/(16710:16710): ACK; Espera confirmacion del proceso... 
+[INFO] 17:26:28:134 GAMEBOY/(16710:16710): ACK; Recibido: ACK 
+[INFO] 17:26:28:136 GAMEBOY/(16711:16711): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:26:28:136 GAMEBOY/(16711:16711): ACK; Espera confirmacion del proceso... 
+[INFO] 17:26:28:136 GAMEBOY/(16711:16711): ACK; Recibido: ACK 
+[INFO] 17:26:28:137 GAMEBOY/(16712:16712): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:26:28:138 GAMEBOY/(16712:16712): ACK; Espera confirmacion del proceso... 
+[INFO] 17:26:28:138 GAMEBOY/(16712:16712): ACK; Recibido: ACK 
+[INFO] 17:26:28:144 GAMEBOY/(16713:16713): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:26:28:144 GAMEBOY/(16713:16713): ACK; Espera confirmacion del proceso... 
+[INFO] 17:26:28:144 GAMEBOY/(16713:16713): ACK; Recibido: ACK 
+[INFO] 17:29:22:852 GAMEBOY/(16769:16769): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:29:22:854 GAMEBOY/(16769:16769): ACK; Espera confirmacion del proceso... 
+[INFO] 17:29:22:854 GAMEBOY/(16769:16769): ACK; Recibido: ACK 
+[INFO] 17:29:22:861 GAMEBOY/(16771:16771): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:29:22:861 GAMEBOY/(16771:16771): ACK; Espera confirmacion del proceso... 
+[INFO] 17:29:22:861 GAMEBOY/(16771:16771): ACK; Recibido: ACK 
+[INFO] 17:29:22:863 GAMEBOY/(16772:16772): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:29:22:863 GAMEBOY/(16772:16772): ACK; Espera confirmacion del proceso... 
+[INFO] 17:29:22:863 GAMEBOY/(16772:16772): ACK; Recibido: ACK 
+[INFO] 17:29:22:864 GAMEBOY/(16773:16773): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:29:22:864 GAMEBOY/(16773:16773): ACK; Espera confirmacion del proceso... 
+[INFO] 17:29:22:864 GAMEBOY/(16773:16773): ACK; Recibido: ACK 
+[INFO] 17:29:22:865 GAMEBOY/(16774:16774): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:29:22:866 GAMEBOY/(16774:16774): ACK; Espera confirmacion del proceso... 
+[INFO] 17:29:22:866 GAMEBOY/(16774:16774): ACK; Recibido: ACK 
+[INFO] 17:32:22:284 GAMEBOY/(16819:16819): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:32:22:285 GAMEBOY/(16819:16819): ACK; Espera confirmacion del proceso... 
+[INFO] 17:32:22:285 GAMEBOY/(16819:16819): ACK; Recibido: ACK 
+[INFO] 17:32:22:286 GAMEBOY/(16820:16820): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:32:22:286 GAMEBOY/(16820:16820): ACK; Espera confirmacion del proceso... 
+[INFO] 17:32:22:286 GAMEBOY/(16820:16820): ACK; Recibido: ACK 
+[INFO] 17:32:22:290 GAMEBOY/(16821:16821): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:32:22:290 GAMEBOY/(16821:16821): ACK; Espera confirmacion del proceso... 
+[INFO] 17:32:22:290 GAMEBOY/(16821:16821): ACK; Recibido: ACK 
+[INFO] 17:32:22:291 GAMEBOY/(16822:16822): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:32:22:292 GAMEBOY/(16822:16822): ACK; Espera confirmacion del proceso... 
+[INFO] 17:32:22:292 GAMEBOY/(16822:16822): ACK; Recibido: ACK 
+[INFO] 17:32:22:303 GAMEBOY/(16823:16823): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:32:22:303 GAMEBOY/(16823:16823): ACK; Espera confirmacion del proceso... 
+[INFO] 17:32:22:303 GAMEBOY/(16823:16823): ACK; Recibido: ACK 
+[INFO] 17:37:31:487 GAMEBOY/(17065:17065): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:37:31:488 GAMEBOY/(17065:17065): ACK; Espera confirmacion del proceso... 
+[INFO] 17:37:31:488 GAMEBOY/(17065:17065): ACK; Recibido: ACK 
+[INFO] 17:37:31:490 GAMEBOY/(17066:17066): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:37:31:490 GAMEBOY/(17066:17066): ACK; Espera confirmacion del proceso... 
+[INFO] 17:37:31:490 GAMEBOY/(17066:17066): ACK; Recibido: ACK 
+[INFO] 17:37:31:493 GAMEBOY/(17067:17067): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:37:31:493 GAMEBOY/(17067:17067): ACK; Espera confirmacion del proceso... 
+[INFO] 17:37:31:493 GAMEBOY/(17067:17067): ACK; Recibido: ACK 
+[INFO] 17:37:31:495 GAMEBOY/(17068:17068): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:37:31:497 GAMEBOY/(17068:17068): ACK; Espera confirmacion del proceso... 
+[INFO] 17:37:31:497 GAMEBOY/(17068:17068): ACK; Recibido: ACK 
+[INFO] 17:37:31:506 GAMEBOY/(17069:17069): CONEXION; Se realiza conexion al proceso: TEAM, enviando mensaje a cola: APPEARED_POKEMON
+[INFO] 17:37:31:506 GAMEBOY/(17069:17069): ACK; Espera confirmacion del proceso... 
+[INFO] 17:37:31:506 GAMEBOY/(17069:17069): ACK; Recibido: ACK 
