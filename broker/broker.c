@@ -1417,6 +1417,8 @@ void bs_eliminar_particion_lru(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+		punteroParticionLru->id = NULL;
+		punteroParticionLru->colaMensaje = NULL;
 	}
 	printf("Sale de LRU\n");
 }
