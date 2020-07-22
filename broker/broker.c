@@ -191,7 +191,9 @@ void process_request(int cod_op, int socket) {
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
 
+			sem_wait(&mutexAsignarMemoria);
 			enviar_mensajes_memoria(mensaje_suscripcion, socket);
+			sem_post(&mutexAsignarMemoria);
 
 			//sem_post(&mutexLista[mensaje_suscripcion->cola]);
 
@@ -451,14 +453,19 @@ void inicializar_datos() {
 	(*caught_pokemon).suscriptores = list_create();
 	(*caught_pokemon).mensajes = list_create();
 
+	// Semaforos de colas de mensajes
 	for(int i = 0; i <= SEM_POOL; i++) {
 		sem_t semaforo;
 		sem_init(&semaforo, 0, 0);
 		mutexLista[i] = semaforo;
 	}
 
+	// Semaforo de distribucion mensajes nuevos
 	sem_init(&mutexDistribucion, 0, 1);
+	// Semaforo de ids
 	sem_init(&mutexIds, 0, 1);
+	//Semaforo asignacion de memoria
+	sem_init(&mutexAsignarMemoria, 0 ,1);
 
 	cantidad_mensajes = 1;
 
@@ -563,6 +570,7 @@ void leer_archivo_config() {
 }
 
 void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
+	sem_wait(&mutexAsignarMemoria);
 	if(strcmp(algoritmoMemoria, "PARTICIONES") == 0) {
 		printf("Particiones\n");
 		asignar_memoria_pd(mensajeCompleto, colaMensaje);
@@ -570,6 +578,7 @@ void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 		printf("Buddy System\n");
 		asignar_memoria_bs(mensajeCompleto, colaMensaje);
 	}
+	sem_post(&mutexAsignarMemoria);
 }
 
 void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
@@ -1185,9 +1194,6 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 	return NULL;
 }
 
-
-// ---------------------------------------------------------
-
 int potencia_de_dos_cercana(uint32_t tamanioMensaje){
 	int tamanioMininoNecesario = 2; // 2 elevado a 1
 	while(tamanioMininoNecesario < tamanioMensaje){
@@ -1419,7 +1425,6 @@ bool lista_llena(t_list* particiones){
 	}
 	return(cantidadDeOcupados == list_size(particiones));
 }
-
 
 bool primer_puntero_ocupado(void* elemento) {
 	punteroParticion particion = (punteroParticion*)elemento;
