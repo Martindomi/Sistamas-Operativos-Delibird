@@ -18,25 +18,6 @@
 t_list* lista_objetivo;
 
 
-
-/*
-
-
-1) elegir entrenador de ready para entrenar (fifio y rr es el primero de la lista)
-
-2) ejecutar (mover ((para caputrar o intercambiar)), capturar ) ->	if(strcmp(planificacion,"FIFO")){hacer fifo}
-																	else if(stcmp(planificacion,"RR")){hacer round robbins}
-																	else if(stcmp(planificacion,"SJB")){hacer shortest job firs}
-
-3) finalizar ejecucion (con o sin desalojo) -> pasa a bloqueado si: se movio hasta el pokemon (espera caught)
-											-> pasa a exit si: captura a todos los pokemones
-											-> ready (con desalojo)
-*/
-
-
-
-
-
 int sizeVectorString(char**);
 void liberarArrayDeStrings(char**);
 

@@ -27,6 +27,8 @@ sem_t sem_deadlcok;
 sem_t sem_exit;
 sem_t sem_fin;
 sem_t sem_entrenador_disponible;
+sem_t sem_localized_appeared;
+sem_t mutex_objetivo;
 
 int movimientoTime;
 
