@@ -10,6 +10,7 @@
 #include <semaphore.h>
 
 typedef struct {
+
 	char* ipBroker;
 	char* puertoBroker;
 	char* ipGamecard;

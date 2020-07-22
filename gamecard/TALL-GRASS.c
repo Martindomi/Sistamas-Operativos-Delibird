@@ -730,11 +730,14 @@ void quitar_bloque_de_metadata(char*path, char* bloque) {
 	char* bloques = string_new();
 	char*bloques1 = string_new();
 	string_append(&bloques1, config_get_string_value(cfg, "BLOCKS"));
+	if(string_length(bloques1) == 3){
+	string_append(&bloques, "[]");
+	}else{
 	char**listaDeBloques = string_n_split(bloques1, 2, bloque);
 	string_append(&bloques, listaDeBloques[0]);
 	bloques[strlen(bloques) - 1] = '\0';
 	string_append(&bloques, listaDeBloques[1]);
-
+	}
 	config_set_value(cfg, "BLOCKS", bloques);
 	config_save(cfg);
 	config_destroy(cfg);
@@ -808,12 +811,14 @@ int calcular_tamanio_archivo(char*path) {
 	int i;
 	int tamanio = 0;
 	char** blocks = obtener_array_de_bloques(path);
-
+	if(tam_array_bloques(blocks) == 0){
+		tamanio = 0;
+	}else{
 	for (i = 0; i < (tam_array_bloques(blocks)); i++) {
 		char* pathBlock = generar_path_bloque(blocks[i]);
 		tamanio = tamanio + tamanio_ocupado_bloque(pathBlock);
 	}
-
+	}
 	return tamanio;
 }
 void escribir_mensaje_en_block(int bloque, char* mensaje, int accion) {
@@ -934,7 +939,6 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 			MODIFICAR);
 			j = j + block_size;
 		}
-
 	} else {
 		if (cantBloques > tamArray) {
 			j = block_size;
@@ -1144,8 +1148,12 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 				char*contenidoFinal = string_new();
 				if (nuevaCantidad == 0) {
 					if(i == 0) {
-						string_append(&contenidoFinal,
-								string_substring_from(contenidoBloques, (i + string_length(mensaje) + cantidad_digitos(cantActual) + 1)));
+						if((string_length(mensaje)+cantidad_digitos(cantActual)+1) == string_length(contenidoBloques)){
+							string_append(&contenidoFinal,string_repeat('\0',string_length(contenidoBloques)));
+						}else{
+							string_append(&contenidoFinal,
+							string_substring_from(contenidoBloques, (i + string_length(mensaje) + cantidad_digitos(cantActual) + 1)));
+					}
 					} else {
 						string_append(&contenidoFinal,
 								string_substring_until(contenidoBloques, (i - 1)));

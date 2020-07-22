@@ -8,8 +8,12 @@
 
 int main (int argc, char *argv[]) {
 
-	informacion = malloc(sizeof(char)*5);
+	informacion = malloc(sizeof(t_info));
 	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
+	int idGamecardSize = strlen(config_get_string_value(config, "ID_GAMECARD"))+1;
+	informacion->idGamecard = malloc(idGamecardSize);
+	memcpy(informacion->idGamecard, config_get_string_value(config, "ID_GAMECARD"), idGamecardSize);
+	printf("%s",config_get_string_value(config, "ID_GAMECARD"));
 
 	int ipBrokerSize = strlen(config_get_string_value(config, "IP_BROKER"))+1;
 	informacion->ipBroker = malloc(ipBrokerSize);
@@ -27,9 +31,6 @@ int main (int argc, char *argv[]) {
 	informacion->puertoGamecard = malloc(puertoGamecardSize);
 	memcpy(informacion->puertoGamecard, config_get_string_value(config, "PUERTO_GAMECARD"), puertoGamecardSize);
 
-	int idGamecardSize = strlen(config_get_string_value(config, "ID"))+1;
-	informacion->idGamecard = malloc(idGamecardSize);
-	memcpy(informacion->idGamecard, config_get_string_value(config, "ID"), idGamecardSize);
 
 	if((logger= log_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.log", informacion->idGamecard, true, LOG_LEVEL_INFO))==NULL){
 		printf("No se pudo crear log\n");
@@ -112,7 +113,9 @@ int aplica_funcion_escucha(int * socket){
 		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
 	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
-
+	//if(conexion == -1){
+	//	return -1;
+	//}
 	switch(cod_op){
 	case MESSAGE:
 
@@ -173,5 +176,7 @@ int aplica_funcion_escucha(int * socket){
 	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
 	/*sleep(10);
 	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);*/
+
+
 }
 

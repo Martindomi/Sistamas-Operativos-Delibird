@@ -38,7 +38,7 @@ bool suscribirse_a_colas_gameboy(char* path){
 
 	}
 
-	config_destroy(config);
+	//config_destroy(config);
 	//log_destroy(logger);
 	return conexionOK;
 }
@@ -76,8 +76,8 @@ void _reintentar_conexion(char* path){
 			++count ;
 		}
 		log_info(logger,"RECONEXION; EXITOSA, cantidad de intentos: %d", count);
-		config_destroy(config);
-		log_destroy(logger);
+		//config_destroy(config);
+		//log_destroy(logger);
 		sem_wait(&mutex_boolReconexion);
 		seCreoHiloReconexion=false;
 		sem_post(&mutex_boolReconexion);
@@ -85,7 +85,7 @@ void _reintentar_conexion(char* path){
 
 }
 
-void crear_hilo_escucha_suscripcion(int conexion){
+ void crear_hilo_escucha_suscripcion(int conexion){
 
 	int result_recv=0;
 	while(1){
