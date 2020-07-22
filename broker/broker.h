@@ -20,6 +20,7 @@ pthread_t  thread_pool[THREAD_POOL];
 sem_t mutexLista[SEM_POOL];
 sem_t mutexDistribucion;
 sem_t mutexIds;
+sem_t mutexAsignarMemoria;
 
 t_log* loggerBroker;
 t_config* configBroker;
