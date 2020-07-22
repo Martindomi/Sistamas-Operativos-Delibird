@@ -16,7 +16,7 @@ void esperar_mensajes_broker(int socket_servidor);
 void enviar_mensaje_new_pokemon(t_log* logger, char* ip, char* puerto);
 void enviar_mensaje_new_pokemon2(t_log* logger, char* ip, char* puerto);
 sem_t sem_cpu;
-
+void enviar_localized();
 void mover_entrenador_new_sin_espacio(t_entrenador* enternador);
 int aplica_funcion_escucha(int * socket);
 void crear_hilo_entrenadores(t_list* listaEntrenadores);

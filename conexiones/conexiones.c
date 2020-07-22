@@ -94,9 +94,9 @@ void* server_recibir_mensaje(int socket_cliente, uint32_t* size)
 {
 	void * buffer;
 
-	printf("Entra a recibir mensaje\n");
+	//printf("Entra a recibir mensaje\n");
 	recv(socket_cliente, size, sizeof(uint32_t), MSG_WAITALL);
-	printf("tamaño: %d\n", *size);
+	//printf("tamaño: %d\n", *size);
 
 	buffer = malloc(*size);
 
@@ -268,7 +268,7 @@ char* client_recibir_mensaje(int socket_cliente)
 	char * buffer = malloc(buffer_size);
 	recv(socket_cliente, buffer, buffer_size, 0);
 
-	puts(buffer);
+	//puts(buffer);
 	return buffer;
 
 }
@@ -284,7 +284,7 @@ char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente)
 	char * buffer = malloc(buffer_size);
 	recv(socket_cliente, buffer, buffer_size, 0);
 
-	puts(buffer);
+	//puts(buffer);
 	return buffer;
 
 }
@@ -293,7 +293,7 @@ char* client_recibir_mensaje_SIN_CODEOP(int socket_cliente)
 void liberar_conexion(int socket_cliente)
 {
 	if(socket_cliente != -1){
-		printf("Se cierra el socket\n");
+		//printf("Se cierra el socket\n");
 		close(socket_cliente);
 	}
 }
@@ -951,9 +951,9 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 	puntero_mensaje puntero= obtener_mensaje_get(stream);
 	puntero_mensaje_get_pokemon puntero_get = (puntero_mensaje_get_pokemon) (puntero->mensaje_cuerpo);
 
-	printf("envio get de pokemon: %s \n", puntero_get->name_pokemon);
+	//printf("envio get de pokemon: %s \n", puntero_get->name_pokemon);
 
-	printf("%d\n", socket_cliente);
+	//printf("%d\n", socket_cliente);
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(paquete->buffer->stream);
@@ -1401,7 +1401,7 @@ int crear_hilo_escucha(char* ip, char* puerto)
 
 void* hilo_escucha(int socket_servidor){
 	int socketser = socket_servidor;
-	printf("%d\n", socketser);
+	//printf("%d\n", socketser);
 	while(1){
 
 		struct sockaddr_in dir_cliente;

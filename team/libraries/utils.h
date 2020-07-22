@@ -53,7 +53,7 @@ void contar_context_switch();
 void enviar_get_objetivos();
 void enviar_mensaje_get_pokemon(char* especiePokemon);
 void enviar_mensaje_catch_pokemon(t_entrenador * entrenador,char* especiePokemon, int posX, int posY);
-
+void caught_destroyer(t_caught*);
 void esperar_mensajes_broker(int socket_servidor);
 void recibe_mensaje_broker(int* socket);
 void enviar_menssaje_new_pokemon(t_log* logger, char* ip, char* puerto);

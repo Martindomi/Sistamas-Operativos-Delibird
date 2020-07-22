@@ -7,7 +7,7 @@
 int main(int argc, char *argv[]){
 
 	 if(argc != 2) {
-		 printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
+		 //printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
 		 exit(-1);
 	 }
 
@@ -90,20 +90,6 @@ int main(int argc, char *argv[]){
 
 	return EXIT_SUCCESS;
 }
-/*
-t_mensajeTeam esperoMensaje() {
-	printf("Esperando mensaje\n");
-	int i = 0;
-	sleep(1);
-	if(i == 0 || list_size(cola_READY)>0) {
-		i++;
-		return APPEAR;
-	}else {
-		return BROKEROFF;
-	}
-
-}
-*/
 
 void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 	int cant_entrenadores = list_size(lista_entrenadores);
@@ -146,7 +132,7 @@ int aplica_funcion_escucha(int * socket){
 
 
 
-	printf("recibe mensaje del broker\n");
+	//printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	char *msj;
 	int recv_data;
@@ -155,7 +141,7 @@ int aplica_funcion_escucha(int * socket){
 	if(recv_data==-1){
 		return -1;
 	}
-	printf("recibio cod op \n");
+	//printf("recibio cod op \n");
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
 	puntero_mensaje mensajeRecibido;
@@ -171,7 +157,7 @@ int aplica_funcion_escucha(int * socket){
 	case MESSAGE:
 
 		msj = client_recibir_mensaje_SIN_CODEOP(*socket);
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: %s", msj);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido del mensaje: %s", msj);
 		free(msj);
 		break;
 
@@ -187,34 +173,34 @@ int aplica_funcion_escucha(int * socket){
 	case CAUGHT_POKEMON:
 		mensajeRecibido = recibir_caught_pokemon(*socket, size);
 		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
-		free(mensajeRecibido);
-		printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
+
+		//printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 			if(encontre) {
-				printf("id:%d\n", mensajeRecibido->id_correlativo);
+				//printf("id:%d\n", mensajeRecibido->id_correlativo);
 				procesar_caught(caughtRecibido, mensajeRecibido ->id_correlativo);
 
 			}
-
+			free(mensajeRecibido);
 		break;
 
 	case LOCALIZED_POKEMON:
 
 		mensajeRecibido = recibir_localized_pokemon(*socket, size);
 		puntero_mensaje_localized_pokemon localizedRecibido = mensajeRecibido->mensaje_cuerpo;
-		free(mensajeRecibido);
+
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 			if(encontre) {
-				printf("id:%d\n", mensajeRecibido->id_correlativo);
-
+				//printf("id:%d\n", mensajeRecibido->id_correlativo);
 				procesar_localized(localizedRecibido, mensajeRecibido->id_correlativo);
 
 			}
 
+		free(mensajeRecibido);
 		break;
 	}
 
@@ -232,27 +218,31 @@ int aplica_funcion_escucha(int * socket){
 
 void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uint32_t id_correlativo){
 	int cantidad = localizedRecibido->quant_pokemon * 2;
-	t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
-	int j = 0;
-	for(int i=0;i<cantidad && j<poke->cantidad;i=i+2){
+	if(cantidad!=0){
+		t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
+		int j = 0;
+		for(int i=0;i<cantidad && j<poke->cantidad;i=i+2){
 
-		t_pokemon *pokemon = malloc(sizeof(t_pokemon));
-		pokemon->especie=malloc(sizeof(char)*localizedRecibido->name_size);
-		memcpy(pokemon->especie,localizedRecibido->name_pokemon,localizedRecibido->name_size);
-		pokemon->x=*((int*)(list_get(localizedRecibido->coords,i)));
-		pokemon->y=*((int*)(list_get(localizedRecibido->coords,i+1)));
-		printf("adentro de localized\n");
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo=%u Posicion X=%d Posicion Y=%d",id_correlativo, pokemon->x, pokemon->y);
+			t_pokemon *pokemon = malloc(sizeof(t_pokemon));
+			pokemon->especie=malloc(sizeof(char)*localizedRecibido->name_size);
+			memcpy(pokemon->especie,localizedRecibido->name_pokemon,localizedRecibido->name_size);
+			int x =list_get(localizedRecibido->coords,i);
+			int y =list_get(localizedRecibido->coords,i+1);
+			pokemon->x=x;
+			pokemon->y=y;
+			//printf("adentro de localized\n");
+			log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo = %d Pokemon = %s Posicion = (%d;%d)",id_correlativo, pokemon->especie, pokemon->x, pokemon->y);
 
+			sem_wait(&mutex_recibidos);
+			list_add(listaPokemonsRecibidos,pokemon);
+			sem_post(&mutex_recibidos);
+			sem_post(&sem_recibidos);
+			j++;
+		}
+	}else{
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo = %d Pokemon = %s Posicion = Sin locaciones",id_correlativo, localizedRecibido->name_pokemon);
 
-
-		sem_wait(&mutex_recibidos);
-		list_add(listaPokemonsRecibidos,pokemon);
-		sem_post(&mutex_recibidos);
-		sem_post(&sem_recibidos);
-		j++;
 	}
-
 	free(localizedRecibido->name_pokemon);
 	list_destroy(localizedRecibido->coords);
 	free(localizedRecibido);
@@ -266,12 +256,12 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 	switch(caughtRecibido->caughtResult){
 	case 0:
 		caughts->atrapado=OK;
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=OK",idCorrelativo);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo = %d Atrapado = OK",idCorrelativo);
 
 		break;
 	case 1:
 		caughts->atrapado=FAIL;
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo=%d Atrapado=FAIL",idCorrelativo);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: CAUGHT. Contenido: ID Correalitvo = %d Atrapado = FAIL",idCorrelativo);
 
 		break;
 	}
@@ -290,13 +280,16 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
 	pokemon->x=appearedRecibido->pos_x;
 	pokemon->y=appearedRecibido->pos_y;
-	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. Contenido: Especie=%s, Posicion X=%d, Posicion Y=%d", pokemon->especie, pokemon->x, pokemon ->y);
 	t_pokemonObjetivo *poke = buscarPokemon(appearedRecibido->name_pokemon);
-	if(poke->cantidad <= 0){
-		return;
-	}
 	free(appearedRecibido->name_pokemon);
 	free(appearedRecibido);
+
+	if(poke ==NULL || poke->cantidad <= 0 ){
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. No necesita atrapar pokemon: %s.", pokemon->especie);
+		return;
+	}
+
+	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. Contenido: Especie = %s, Posicion = (%d;%d)", pokemon->especie, pokemon->x, pokemon ->y);
 	sem_wait(&mutex_recibidos);
 	list_add(listaPokemonsRecibidos,pokemon);
 	sem_post(&mutex_recibidos);

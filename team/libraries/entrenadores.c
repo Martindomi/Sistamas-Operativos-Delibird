@@ -39,13 +39,13 @@ void analizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadl
 				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> BLOCKED. Motivo: Realiza intercambio pero sigue en deadlock", entrenador->id);
 			}else{
 				moverColas(cola_EXEC,cola_EXIT,entrenador);
-				printf("entrenador %d se fue a EXIT \n", entrenador->id);
+				//printf("entrenador %d se fue a EXIT \n", entrenador->id);
 				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: EXEC -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenador->id);
 				sem_post(&sem_exit);
 			}
 			if(!tiene_otro_pokemon(entrenadorDeadlock)){
 				moverColas(cola_BLOQUED,cola_EXIT,entrenador->entrenadorDeadlock);
-				printf("entrenador %d se fue a EXIT \n", entrenadorDeadlock->id);
+				//printf("entrenador %d se fue a EXIT \n", entrenadorDeadlock->id);
 				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: BLOCKED -> EXIT. Motivo: Realiza intercambio y cumple su objetivo!", entrenadorDeadlock->id);
 				sem_post(&sem_exit);
 			}
@@ -107,7 +107,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 
 	while(read_posiciones[i]!= NULL){
 		id++;
-		printf("cargando entrenador %d\n",id);
+	//	printf("cargando entrenador %d\n",id);
 		unEntrenador = malloc(sizeof(t_entrenador));
 		unEntrenador->estado= NEW;
 		unEntrenador->id = id;
@@ -125,7 +125,7 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		unEntrenador->pokemonesCapturados = list_create();
 		unEntrenador->pokemonesObjetivo = list_create();
 		if( no_hay_mas == 1|| read_pokemones[i]==NULL){
-			printf("No tiene pokemones capturados\n");
+			//printf("No tiene pokemones capturados\n");
 			no_hay_mas = 1;
 		} else {
 			char** tempCapt = string_split(read_pokemones[i], "|");
@@ -175,12 +175,12 @@ void inicializar_entrenadores (t_list* entrenadores_list){
 		liberarArrayDeStrings(posiciones);
 
 	}
-	printf("Se calcula lista objetivos segun objetivos individuales:\n");
+//	printf("Se calcula lista objetivos segun objetivos individuales:\n");
 	imprimirListaObjetivo();
 
 
 	quitarPokemonesDeListaObjetivo(entrenadores_list);
-	printf("Se quitan los pokemones ya capturados:\n");
+	//printf("Se quitan los pokemones ya capturados:\n");
 	imprimirListaObjetivo();
 
 
@@ -215,7 +215,7 @@ void imprimirListaEntrenadores(t_list* entrenadores_list){
 }
 
 void imprimirEntrenador(t_entrenador* entrenador) {
-	printf("----------\n");
+/*	printf("----------\n");
 	printf("ID: %d\n", entrenador->id);
 	printf("Espacio libre %d\n", entrenador->espacioLibre);
 	printf("ESTADO: %d\n", entrenador->estado);
@@ -224,10 +224,10 @@ void imprimirEntrenador(t_entrenador* entrenador) {
 	printf("EL entrenador capturo el pokemon %s \n",list_get(entrenador->pokemonesCapturados,0));
 	printf("El entrenador necesita un %s \n", list_get(entrenador->pokemonesObjetivo,0));
 	puts("");
-}
+*/}
 
 void imprimirListaObjetivo(){
-
+/*
 	printf("------------\n");
 	printf("Lista objetivo:\n");
 	printf("------------\n");
@@ -239,15 +239,15 @@ void imprimirListaObjetivo(){
 	}
 
 	printf("------------\n");
-}
+*/}
 
 void crearListaObjetivo(){
 
 	if(lista_objetivo==NULL){
-		printf("creando lista de todos los objetivos\n");
+//		printf("creando lista de todos los objetivos\n");
 		lista_objetivo=list_create();
 	}
-	printf("lista de objetivos creada\n");
+//	printf("lista de objetivos creada\n");
 
 
 
@@ -281,7 +281,7 @@ void agregarPokemonALista(char* pokemon){
 		strcpy(pokemonObjetivo->pokemon,pokemon);
 		//pokemonObjetivo->pokemon = pokemon;
 		pokemonObjetivo->cantidad = 1;
-		printf("%d\n",pokemonObjetivo->cantidad);
+//		printf("%d\n",pokemonObjetivo->cantidad);
 		list_add(lista_objetivo,pokemonObjetivo);
 
 
@@ -289,7 +289,7 @@ void agregarPokemonALista(char* pokemon){
 
 		pokemonBuscado->cantidad = pokemonBuscado->cantidad +1;
 
-		printf("%d\n",pokemonBuscado->cantidad);
+	//	printf("%d\n",pokemonBuscado->cantidad);
 	}
 
 
@@ -344,7 +344,7 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 	//int cantDeMovs=0;
 	//Si entrenador->movsDisponibles = 0 entonces tiene movs infinitos(FIFO, SJF)
 	//Si entrenador->movsDisponibles != 0 entonces es RR
-	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
+//	printf("Inicio Entrenador: %d, en posiciones X:%d Y:%d\n", entrenador->id, entrenador->x, entrenador->y);
 
 	int sizeAntes = list_size(cola_READY);
 
@@ -366,7 +366,7 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 
 			entrenador->rafagaReal++;
 			entrenador->estimacionRestante--;
-			printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
+	//		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
 			tarda(1);
 			contar_ciclos_entrenador(entrenador, 1);
 
@@ -379,7 +379,7 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 		}
 
 
-	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio desde la posicion: (%d;%d) a la posicion: (%d;%d)",entrenador->id, xInicial, yInicial, entrenador->x, entrenador->y);
+	log_info(loggerTEAM,"MOVIMIENTO; Entrenador %d: Se movio desde la posicion (%d;%d) a la posicion (%d;%d)",entrenador->id, xInicial, yInicial, entrenador->x, entrenador->y);
 
 
 }

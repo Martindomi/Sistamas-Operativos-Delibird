@@ -13,7 +13,7 @@ int main(int argc, char *argv[]){
 
 	} else {
 		//log_info(logger_gameboy, "Faltan argumentos\n");
-		printf("Faltan argumentos.\n");
+		log_info(logger_gameboy,"ERROR; Faltan argumentos.");
 		return -1;
 	}
 
@@ -21,12 +21,12 @@ int main(int argc, char *argv[]){
 		cola_destino = obtener_cola_mensaje(argv[2]);
 		if(cola_destino == 0) {
 			//log_info(logger_gameboy, "Ingrese una cola valida.");
-			printf("Ingrese una cola valida.\n");
+			log_info(logger_gameboy,"ERROR; Ingrese una cola valida.");
 			return -1;
 		}
 	} else {
 		//log_info(logger_gameboy, "Faltan argumentos\n");
-		printf("Faltan argumentos.\n");
+		log_info(logger_gameboy,"ERROR; Faltan argumentos.");
 		return -1;
 	}
 
@@ -129,11 +129,18 @@ int clasificar_mensaje(int argc, char* argv[], uint32_t cola_destino, char* proc
 			break;
 		}
 	}
-
-
 	mensaje = obtener_nombre_cola(cola_destino);
-	log_info(logger_gameboy, "Se realiza conexion al proceso: %s, enviando mensaje a cola: %s", proceso, mensaje);
-	liberar_conexion(conexion);
+	if(conexion==-1){
+		log_info(logger_gameboy,"CONEXION: Fallo la conexion con el proceso: %s", proceso);
+	}else{
+		log_info(logger_gameboy, "CONEXION; Se realiza conexion al proceso: %s, enviando mensaje a cola: %s", proceso, mensaje);
+		log_info(logger_gameboy, "ACK; Espera confirmacion del proceso... ");
+		mensaje = client_recibir_mensaje(conexion);
+		log_info(logger_gameboy, "ACK; Recibido: %s ", mensaje);
+		liberar_conexion(conexion);
+	}
+
+
 	return 0;
 }
 
@@ -173,8 +180,8 @@ char* obtener_nombre_cola(uint32_t numeroCola) {
 }
 
 void manejar_error_mensaje() {
-	//log_info(logger_gameboy, "Mensaje invalido");
-	printf("Mensaje invalido\n");
+	log_info(logger_gameboy, "ERROR; Mensaje invalido");
+	//printf("Mensaje invalido\n");
 }
 
 void inicializar_datos(t_config* config) {
@@ -224,44 +231,44 @@ char* cola;
 		uint32_t size;
 
 		recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
-		printf("socket %d\n", *socket);
-		printf("cod op %d\n", cod_op);
+		//printf("socket %d\n", *socket);
+		//printf("cod op %d\n", cod_op);
 		cola = obtener_nombre_cola(cod_op);
 
 		switch(cod_op) {
 			case NEW_POKEMON: {
 				mensajeRecibido = recibir_new_pokemon(*socket, &size);
 				puntero_mensaje_new_pokemon newPokemon = (puntero_mensaje_new_pokemon) mensajeRecibido->mensaje_cuerpo;
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d) CANTIDAD: %d",cola, mensajeRecibido->id,newPokemon->name_pokemon, newPokemon->pos_x, newPokemon->pos_y, newPokemon->quant_pokemon);
-				printf("mensaje new pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d) CANTIDAD: %d",cola, mensajeRecibido->id,newPokemon->name_pokemon, newPokemon->pos_x, newPokemon->pos_y, newPokemon->quant_pokemon);
+				//printf("mensaje new pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case APPEARED_POKEMON: {
 				mensajeRecibido = recibir_appeared_pokemon(*socket, &size);
 				puntero_mensaje_appeared_pokemon appeared = (puntero_mensaje_appeared_pokemon) mensajeRecibido->mensaje_cuerpo;
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d) ",cola, mensajeRecibido->id,appeared->name_pokemon, appeared->pos_x, appeared->pos_y);
-				printf("mensaje appeared pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d) ",cola, mensajeRecibido->id,appeared->name_pokemon, appeared->pos_x, appeared->pos_y);
+				//printf("mensaje appeared pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case GET_POKEMON: {
 				mensajeRecibido = recibir_get_pokemon(*socket, &size);
 				puntero_mensaje_get_pokemon get = (puntero_mensaje_get_pokemon) mensajeRecibido->mensaje_cuerpo;
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d POKEMON: %s ",cola, mensajeRecibido->id,get->name_pokemon);
-				printf("mensaje get pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d POKEMON: %s ",cola, mensajeRecibido->id,get->name_pokemon);
+				//printf("mensaje get pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case LOCALIZED_POKEMON: {
 				mensajeRecibido = recibir_localized_pokemon(*socket, &size);
 				puntero_mensaje_localized_pokemon localized = (puntero_mensaje_localized_pokemon) mensajeRecibido->mensaje_cuerpo;
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d POKEMON: %s CANTIDAD DE COORDENADAS: %d",cola, mensajeRecibido->id,localized->name_pokemon, localized->quant_pokemon);
-				printf("mensaje localized pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d POKEMON: %s CANTIDAD DE COORDENADAS: %d",cola, mensajeRecibido->id,localized->name_pokemon, localized->quant_pokemon);
+				//printf("mensaje localized pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case CATCH_POKEMON: {
 				mensajeRecibido = recibir_catch_pokemon(*socket, &size);
 				puntero_mensaje_catch_pokemon catch = (puntero_mensaje_catch_pokemon) mensajeRecibido->mensaje_cuerpo;
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d)",cola, mensajeRecibido->id,catch->name_pokemon, catch->pos_x, catch->pos_y);
-				printf("mensaje catch pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d POKEMON: %s POSICION: (%d;%d)",cola, mensajeRecibido->id,catch->name_pokemon, catch->pos_x, catch->pos_y);
+				//printf("mensaje catch pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case CAUGHT_POKEMON: {
@@ -273,16 +280,16 @@ char* cola;
 				}else{
 					resultado = "FAIL";
 				}
-				log_info(logger_gameboy,"Llega mensaje a cola %s: ID MENSAJE: %d ID CORRELATIVO (A CAPTURAR): %d RESULTADO: %s",cola, mensajeRecibido->id,mensajeRecibido->id_correlativo,resultado);
-				printf("mensaje caught pokemon recibido con id %d\n", mensajeRecibido->id);
+				log_info(logger_gameboy,"MENSAJE RECIBIDO; COLA %s: ID MENSAJE: %d ID CORRELATIVO (A CAPTURAR): %d RESULTADO: %s",cola, mensajeRecibido->id,mensajeRecibido->id_correlativo,resultado);
+				//printf("mensaje caught pokemon recibido con id %d\n", mensajeRecibido->id);
 				break;
 			}
 			case MESSAGE: {
 				mensajeRecibido = client_recibir_mensaje_SIN_CODEOP(*socket);
-				printf("mensaje recibido: %s\n",mensajeRecibido);
+				//printf("mensaje recibido: %s\n",mensajeRecibido);
 				break;
 			}case 0:{
-				printf("Espera mensaje\n");
+				//printf("Espera mensaje\n");
 				break;
 			}
 			default: {
@@ -294,7 +301,7 @@ char* cola;
 			devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 			printf("PASE ACK %s\n", ACK);
 		}else{
-			log_info(logger_gameboy,"SE PERDIO LA CONEXION CON EL BROKER");
+			log_info(logger_gameboy,"CONEXION: Se perdio la conexion con el Broker");
 			break;
 		}
 	}
@@ -329,7 +336,7 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 			//mensaje = client_recibir_mensaje(conexion);
 			pthread_create(&hiloEscucha,NULL,(void*)aplica_funcion_escucha, &conexion);
 			pthread_detach(&hiloEscucha);
-			log_info(logger_gameboy,"SUSCRIPCION A COLA: %s\n", mensaje );
+			log_info(logger_gameboy,"SUSCRIPCION; Suscripcion a cola: %s\n", mensaje );
 			//free(mensaje);
 			i++;
 
@@ -344,7 +351,7 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 
 	}else{
 
-	log_info(logger_gameboy,"NO SE PUDO SUSCRIBIR A LA COLA: %s ", mensaje);
+	log_info(logger_gameboy,"SUSUCRIPCION; No se pudo suscribir a la cola: %s ", mensaje);
 	//log_destroy(logger_gameboy);
 	return conexionOK;
 
@@ -353,7 +360,7 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 
 void delay_suscripcion(int tiempo, int conexion){
 	sleep(tiempo);
-	log_info(logger_gameboy,"FIN DE CONEXION");
+	log_info(logger_gameboy,"SUSCRIPCION; Fin de suscripcion.");
 	liberar_conexion(conexion);
 
 }
