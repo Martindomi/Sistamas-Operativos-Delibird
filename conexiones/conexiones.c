@@ -984,7 +984,7 @@ void guardar_mensaje_get(void* stream, char* nombre, uint32_t id, uint32_t id_co
 void guardar_mensaje_get_memoria(void* stream, char* nombre) {
 	uint32_t name_size = strlen(nombre);
 
-	int tamanio = 0;
+	uint32_t tamanio = 0;
 
 	memcpy(stream + tamanio, &(name_size), sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
@@ -1043,7 +1043,7 @@ puntero_mensaje obtener_mensaje_get_memoria(void* buffer) {
 	uint32_t name_size;
 	char* name_pokemon;
 
-	int desplazamiento = 0;
+	uint32_t desplazamiento = 0;
 
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
