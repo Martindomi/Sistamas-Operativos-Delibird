@@ -6,13 +6,14 @@
 
 int main(int argc, char *argv[]){
 
-	 if(argc != 2) {
-		 //printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
-		 exit(-1);
-	 }
+	//argc=2;
+	if(argc != 2) {
+		//printf("Faltan argumentos, favor correr programa indicando './team [PATH_CONFIG]'\n");
+		exit(-1);
+	}
 
-	 pathConfig = argv[1];
-
+	pathConfig = argv[1];
+	//pathConfig = "./team.config";
 	sem_t esperaSuscripcion;
 	inicializar_config_data();
 
@@ -37,6 +38,7 @@ int main(int argc, char *argv[]){
 	sem_init(&(mutex_caught),0,1);
 	sem_init(&(mutex_recibidos),0,1);
 	sem_init(&mutex_mov_colas_time,0,1);
+	sem_init(&mutex_objetivo,0,1);
 	sem_init(&sem_exit,0,0);
 	sem_init(&(mutex_reconexion),0,1);
 	sem_init(&(sem_fin),0,1);
@@ -49,6 +51,7 @@ int main(int argc, char *argv[]){
 	sem_init((&esperaSuscripcion),0,1);
 	sem_init(&mutex_suscripcion,0,0);
 	sem_init(&sem_entrenador_disponible,0,0);
+	sem_init(&sem_localized_appeared,0,0);
 
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
@@ -81,6 +84,8 @@ int main(int argc, char *argv[]){
 
 	enviar_get_objetivos();
 
+	enviar_localized();
+
 	//esperar_finalizacion_team();
 	pthread_detach(hiloRecibidos);
 	pthread_detach(hiloCaught);
@@ -105,6 +110,18 @@ void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 		pthread_detach((unEntrenador->th));
 		i++;
 	}
+}
+
+void enviar_localized(){
+
+	t_list* lsita_poscines =list_create();
+	int conexiones = crear_conexion(configData->ipBroker,configData->puertoBroker);
+	list_add(lsita_poscines,4);
+	list_add(lsita_poscines,5);
+	send_message_localized_pokemon("Pikachu",0,lsita_poscines,0,1,conexiones);
+	liberar_conexion(conexiones);
+	list_destroy(lsita_poscines);
+
 }
 
 void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
@@ -218,9 +235,11 @@ int aplica_funcion_escucha(int * socket){
 
 void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uint32_t id_correlativo){
 	int cantidad = localizedRecibido->quant_pokemon * 2;
+	int j = 0;
+	t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
+
 	if(cantidad!=0){
-		t_pokemonObjetivo *poke = buscarPokemon(localizedRecibido->name_pokemon);
-		int j = 0;
+
 		for(int i=0;i<cantidad && j<poke->cantidad;i=i+2){
 
 			t_pokemon *pokemon = malloc(sizeof(t_pokemon));
@@ -233,6 +252,7 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 			//printf("adentro de localized\n");
 			log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo = %d Pokemon = %s Posicion = (%d;%d)",id_correlativo, pokemon->especie, pokemon->x, pokemon->y);
 
+
 			sem_wait(&mutex_recibidos);
 			list_add(listaPokemonsRecibidos,pokemon);
 			sem_post(&mutex_recibidos);
@@ -241,8 +261,13 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 		}
 	}else{
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo = %d Pokemon = %s Posicion = Sin locaciones",id_correlativo, localizedRecibido->name_pokemon);
-
+			sem_wait(&mutex_objetivo);
+			poke->diferenciaARecibir++;
+			sem_post(&mutex_objetivo);
 	}
+
+
+
 	free(localizedRecibido->name_pokemon);
 	list_destroy(localizedRecibido->coords);
 	free(localizedRecibido);
@@ -275,6 +300,7 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 
 void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 
+	sem_wait(&sem_localized_appeared);
 	t_pokemon *pokemon = malloc(sizeof(t_pokemon));
 	pokemon->especie=malloc(appearedRecibido->name_size);
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
@@ -284,15 +310,24 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	free(appearedRecibido->name_pokemon);
 	free(appearedRecibido);
 
-	if(poke ==NULL || poke->cantidad <= 0 ){
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. No necesita atrapar pokemon: %s.", pokemon->especie);
+	sem_wait(&mutex_objetivo);
+	if(poke ==NULL || poke->cantidad <= 0 || poke->diferenciaARecibir <= 0){
+		//log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. No necesita atrapar pokemon: %s.", pokemon->especie);
+		sem_post(&mutex_objetivo);
+		sem_post(&sem_localized_appeared);
 		return;
 	}
+	poke->diferenciaARecibir--;
+	sem_post(&mutex_objetivo);
 
 	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. Contenido: Especie = %s, Posicion = (%d;%d)", pokemon->especie, pokemon->x, pokemon ->y);
+
 	sem_wait(&mutex_recibidos);
 	list_add(listaPokemonsRecibidos,pokemon);
+	printf("eniva a lista el pokemon aparecido\n");
 	sem_post(&mutex_recibidos);
 	sem_post(&sem_recibidos);
+
+	sem_post(&sem_localized_appeared);
 }
 

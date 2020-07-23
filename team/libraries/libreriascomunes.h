@@ -117,7 +117,7 @@ typedef struct {
 typedef struct{
 	char* pokemon;
 	int cantidad;
-
+	int diferenciaARecibir;
 }t_pokemonObjetivo;
 
 

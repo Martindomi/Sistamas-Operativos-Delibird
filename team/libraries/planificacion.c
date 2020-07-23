@@ -25,7 +25,8 @@ void main_planificacion_recibidos(){
 		//printf("esperando localized\n");
 		sem_wait(&sem_recibidos);
 		pokemon = list_get(listaPokemonsRecibidos,i);
-		pokemonsObjetivo =list_find(lista_objetivo,(void*)_filterPokemon);
+		//pokemonsObjetivo =list_find(lista_objetivo,(void*)_filterPokemon);
+		pokemonsObjetivo = buscarPokemon(pokemon->especie);
 		if(pokemonsObjetivo->cantidad==NULL){
 
 		}else if(pokemonsObjetivo->cantidad==0){
@@ -46,7 +47,9 @@ void main_planificacion_recibidos(){
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
 				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: NEW -> READY. Motivo: Entrenador se prepara para moverse a la posicion del pokemon a capturar", distancia_new->entrenador->id);
 				//printf("voy a buscar un pokemon\n");
+				sem_wait(&mutex_objetivo);
 				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
+				sem_post(&mutex_objetivo);
 				//pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
 				distancia_new->entrenador->pokemonCapturando = pokemon;
 			}else{
@@ -93,8 +96,12 @@ void main_planificacion_caught(){
 			if(caught->atrapado==OK){
 				//printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);
-				pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
+				//pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
+				pokemonCaputrado = buscarPokemon(entrenador->pokemonCapturando->especie);
+				sem_wait(&mutex_objetivo);
 				pokemonCaputrado->cantidad--;
+				sem_post(&mutex_objetivo);
+
 				entrenador->espacioLibre--;
 				//printf("\nPokemon capturado!\n");
 				//printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
@@ -111,6 +118,11 @@ void main_planificacion_caught(){
 				mover_entrenador_bloqueado_a_exit(entrenador);
 				list_destroy(bloquedVacio);
 			}else{
+				//pokemonCaputrado = list_find(lista_objetivo,(void*)_filterPokemon);
+				pokemonCaputrado = buscarPokemon(entrenador->pokemonCapturando->especie);
+				sem_wait(&mutex_objetivo);
+				pokemonCaputrado->diferenciaARecibir++;
+				sem_post(&mutex_objetivo);
 				//printf("no lo pudo capturar :( :( :( \n");
 			}
 

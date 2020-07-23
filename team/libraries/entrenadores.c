@@ -245,7 +245,9 @@ void crearListaObjetivo(){
 
 	if(lista_objetivo==NULL){
 //		printf("creando lista de todos los objetivos\n");
+		sem_wait(&mutex_objetivo);
 		lista_objetivo=list_create();
+		sem_post(&mutex_objetivo);
 	}
 //	printf("lista de objetivos creada\n");
 
@@ -281,14 +283,16 @@ void agregarPokemonALista(char* pokemon){
 		strcpy(pokemonObjetivo->pokemon,pokemon);
 		//pokemonObjetivo->pokemon = pokemon;
 		pokemonObjetivo->cantidad = 1;
+		pokemonObjetivo->diferenciaARecibir = 1;
 //		printf("%d\n",pokemonObjetivo->cantidad);
+		sem_wait(&mutex_objetivo);
 		list_add(lista_objetivo,pokemonObjetivo);
-
+		sem_post(&mutex_objetivo);
 
 	}else{
 
 		pokemonBuscado->cantidad = pokemonBuscado->cantidad +1;
-
+		pokemonBuscado->diferenciaARecibir++;
 	//	printf("%d\n",pokemonBuscado->cantidad);
 	}
 
@@ -328,9 +332,11 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 		return !strcmp(element->pokemon,pokemon);
 	}
 
+	sem_wait(&mutex_objetivo);
 	t_pokemonObjetivo *poke =list_find(lista_objetivo,(void*)_filterPokemon);
-	 return poke;
+	sem_post(&mutex_objetivo);
 
+	return poke;
 
 }
 
