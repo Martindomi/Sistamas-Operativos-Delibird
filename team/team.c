@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
 
 	enviar_get_objetivos();
 
-	enviar_localized();
+	//enviar_localized();
 
 	//esperar_finalizacion_team();
 	pthread_detach(hiloRecibidos);
@@ -111,7 +111,7 @@ void crear_hilo_entrenadores(t_list* lista_entrenadores) {
 		i++;
 	}
 }
-
+/*
 void enviar_localized(){
 
 	t_list* lsita_poscines =list_create();
@@ -123,7 +123,7 @@ void enviar_localized(){
 	list_destroy(lsita_poscines);
 
 }
-
+*/
 void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
 
 	if(enternador->espacioLibre==0){
