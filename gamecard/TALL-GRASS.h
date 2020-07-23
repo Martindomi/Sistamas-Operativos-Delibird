@@ -24,6 +24,8 @@
 #define AGREGAR 0
 #define MODIFICAR 1
 
+sem_t mutexBitmap;
+
 /*
 #define BLOCK_SIZE "BLOCK_SIZE"
 #define BLOCKS "BLOCKS"

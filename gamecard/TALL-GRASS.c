@@ -51,12 +51,14 @@ int tam_array_bloques(char** bloques) {
 }
 int buscar_block_disponible() {
 	int bloqueLibre;
-	//log_info(logger, "buscando espacio disponible");
+	//log_debug(logger, "BLOQUES: buscando espacio disponible");
+	//sem_wait(&mutexBitmap);
 	for (bloqueLibre = 0;
 			bitarray_test_bit(bitmap, bloqueLibre) && (bloqueLibre < blocks);
 			bloqueLibre++) {
-		//log_info(logger, "el bloque disponible es %i", bloqueLibre);
+	//log_info(logger, "BLOQUES: el bloque disponible es %i", bloqueLibre);
 	}
+	//sem_post(&mutexBitmap);
 	if (bloqueLibre >= blocks)
 		return NO_MORE_BLOCKS;
 	return bloqueLibre;
@@ -70,12 +72,12 @@ int crear_block() {
 				string_from_format("%s/Blocks/%d.bin", ptoMontaje, i),
 				O_CREAT | O_RDWR, 0664);
 		if (block_fd < 0) {
-			log_error(logger, "No se pudo abrir el archivo");
+		//	log_error(logger, "INICIO FILE SYSTEM :: BLOQUES : No se creo el bloque correctamente");
 			exit(1);
 		}
 		close(block_fd);
 	}
-	log_debug(logger, "se crearon %i bloques", i - 1);
+	//log_debug(logger, "INICIO FILE SYSTEM :: BLOQUES: se crearon %i bloques", i - 1);
 	return 1;
 }
 int cantidad_digitos(int numero) {
@@ -87,15 +89,15 @@ int cantidad_digitos(int numero) {
 	return count;
 }
 int validar_existencia_archivo(char*path) {
-	log_debug(logger,
-			"Verificando si existe el archivo %d en el sistema de archivos",
-			path);
+	//log_debug(logger,
+			//"ARCHIVO: Verificando si existe el archivo %d en el sistema de archivos",
+			//path);
 	int archivo_fd = open(path, O_RDWR, 0664);
 	if (archivo_fd < 0) {
-		log_debug(logger, string_from_format("No existe el archivo %s", path));
+		//log_info(logger, string_from_format("ARCHIVO:No existe el archivo %s", path));
 		return false;
 	} else {
-		log_debug(logger, string_from_format("Existe el archivo %s", path));
+		//log_info(logger, string_from_format("ARCHIVO:Existe el archivo %s", path));
 		return true;
 	}
 	close(archivo_fd);
@@ -131,7 +133,7 @@ void agregar_block_al_metadata(int block, char* pathPokemon) {
 }
 void crear_directorio(char*path) {
 	mkdir(path, 0777);
-	log_debug(logger, "se ha creado el directorio %d", path);
+	//log_debug(logger, "INICIO FILE SYSTEM :: DIRECTORIO: Se ha creado el directorio %d", path);
 }
 void crear_metadata_directorio(char* dir) {
 	FILE* directorio = fopen((string_from_format("%s/Metadata.bin", dir)), "a");
@@ -169,14 +171,14 @@ void cerrar_archivo(char*path) {
 
 }
 void iniciar_metadata() {
-	log_debug(logger, "inicializando archivo Metadata");
+	//log_debug(logger, "INICIO FILE SYSTEM :: METADATA: Inicializando archivo Metadata");
 	char*metadata = string_from_format("%s/Metadata/Metadata.bin", ptoMontaje);
 	if (validar_existencia_archivo(metadata)) {
 		t_config* metadataFS = config_create(metadata);
 		int cantBloques = config_get_int_value(metadataFS, "BLOCKS");
 		int sizeBloque = config_get_int_value(metadataFS, "BLOCK_SIZE");
 		if (cantBloques != blocks || sizeBloque != block_size) {
-			log_debug(logger, "Existe un filesystem con valores previos");
+			//log_debug(logger, "INICIO FILE SYSTEM :: METADATA: Existe un filesystem con valores previos en su carpeta Metadata");
 
 		}
 		config_destroy(metadataFS);
@@ -190,17 +192,17 @@ void iniciar_metadata() {
 
 		fclose(archivo);
 
-		log_debug(logger, "Se ha iniciado Metadata correctamente");
+		//log_debug(logger, "INICIO FILE SYSTEM :: METADATA: Se ha iniciado  correctamente");
 	}
 	free(metadata);
 }
 void actualizar_bitmap(bool valor, int pos) {
 	char*pathBitmap = string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje);
-
+	//sem_wait(&mutexBitmap);
 	int bitmap_fd = open(pathBitmap, O_CREAT | O_RDWR, 0664);
 
 	if (bitmap_fd < 0) {
-		log_error(logger, "no se pudo actualizar el archivo bitmap");
+		//log_error(logger, "BITMAP: no se pudo actualizar el archivo bitmap");
 		exit(1);
 	}
 	int length = sizeof(bitmap_fd);
@@ -216,7 +218,8 @@ void actualizar_bitmap(bool valor, int pos) {
 	msync(bitmap_a, bitmap_fd, MS_SYNC);
 	munmap(bitmap_a, blocks);
 	close(bitmap_fd);
-
+	//sem_post(&mutexBitmap);
+	//log_debug(logger,"BITMAP: Se actualizó correctamente el valor de la posicion %i",pos);
 	return;
 }
 void iniciar_bitmap() {
@@ -227,10 +230,11 @@ void iniciar_bitmap() {
 		sizeBitarray++;
 
 	char*pathBitmap = string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje);
+	sem_wait(&mutexBitmap);
 	int bitmap_fd = open(pathBitmap, O_RDWR, 0664);
 
 	if (bitmap_fd < 0) {
-		log_error(logger, "no se pudo abrir el archivo");
+		//log_error(logger, "BITMAP: No se pudo abrir el archivo");
 		bitmap_fd = open(pathBitmap, O_CREAT | O_RDWR, 0664);
 		bitmap = mmap(NULL, sizeBitarray, PROT_WRITE | PROT_READ | PROT_EXEC,
 		MAP_SHARED, bitmap_fd, 0);
@@ -252,28 +256,33 @@ void iniciar_bitmap() {
 	msync(bitmap->bitarray, bitmap_fd, MS_SYNC);
 
 	close(bitmap_fd);
+	sem_post(&mutexBitmap);
 	free(pathBitmap);
+	log_debug(logger,"INICIO FILE SYSTEM :: BITMAP: Se ha inicializado correctamente el bitmap");
 }
 int bitmap_vacio(char*path) {
 	int i;
+	sem_wait(&mutexBitmap);
 	int bitmap_fd = open(path, O_CREAT | O_RDWR, 0664);
 	int sizeBitarray = blocks;
 	while ((sizeBitarray % 8) != 0)
 		sizeBitarray++;
 	ftruncate(bitmap_fd, sizeBitarray);
 	if (bitmap_fd < 0) {
-		log_error(logger, "no se pudo abrir el archivo");
+	//	log_error(logger, "BITMAP: No se puede abrir el archivo");
 		exit(1);
 	}
 	for (i = 0; i < sizeBitarray; i++) {
 		if (bitarray_test_bit(bitmap, i)) {
 			munmap(bitmap, sizeBitarray); //Revisar si ejecuta y libera bitmap
 			close(bitmap_fd);
+			sem_post(&mutexBitmap);
 			return false;
 		}
 	}
 
 	close(bitmap_fd);
+	sem_post(&mutexBitmap);
 	return true;
 }
 void iniciar_files_dir() {
@@ -288,7 +297,7 @@ void iniciar_blocks_dir() {
 			string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje))) {
 		crear_directorio(string_from_format("%s/Blocks", ptoMontaje));
 		crear_block();
-		log_info(logger, "existen valores previos");
+		//log_info(logger, "existen valores previos");
 	}
 }
 void iniciar_metadata_dir() {
@@ -331,384 +340,34 @@ t_configFS* crear_config(int argc, char* argv[]) {
 		if (validar_existencia_archivo(argv[1])) {
 			configTG = levantar_configuracion_filesystem(argv[1]);
 			log_info(logger,
-					"se levanto correctamente la configuracion del filesystem");
+					"INICIO FILE SYSTEM: se levanto correctamente la configuracion del filesystem");
 		} else {
-			log_error(logger,
-					"El path recibido no corresponde a un filesystem en servicio");
+		//	log_error(logger,
+				//	"INICIO FILE SYSTEM: El path recibido no corresponde a un filesystem en servicio");
 		}
 	} else if (validar_existencia_archivo(configuracionFS)) {
 		configTG = levantar_configuracion_filesystem(configuracionFS);
-		log_info(logger, "La configuracion fue levantada correctamente");
+		log_info(logger, "INICIO FILE SYSTEM: La configuracion fue levantada correctamente");
 	} else if (validar_existencia_archivo(
 			string_substring_from(configuracionFS, 3))) {
 		configTG = levantar_configuracion_filesystem(configuracionFS);
-		log_info(logger, "configuracion levantada correctamente");
+		log_info(logger, "INICIO FILE SYSTEM: La configuracion levantada correctamente");
 	} else {
-		log_error(logger, "No se pudo levatar el archivo de configuración");
+		//log_error(logger, "INICIO FILE SYSTEM: No se pudo levatar el archivo de configuración");
 		exit(EXIT_FAILURE);
 	}
 	return configTG;
 }
-
-/*char* tomar_datos_de_block (int nroBlock){
- log_debug(logger,("tomando los datos del block %d",nroBlock));
- FILE* block_f = fopen(string_from_format("%s/Blocks/%d.bin",ptoMontaje,nroBlock), "r");
-
- //calcular_tam_bloque(block_f) (podria tomarlo como una funcion aparte)
-
- int tamBlock;
- char* buffer;
-
- fseek(block_f,0L,SEEK_END);
- tamBlock = ftell (block_f);
- fseek(block_f,0L,SEEK_SET);
-
- buffer = malloc(tamBlock);
- fread(buffer, tamBlock, 1, block_f);
- buffer = string_substring_untill(buffer,tamBlock);
- return buffer;
- }*/
-/*void liberar_blocks(char** blockArr){
- log_debug(logger, "Liberando blocks");
- int i = 0;
- while (blockArr[i] != NULL){
- int bitPos = atoi(blockArr[i]);
- bitarray_clean_bit(bitmap,bitPos);
- i++;
- }
- FILE*bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin",ptoMontaje),"w");
- fwrite(bitmap->bitarray,bitmap->size,1,bitmap_f);
- fclose(bitmap_f);
- log_info(logger,"Se han liberado los blocks del Bitmap");
- }*/
-/*Corregit y quitar Fseek, buscar otra forma
- int tam_ocupado_en_el_block(char*path){
- int tam;
- FILE* block = fopen(path,"r");
- fseek(block,0,SEEK_END);
- if(ftell(block)== NULL){
- tam =0;
- } else {
- tam = ftell(block);
- };
- fclose(block);
- return tam;
- }
- /*Arrastra correccion de tam ocupado*/
-/*Arrastra correccion de tam ocupado*/
-/*Arrastra correccion de tam ocupado*/
-/*¿Deberia cambiar Fopen por open?int crear_block (){
- log_debug(logger,"crear nuevo block");
-
- int i;
- for (i = 0; i< blocks; i++){
-
- FILE* f = fopen(string_from_format("%s/Blocks/%d.bin", ptoMontaje ,i),"w");
- fclose (f);
- log_debug(logger, "se creo el nuevo block: int %d",i);
- }
- log_debug(logger, "No se pudo crear el bloque");
- return 1;
- }*/
-/*Modificar
- void escribir_bloque(char* path, char*mensaje){
- FILE*archivo = fopen(path, "a");
- fseek(archivo,0,SEEK_END);
- fprintf(archivo, mensaje);
- fclose(archivo);
- return;
- }*/
-/*actualizar concepto
- char* bloque_contenedor_linea(int posX,int posY,char* pathPokemon){
- char** bloques = obtener_array_de_bloques(pathPokemon);
- int i;
-
- for(i=0;i<tam_array_bloques(bloques);i++){
-
- char* pathBloque= generar_path_bloque(bloques[i]);
- int tamBloque = tam_ocupado_en_el_block(pathBloque);
-
- FILE*bloque = fopen((pathBloque),"rb");
- fseek(bloque,0,SEEK_SET);
- char stringArchivoEntero[tamBloque] ;
- fread(stringArchivoEntero,tamBloque,1,bloque);
- char*mensaje = string_new();
- string_append(&mensaje, string_from_format("%i-%i=",posX,posY));
-
-
- if(string_contains(stringArchivoEntero,mensaje)){
- log_info(logger,string_from_format("El mensaje se encuentra en el bloque %s",bloques[i]));
- return bloques[i];
- }else{
- log_info(logger,string_from_format("la linea no se encuentra en el bloque %i",i));
- }
- fclose(bloque);
- }
- return NULL;
- }
- actualizar concepto
- int bloque_espacio_en_blocks_libre(int tamEntrada, char* pathPokemon){
- uint i;
- int block;
- char** bloquesPokemon = obtener_array_de_bloques(pathPokemon);
- int j = tam_array_bloques(bloquesPokemon);
-
- log_info(logger, "buscando espacio disponible");
-
- for(i=0;i<=j;i++){
- char*pathBloque = generar_path_bloque(bloquesPokemon[i]);
- int tamBloque =tam_disponible_en_el_block(pathBloque) ;
-
- if(tamEntrada > tamBloque){
- log_info(logger,string_from_format("el bloque %s no tiene espacio disponible",bloquesPokemon[i]));
- char* info1 = bloquesPokemon[i];
- char* info2 = bloquesPokemon[j-1];
-
- if((strcmp(info1,info2)) == 0){
- block =buscar_block_disponible(tamEntrada);
- actualizar_bitmap(1,block);
- agregar_block_al_metadata(block,pathPokemon);
- log_info(logger,string_from_format("se genero el nuevo bloque",block));
- return block;
- }
- }else{
- return block = atoi(bloquesPokemon[i]);
- log_info(logger,string_from_format("El bloque %s tiene espacio disponible para la nueva entrada",bloquesPokemon[i]));
- }
- }
- return block;
- }*/
-/*actualizar concepto
- void mensaje_new_pokemon(int posX,int posY,int cant,char* pokemon){
-
- char*pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
- if(validar_existencia_archivo(pathPokemon)){
- //if(!archivo_abierto(pathPokemon)){
- abrir_archivo(pathPokemon);
- if(verificar_existencia_posiciones(posX,posY,pathPokemon)){
-
- char* bloque = bloque_contenedor_linea(posX,posY,pathPokemon);
- char*pathBloque= generar_path_bloque(bloque);
- modificar_archivo_NEW_POKEMON(posX,posY,cant,pathBloque);
- actualizar_tamanio_archivo(pathPokemon);
-
- }else{
- agregar_mensaje_NEW_POKEMON(posX,posY,cant,pathPokemon);
- }
-
- }else{
- char* mensaje = generar_linea_de_entrada_mensaje(posX,posY,cant);
- crear_files_metadata(pokemon,mensaje);
- }
-
- cerrar_archivo(pathPokemon);
- return;
- }
- actualizar concepto
- void agregar_mensaje_NEW_POKEMON(int posX, int posY, int cant,char*pokemonPath){
- char* entradaMensaje = generar_linea_de_entrada_mensaje(posX,posY,cant);
- int tamEntrada = strlen (entradaMensaje);
- char*pathBloque = generar_path_bloque(string_from_format("%i", bloque_espacio_en_blocks_libre(tamEntrada,pokemonPath)));
- escribir_bloque(pathBloque,entradaMensaje);
- actualizar_tamanio_archivo(pokemonPath);
- return;
- }*/
-/*actualizar concepto
- int verificar_existencia_posiciones(int posX,int posY,char*pathPokemon){
- int i;
- char** bloquesArchivos = obtener_array_de_bloques(pathPokemon);
-
- for(i=0;i<(tam_array_bloques(bloquesArchivos));i++){
-
- char* pathBloque = generar_path_bloque(bloquesArchivos[i]);
- int tamBloque = tam_ocupado_en_el_block(pathBloque);
-
- FILE*bloque = fopen((pathBloque),"rb");
-
-
- fseek(bloque,0,SEEK_SET);
-
- char stringArchivoEntero[tamBloque] ;
- fread(stringArchivoEntero,tamBloque,1,bloque);
- char*mensaje = string_new();
- string_append(&mensaje, string_from_format("%i-%i=",posX,posY));
-
-
- if(string_contains(stringArchivoEntero,mensaje)){
- log_info(logger,string_from_format("El mensaje se encuentra en el bloque %s",bloquesArchivos[i]));
- return true;
- }else{
- log_info(logger,string_from_format("El mensaje no se encuentro en el bloque %s",bloquesArchivos[i]));
- }
-
- log_info(logger,string_from_format("El mensaje no se encuentro en el bloque %s",bloquesArchivos[i]));
- fclose(bloque);
- }
-
- return false;
- }*/
-/*actualizar concepto
- int buscar_posicion_linea_en_bloque(int posX, int posY, char* pathBloque){
- int siguientePos = 0;
- int i;
- FILE* bloque_f = fopen(pathBloque, "rb");
- int tamBloque = tam_ocupado_en_el_block(pathBloque);
-
- for(i=0; i<tamBloque; i=siguientePos){
- char buffer [tamBloque];
-
- fseek(bloque_f,i,SEEK_SET);
- fread(buffer, (tamBloque-i),1,bloque_f);
- char* mensaje = string_new();
- string_append(&mensaje, string_from_format("%i-%i=",posX,posY));
-
- if(!(string_starts_with(buffer,mensaje))){
- int j;
- for(j=i;buffer[j]!='\n'; j++);
- siguientePos = j+1;
- }else{
- fclose(bloque_f);
- return i;
- }
- }
- fclose(bloque_f);
- return -1;
- }*/
-/*actualizar concepto
- void modificar_archivo_NEW_POKEMON(int posX, int posY, int cant,char* pathBloque){
- int pos;
- int j;
- char* linea = string_new();
- char* mensaje = string_new();
- string_append(&mensaje,string_from_format("%i-%i=",posX,posY));
-
- pos = buscar_posicion_linea_en_bloque(posX,posY,pathBloque);
-
- FILE*bloque = fopen(pathBloque,"r+b");
- fseek(bloque,pos,SEEK_SET);
- /*char buffer[tam_ocupado_en_el_block(pathBloque)-pos];
- //fread(buffer,(tam_ocupado_en_el_block(pathBloque)-pos),1,bloque);
- for(j=pos;buffer[j]!='\n'; j++);
- int posCantidad = j;
-
- fgets(linea, block_size, bloque);
-
- int longitudMensaje = string_length(mensaje);
- char* stringCantidad = string_substring_from(linea,longitudMensaje);
- int cantidadActual = atoi (stringCantidad);
-
- int cantidadActualizada = cantidadActual + cant;
-
- int cantidadDigitosActualizada = cantidad_digitos(cantidadActualizada);
- int cantidadDigitosActual = cantidad_digitos(cantidadActual);
-
- if(cantidadDigitosActualizada == cantidadDigitosActual) {
- fseek(bloque,(pos+longitudMensaje),SEEK_SET);
- fputs(string_from_format("%i",cantidadActualizada),bloque);
- } else { // 1-1=1\n => 1-1=10\n
- int posicionBusqueda = (tam_ocupado_en_el_block(pathBloque)-(pos + longitudMensaje + cantidadDigitosActual));
- char buffer[posicionBusqueda-1];
- fseek(bloque,-posicionBusqueda,SEEK_END);
- //fseek(bloque, 0, SEEK_END);
-
- fread(buffer, (posicionBusqueda), 1, bloque);
- printf("buffer %s", buffer);
- fseek(bloque,(pos+longitudMensaje),SEEK_SET);
- /*if(cantidadDigitosActualizada < cantidadDigitosActual) {
- char* mensajeRepetir = string_repeat('\0', cantidadDigitosActual-cantidadDigitosActualizada);
- printf("%s", mensajeRepetir);
- fputs(string_from_format("%i%s%s",cantidadActualizada, buffer, mensajeRepetir),bloque);
- } else {
- fputs(string_from_format("%i%s",cantidadActualizada, buffer),bloque);
- }
-
- printf("%s\n", pathBloque);
-
- }
-
- fclose(bloque);
-
- return;
-
- }*/
-/*int validar_existencia_archivo(char* path){
- log_debug(logger,"Verificando si existe el archivo %d en el sistema de archivos", path);
- FILE* archivo = fopen(path,"r");
- if(archivo!=NULL){
- fclose (archivo);
- return true;
- } else return false;
- }*/
-/*actualizar
- void crear_files_metadata(char* pokemon, char* mensaje){
-
- //
- char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
- //char*pathBloque =generar_path_bloque(string_itoa(bloquePokemon));
-
- //escribir_bloque(pathBloque, mensaje);
- //actualizar_bitmap(1,bloquePokemon);
- crear_directorio(generar_path_directorio_pokemon(pokemon));
-
- FILE* archivo = fopen(pathPokemon,"a");
- fprintf(archivo, string_from_format("DIRECTORY=%s\n","N"));
- char* blocks = string_from_format("BLOCKS=[]\n");
- //char* blocks = string_from_format("BLOCKS=[%d]\n", bloquePokemon);
- fprintf(archivo, blocks);
- //char* pathPokemonMetadata = string_from_format("%s/Metadata.bin", pathPokemon);
- //	fprintf(archivo, string_from_format("SIZE=%i\n", (tam_ocupado_en_el_block(pathBloque))));
- fprintf(archivo, string_from_format("SIZE=0\n"));
- fprintf(archivo, string_from_format("OPEN=%s","N"));
- fclose(archivo);
-
- log_info(logger,string_from_format("El archivo se ha creado exitosamente"));
- return;
- }
-
-
- /*void iniciar_bitmap(){
- log_debug(logger, "Iniciando Bitmap");
-
- int sizeBitarray = blocks;
- while((sizeBitarray%8)!=0) sizeBitarray++;
-
- char*pathBitmap = string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje);
- if(validar_existencia_archivo(pathBitmap)){
- FILE* bitmap_f = fopen(pathBitmap, "rb");
-
- struct stat stats;
- fstat(fileno(bitmap_f),&stats);
-
- char* data =malloc(stats.st_size);
- fread(data,stats.st_size,1,bitmap_f);
- fclose(bitmap_f);
-
- bitmap = bitarray_create_with_mode(data,stats.st_size,LSB_FIRST);
- }else {
- bitmap = bitarray_create_with_mode(string_repeat('\0',sizeBitarray),sizeBitarray,LSB_FIRST);
-
- FILE* bitmap_f = fopen(string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje),"w");
- fwrite(bitmap->bitarray,sizeBitarray,1,bitmap_f);
- fclose(bitmap_f);
- }
- }
- char leer_ultima_pos_archivo (char*path){
- FILE*archivo = fopen(path,"rb");
- fseek(archivo,-1,SEEK_END);
- char ultimo = fgetc(archivo);
- fclose(archivo);
- return ultimo;
- }*/
-
-//Nuevos desarrollos
 void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 	int tamanioMensaje = strlen(mensaje);
 	char*pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
+	sem_wait(&mutexBitmap);
 	int bloquePokemon = buscar_block_disponible(tamanioMensaje);
 	char* pathBloque = generar_path_bloque(string_itoa(bloquePokemon));
 
-	escribir_mensaje_en_block(bloquePokemon, mensaje, AGREGAR);
 	actualizar_bitmap(1, bloquePokemon);
+	sem_post(&mutexBitmap);
+	escribir_mensaje_en_block(bloquePokemon, mensaje, AGREGAR);
 	crear_directorio(generar_path_directorio_pokemon(pokemon));
 
 	FILE* archivo = fopen(pathPokemon, "a");
@@ -722,7 +381,7 @@ void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 					(tamanio_ocupado_bloque(pathBloque))));
 	fprintf(archivo, string_from_format("OPEN=%s", "N"));
 	fclose(archivo);
-
+	log_debug(logger,"NEW_POKEMON: Se ha creado el archivo para el pokemon %s",pokemon);
 	return;
 }
 void quitar_bloque_de_metadata(char*path, char* bloque) {
@@ -750,8 +409,8 @@ void vaciar_bloque(char* bloque) {
 	char* pathBloque = generar_path_bloque(bloque);
 	int bloque_fd = open(pathBloque, O_RDWR, 0664);
 	if (bloque_fd < 0) {
-		log_error(logger,
-				string_from_format("No se pudo abrir el bloque %i", bloque));
+		//log_error(logger,
+			//	string_from_format("No se pudo abrir el bloque %i", bloque));
 		exit(1);
 	}
 	ftruncate(bloque_fd, block_size);
@@ -766,11 +425,14 @@ void vaciar_bloque(char* bloque) {
 	free(cadenaVacia);
 }
 void liberar_bloque(char* bloque, char*pathPokemon) {
+	sem_wait(&mutexBitmap);
 	vaciar_bloque(bloque);
 	actualizar_bitmap(0, atoi(bloque));
 	quitar_bloque_de_metadata(pathPokemon, bloque);
+	sem_post(&mutexBitmap);
 
 }
+
 int tamanio_real_archivo(char*pathPokemon) {
 	t_config* configArchivo = config_create(pathPokemon);
 	int tam = config_get_int_value(configArchivo, "SIZE");
@@ -792,11 +454,11 @@ int tam_disponible_en_bloque(char*path) {
 	int tamDisponiblePrevio = size - tamOcupado;
 
 	if (tamDisponiblePrevio < 0) {
-		log_debug(logger, "no tiene espacio disponible");
+		log_debug(logger, "BLOCKS: no tiene espacio disponible");
 	} else {
 		tamDisponible = tamDisponiblePrevio;
 		log_debug(logger,
-				string_from_format("el bloque tiene %i bytes disponibles",
+				string_from_format("BLOCKS: el bloque tiene %i bytes disponibles",
 						tamDisponible));
 	}
 	return tamDisponible;
@@ -828,8 +490,8 @@ void escribir_mensaje_en_block(int bloque, char* mensaje, int accion) {
 
 	int bloque_fd = open(pathBloque, O_RDWR, 0664);
 	if (bloque_fd < 0) {
-		log_error(logger,
-				string_from_format("No se pudo abrir el bloque %i", bloque));
+		//log_error(logger,
+			//	string_from_format("No se pudo abrir el bloque %i", bloque));
 		exit(1);
 	}
 
@@ -841,7 +503,7 @@ void escribir_mensaje_en_block(int bloque, char* mensaje, int accion) {
 
 		if (tamOcupado == 0) {
 			memcpy(mensajeArchivo1, mensaje, tamMensaje + tamOcupado);
-			printf("%s", mensajeArchivo1);
+			//printf("%s", mensajeArchivo1);
 		} else {
 			struct stat stats;
 			stat(pathBloque, &stats);
@@ -874,8 +536,10 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 	int tamArray = tam_array_bloques(bloques);
 
 	if (tamArray == 0) {
+		sem_wait(&mutexBitmap);
 		int bloqueNuevo = buscar_block_disponible();
 		actualizar_bitmap(1, bloqueNuevo);
+		sem_post(&mutexBitmap);
 		escribir_mensaje_en_block(bloqueNuevo, mensaje, AGREGAR);
 		agregar_block_al_metadata(bloqueNuevo, pathPokemon);
 		actualizar_tamanio_archivo(pathPokemon);
@@ -893,8 +557,10 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 					(tamDisponible));
 			escribir_mensaje_en_block(atoi(bloques[tamArray - 1]),
 					mensajeBloqueFinal, AGREGAR);
+			sem_wait(&mutexBitmap);
 			int bloqueNuevo = buscar_block_disponible();
 			actualizar_bitmap(1, bloqueNuevo);
+			sem_post(&mutexBitmap);
 			char* mensajeBloqueNuevo = string_substring_from(mensaje,
 					tamDisponible);
 			escribir_mensaje_en_block(bloqueNuevo, mensajeBloqueNuevo, AGREGAR);
@@ -956,8 +622,10 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 			int h;
 
 			for (h = 0; h <= (cantBloques - tamArray); h++) {
+				sem_wait(&mutexBitmap);
 				int nuevoBloque = buscar_block_disponible();
 				actualizar_bitmap(1, nuevoBloque);
+				sem_post(&mutexBitmap);
 				char*mensajePorBloque = string_new();
 				if ((tamContenido - j) < block_size) {
 					char* contenidoMuletita = string_substring_from(contenido,
@@ -1073,21 +741,24 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 								cantidad_digitos(cantActual)));
 
 				tratar_contenido_en_bloques(contenidoFinal, pathPokemon);
+				actualizar_tamanio_archivo(pathPokemon);
 			} else {
 				agregar_nuevo_mensaje(mensaje, pathPokemon);
 			}
-			printf("Cerrar archivo %d\n", tiempo_retardo_operacion);
+			//printf("Cerrar archivo %d\n", tiempo_retardo_operacion);
 			sleep(tiempo_retardo_operacion);
+			log_info(logger,"NEW_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
 			cerrar_archivo(pathPokemon);
 		} else {
-			printf("Reintenta operacion\n");
+			//printf("Reintenta operacion\n");
 			sleep(tiempo_de_reintento_operacion);
 			tratar_mensaje_NEW_POKEMON(posX,posY,cant,pokemon);
 		}
 	} else {
-		printf("No existe archivo\n");
+		//printf("No existe archivo\n");
 		char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
 		crear_archivo_pokemon_metadata(pokemon, mensaje);
+		log_info(logger,"NEW_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
 		sleep(tiempo_retardo_operacion);
 	}
 
@@ -1181,12 +852,13 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 				tratar_contenido_en_bloques(contenidoFinal, pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
 				sleep(tiempo_retardo_operacion);
+				log_info(logger,"CATCH_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
 				cerrar_archivo(pathPokemon);
 				return "OK";
 
 			}
 			log_error(logger,
-					"No hay ningun pokemon %s en la posicion %i-%i solicitada",
+					"CATCH_POKEMON: No hay ningun pokemon %s en la posicion %i-%i solicitada",
 					pokemon, posX, posY);
 			return "FAIL";
 		} else {
@@ -1195,7 +867,7 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 		}
 	} else {
 		log_error(logger,
-				"No existe el pokemon %s dentro del sistema de archivos",
+				"CATCH_POKEMON; No existe el pokemon %s dentro del sistema de archivos",
 				pokemon);
 		return "FAIL";
 	}
@@ -1215,7 +887,7 @@ t_list* tratar_mensaje_GET_POKEMON(char*pokemon) {
 			int bloque_fd = open(pathBloque, O_RDWR, 0664);
 
 			if (bloque_fd < 0) {
-				log_error(logger, "No se pudo abrir el archivo");
+				//log_error(logger, "No se pudo abrir el archivo");
 				error(1);
 			}
 			struct stat stats;
@@ -1259,7 +931,7 @@ t_list* tratar_mensaje_GET_POKEMON(char*pokemon) {
 		tratar_mensaje_GET_POKEMON(pokemon);
 	}
 	} else {
-		log_error(logger, "No existe el pokemon %s dentro del file system",
+		log_error(logger, "GET_POKEMON: No existe el pokemon %s dentro del file system",
 				pokemon);
 		list_clean(listadoPos);
 		return listadoPos;
