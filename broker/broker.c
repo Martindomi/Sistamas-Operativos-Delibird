@@ -669,6 +669,8 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				punteroParticionObtenido->ocupada = true;
 				punteroParticionObtenido->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
 				punteroParticionObtenido->lruHora = time(NULL);
+				list_clean(punteroParticionObtenido->suscriptores_ack);
+				list_clean(punteroParticionObtenido->suscriptores_enviados);
 
 				printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 				printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -728,6 +730,8 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			punteroMejorParticion->ocupada = true;
 			punteroMejorParticion->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
 			punteroMejorParticion->lruHora = time(NULL);
+			list_clean(punteroMejorParticion->suscriptores_ack);
+			list_clean(punteroMejorParticion->suscriptores_enviados);
 
 			printf("Puntero Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
 			printf("Posicion Mensaje: %d\n", (char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -1097,6 +1101,8 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					//punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
 					punteroParticionObtenido->tamanoMensaje = tamanioNecesario;
 					punteroParticionObtenido->lruHora = time(NULL);
+					list_clean(punteroParticionObtenido->suscriptores_ack);
+					list_clean(punteroParticionObtenido->suscriptores_enviados);
 
 					printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 					printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -1181,6 +1187,8 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 				//particionMasChica->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
 				particionMasChica->tamanoMensaje = tamanioNecesario;
 				particionMasChica->lruHora = time(NULL);
+				list_clean(particionMasChica->suscriptores_ack);
+				list_clean(particionMasChica->suscriptores_enviados);
 
 				printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
 				printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);

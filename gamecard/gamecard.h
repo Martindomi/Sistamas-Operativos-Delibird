@@ -17,3 +17,4 @@ int aplica_funcion_escucha(int * socket);
 
 
 t_dictionary* dicSemaforos;
+sem_t semDict;
