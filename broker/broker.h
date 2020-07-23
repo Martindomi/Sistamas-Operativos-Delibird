@@ -118,8 +118,6 @@ bool primer_puntero_ocupado(void* elemento);
 bool primer_puntero_desocupado(void* elemento);
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion);
 uint32_t calcular_tamano(char* memoriaActual, char* memoriaNueva);
-uint32_t convertir_decimal(uint32_t decimal);
-uint32_t convertir_hexadecimal_decimal(char* hexadecimal);
 bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
 void manejo_dump_cache(int num);
 void esperar_mensaje_ack(puntero_ack punteroAck);
