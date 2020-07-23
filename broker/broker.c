@@ -268,7 +268,6 @@ void* distribuir_mensajes(void* puntero_cola) {
 void distribuir_mensajes_cola(int cola) {
 	puntero_mensaje puntero_mensaje;
 	t_cola_mensaje* cola_mensajes = selecciono_cola(cola);
-	puntero_suscriptor suscriptor;
 	// TODO Mejorar manejo de error
 	if (cola_mensajes == -1) {
 		pthread_exit(NULL);
@@ -278,30 +277,36 @@ void distribuir_mensajes_cola(int cola) {
 	for(int i = 0; i < list_size(cola_mensajes->mensajes); i++) {
 		puntero_mensaje = list_get(cola_mensajes->mensajes, i);
 
-		// OBTENGO CADA SUSCRIPTOR DE UN MENSAJE
-		for(int j = 0; j < list_size(cola_mensajes->suscriptores) ;j++) {
-			suscriptor = list_get(cola_mensajes->suscriptores, j);
+		envio_mensaje(puntero_mensaje, cola, cola_mensajes);
 
-			punteroParticion punteroParticionMensaje = buscar_particion_mensaje(puntero_mensaje->id);
+	}
+}
 
-			bool encuentra_suscriptor(void* elemento) {
-				return strcmp((char*)elemento, suscriptor->cliente) == 0;
-			}
-			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
-			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
-			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
-			if (!encontre) {
-				printf("Distribucion a %s\n", suscriptor->cliente);
-				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
-				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
-				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
-				// SI NO ESTA, LO AGREGO
-				if(!enviado) {
-					list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
-				}
+void envio_mensaje(puntero_mensaje puntero_mensaje, int cola, t_cola_mensaje* cola_mensajes) {
+	puntero_suscriptor suscriptor;
+
+	// OBTENGO CADA SUSCRIPTOR DE UN MENSAJE
+	for(int j = 0; j < list_size(cola_mensajes->suscriptores) ;j++) {
+		suscriptor = list_get(cola_mensajes->suscriptores, j);
+
+		punteroParticion punteroParticionMensaje = buscar_particion_mensaje(puntero_mensaje->id);
+
+		bool encuentra_suscriptor(void* elemento) {
+			return strcmp((char*)elemento, suscriptor->cliente) == 0;
+		}
+		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
+		if (!encontre) {
+			printf("Distribucion a %s\n", suscriptor->cliente);
+			distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
+			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
+			// SI NO ESTA, LO AGREGO
+			if(!enviado) {
+				list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
 			}
 		}
-
 	}
 }
 
@@ -417,7 +422,9 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 	printf("RECIBE %s\n", mensaje_recibido);
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
-		list_add(punteroParticionEncontrado->suscriptores_ack, punteroAck->suscriptor);
+		if(punteroParticionEncontrado != NULL) {
+			list_add(punteroParticionEncontrado->suscriptores_ack, punteroAck->suscriptor);
+		}
 	}
 
 	free(mensaje_recibido);
@@ -848,6 +855,11 @@ void eliminar_particion_seleccionada(int index) {
 		puntero_mensaje punteroMensaje = list_get(cola->mensajes, j);
 
 		if(punteroParticionEliminar->id == punteroMensaje->id) {
+
+			sem_wait(&mutexDistribucion);
+			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
+			sem_post(&mutexDistribucion);
+
 			free(list_get(cola->mensajes, j));
 			list_remove(cola->mensajes, j);
 			break;
@@ -1371,6 +1383,10 @@ void bs_eliminar_particion_fifo(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
+				sem_wait(&mutexDistribucion);
+				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
+				sem_post(&mutexDistribucion);
+
 				free(list_get(cola->mensajes, j));
 				list_remove(cola->mensajes, j);
 			}
@@ -1427,6 +1443,10 @@ void bs_eliminar_particion_lru(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
+				sem_wait(&mutexDistribucion);
+				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
+				sem_post(&mutexDistribucion);
+
 				free(list_get(cola->mensajes, j));
 				list_remove(cola->mensajes, j);
 			}
