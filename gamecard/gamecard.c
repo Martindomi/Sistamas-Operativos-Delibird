@@ -49,6 +49,9 @@ int main (int argc, char *argv[]) {
 	block_size = config_get_int_value(config,"BLOCK_SIZE");
 	blocks = config_get_int_value(config,"BLOCKS");*/
 
+	dicSemaforos = dictionary_create();
+	sem_init(&(mutexBitmap),0,1);
+
 	iniciar_filesystem();
 
 		/*sem_init(&(sem_colas_no_vacias),0,0);
@@ -85,7 +88,7 @@ int main (int argc, char *argv[]) {
 
 
 
-	log_destroy(logger);
+	//log_destroy(logger);
 	//liberar_conexion(conexion);
 	sleep(50000);
 }
@@ -112,10 +115,8 @@ int aplica_funcion_escucha(int * socket){
 		char* el = (char*) elemento;
 		return strcmp(el, string_itoa(mensajeRecibido->id_correlativo)) == 0;
 	}
-	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
-	//if(conexion == -1){
-	//	return -1;
-	//}
+	int conexion;
+
 	switch(cod_op){
 	case MESSAGE:
 
@@ -126,45 +127,32 @@ int aplica_funcion_escucha(int * socket){
 
 	case NEW_POKEMON:
 		mensajeRecibido = recibir_new_pokemon(*socket, size);
-		puntero_mensaje_new_pokemon newRecibido = mensajeRecibido->mensaje_cuerpo;
-		tratar_mensaje_NEW_POKEMON(newRecibido->pos_x,newRecibido->pos_y,newRecibido->quant_pokemon,newRecibido->name_pokemon);
-		send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
-		mensaje = client_recibir_mensaje(conexion);
-		free(mensajeRecibido);
-		free(mensaje);
+		pthread_t hiloMensajeNewPokemon;
+		pthread_create(&hiloMensajeNewPokemon,NULL,funcion_NEW_POKEMON,mensajeRecibido);
+		pthread_detach(hiloMensajeNewPokemon);
 		break;
 
 
 	case CATCH_POKEMON:
 		mensajeRecibido = recibir_catch_pokemon(*socket, size);
-		puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
-		char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
-		printf("respuesta %s\n", respuesta);
-		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
-		mensaje = client_recibir_mensaje(conexion);
-		free(mensajeRecibido);
-		free(mensaje);
+		pthread_t hiloMensajeCatchPokemon;
+		pthread_create(&hiloMensajeCatchPokemon,NULL,funcion_CATCH_POKEMON,mensajeRecibido);
+		pthread_detach(hiloMensajeCatchPokemon);
+
 		break;
 
 	case GET_POKEMON:
 
 		mensajeRecibido = recibir_get_pokemon(*socket, size);
-		puntero_mensaje_get_pokemon getRecibido = mensajeRecibido->mensaje_cuerpo;
-		t_list* listadoPosiciones = tratar_mensaje_GET_POKEMON(getRecibido->name_pokemon);
-		for(int i = 0; i<list_size(listadoPosiciones); i++ ) {
-			printf("ITEM %d\n", list_get(listadoPosiciones, i));
-		}
-		uint32_t cantidadPos = (list_size(listadoPosiciones)/2);
-		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPosiciones,0,mensajeRecibido->id,conexion);
-		mensaje = client_recibir_mensaje(conexion);
-		free(mensajeRecibido);
-		free(mensaje);
-	    free(listadoPosiciones);
+		pthread_t hiloMensajeGetPokemon;
+		pthread_create(&hiloMensajeGetPokemon,NULL,funcion_GET_POKEMON,mensajeRecibido);
+		pthread_detach(hiloMensajeGetPokemon);
+
 
 		break;
 	}
 
-	liberar_conexion(conexion);
+
 
 
 	return 0;
@@ -180,3 +168,94 @@ int aplica_funcion_escucha(int * socket){
 
 }
 
+void funcion_NEW_POKEMON(puntero_mensaje mensajeRecibido){
+	puntero_mensaje_new_pokemon newRecibido = mensajeRecibido->mensaje_cuerpo;
+	printf("creacion de semaforo \n");
+	if(!dictionary_has_key(dicSemaforos, newRecibido->name_pokemon)){
+		sem_t asd;
+		printf("No encontro la clave\n");
+		sem_init((&asd),0,1);
+		printf("cual rompe? incio semaforo\n");
+		dictionary_put(dicSemaforos,newRecibido->name_pokemon, &asd);
+		printf("Se creo la clave\n");
+	}
+	sem_t* semaforoNewPokemon = (sem_t*)dictionary_get(dicSemaforos,newRecibido->name_pokemon);
+	sem_wait(semaforoNewPokemon);
+	printf("sem wait\n");
+	tratar_mensaje_NEW_POKEMON(newRecibido->pos_x,newRecibido->pos_y,newRecibido->quant_pokemon,newRecibido->name_pokemon);
+	sem_post(semaforoNewPokemon);
+	printf("paso sem_post\n");
+	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
+	char*mensaje;
+	printf("Conexion %i\n",conexion);
+	if(conexion != -1){
+		send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
+		mensaje = client_recibir_mensaje(conexion);
+		free(mensaje);
+	}else{
+		printf("entro en el else\n");
+		log_info(logger,"MENSAJE :: CONEXION:No se encontro conexion con proceso broker");
+	}
+	printf("salioc del else\n");
+	free(mensajeRecibido);
+	liberar_conexion(conexion);
+}
+
+void funcion_CATCH_POKEMON(puntero_mensaje mensajeRecibido){
+	puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
+	printf("creacion de semaforo \n");
+	if(!dictionary_has_key(dicSemaforos, catchRecibido->name_pokemon)){
+		sem_t asd;
+		printf("No encontro la clave\n");
+		sem_init((&asd),0,1);
+		printf("cual rompe? incio semaforo\n");
+		dictionary_put(dicSemaforos,catchRecibido->name_pokemon, &asd);
+		printf("Se creo la clave\n");
+	}
+	sem_t* semaforoCatchPokemon =(sem_t*) dictionary_get(dicSemaforos,catchRecibido->name_pokemon);
+	sem_wait(semaforoCatchPokemon);
+	printf("sem wait\n");
+	char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
+	sem_post(semaforoCatchPokemon);
+	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
+	char* mensaje;
+	if(conexion != -1){
+		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
+		mensaje = client_recibir_mensaje(conexion);
+		free(mensaje);
+	}else{
+		log_info(logger,"MENSAJE :: CONEXION:No se encontro conexion con proceso broker");
+	}
+	free(mensajeRecibido);
+	liberar_conexion(conexion);
+}
+
+void funcion_GET_POKEMON(puntero_mensaje mensajeRecibido){
+	puntero_mensaje_get_pokemon getRecibido = mensajeRecibido->mensaje_cuerpo;
+	if(!dictionary_has_key(dicSemaforos, getRecibido->name_pokemon)){
+			sem_t asd;
+			printf("No encontro la clave\n");
+			sem_init((&asd),0,1);
+			printf("cual rompe? incio semaforo\n");
+			dictionary_put(dicSemaforos,getRecibido->name_pokemon, &asd);
+			printf("Se creo la clave\n");
+		}
+	sem_t* semaforoGetPokemon = (sem_t*)dictionary_get(dicSemaforos,getRecibido->name_pokemon);
+	sem_wait(semaforoGetPokemon);
+	printf("sem wait\n");
+	t_list* listadoPosiciones = tratar_mensaje_GET_POKEMON(getRecibido->name_pokemon);
+	sem_post(semaforoGetPokemon);
+	uint32_t cantidadPos = (list_size(listadoPosiciones)/2);
+	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
+	char* mensaje;
+	if(conexion != -1){
+		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPosiciones,0,mensajeRecibido->id,conexion);
+		mensaje = client_recibir_mensaje(conexion);
+		free(mensaje);
+	}else{
+		log_info(logger,"MENSAJE :: CONEXION:No se encontro conexion con proceso broker");
+	}
+	free(mensajeRecibido);
+	free(listadoPosiciones);
+	liberar_conexion(conexion);
+}

@@ -19,6 +19,8 @@ typedef struct {
 } t_info;
 t_info* informacion;
 
+
+
 char* ACK;
 char* ptoMontaje;
 int block_size;
