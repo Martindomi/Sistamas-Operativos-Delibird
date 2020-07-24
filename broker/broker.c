@@ -261,7 +261,7 @@ void* distribuir_mensajes(void* puntero_cola) {
 		distribuir_mensajes_cola(cola);
 
 		sem_post(&mutexDistribucion);
-		sleep(10);
+		sleep(15);
 	}
 }
 

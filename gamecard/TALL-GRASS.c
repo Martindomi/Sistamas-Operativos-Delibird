@@ -696,9 +696,20 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 	char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
+	//sem_t* semaforoNewPokemon = (sem_t*)dictionary_get(dicSemaforos, pokemon);
+
+	//sem_wait(semaforoNewPokemon);
+
 	if (validar_existencia_archivo(pathPokemon)) {
+		//sem_post(semaforoNewPokemon);
+
+
 		if (!archivo_abierto(pathPokemon)) {
+			//sem_wait(semaforoNewPokemon);
+
 			abrir_archivo(pathPokemon);
+			//sem_post(semaforoNewPokemon);
+
 			//char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
 			int i = 0;
 			char* contenidoBloques = string_new();
@@ -765,18 +776,29 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 			//printf("Cerrar archivo %d\n", tiempo_retardo_operacion);
 			sleep(tiempo_retardo_operacion);
 			log_info(logger,"NEW_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
+			//sem_wait(semaforoNewPokemon);
+
 			cerrar_archivo(pathPokemon);
+			//sem_post(semaforoNewPokemon);
+
 		} else {
 			//printf("Reintenta operacion\n");
+			//sem_post(semaforoNewPokemon);
+
 			sleep(tiempo_de_reintento_operacion);
 			tratar_mensaje_NEW_POKEMON(posX,posY,cant,pokemon);
+
 		}
 	} else {
 		//printf("No existe archivo\n");
 		//char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
+
 		crear_archivo_pokemon_metadata(pokemon, mensaje);
-		log_info(logger,"NEW_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
 		sleep(tiempo_retardo_operacion);
+		//sem_post(semaforoNewPokemon);
+
+		log_info(logger,"NEW_POKEMON: Se ha modificado el contenido del archivo %s",pokemon);
+
 	}
 	free(mensaje);
 }
