@@ -1,0 +1,139 @@
+
+[INFO] 21:27:09:900 GAMECARD/(8554:8554): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:29:30:725 GAMECARD/(8603:8603): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:31:48:889 GAMECARD/(8653:8653): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:32:36:914 GAMECARD/(8679:8679): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:32:37:49 GAMECARD/(8679:8682): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:32:47:49 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:32:49:597 GAMECARD/(8679:8686): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:32:54:601 GAMECARD/(8679:8686): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:32:57:50 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:07:52 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:17:60 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:27:62 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:29:133 GAMECARD/(8679:8693): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:33:29:134 GAMECARD/(8679:8693): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:33:37:63 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:47:65 GAMECARD/(8679:8682): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:33:47:320 GAMECARD/(8679:8699): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:03:22:966 GAMECARD/(9697:9697): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:03:23:168 GAMECARD/(9697:9702): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:07:30:303 GAMECARD/(9854:9854): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:07:30:459 GAMECARD/(9854:9858): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:09:45:811 GAMECARD/(9931:9931): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:09:46:237 GAMECARD/(9931:9935): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:15:45:813 GAMECARD/(10089:10089): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:15:46:250 GAMECARD/(10089:10092): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:16:50:536 GAMECARD/(10149:10149): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:16:50:716 GAMECARD/(10149:10154): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:16:53:886 GAMECARD/(10149:10156): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:16:58:915 GAMECARD/(10149:10156): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:17:00:718 GAMECARD/(10149:10154): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:17:10:720 GAMECARD/(10149:10154): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:17:17:945 GAMECARD/(10149:10162): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:17:17:949 GAMECARD/(10149:10162): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:17:20:721 GAMECARD/(10149:10154): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:17:23:738 GAMECARD/(10149:10164): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:17:23:739 GAMECARD/(10149:10164): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:18:36:894 GAMECARD/(10208:10208): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:18:37:222 GAMECARD/(10208:10213): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:18:42:956 GAMECARD/(10208:10215): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:18:47:224 GAMECARD/(10208:10213): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:18:47:961 GAMECARD/(10208:10215): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:18:52:968 GAMECARD/(10208:10217): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:18:52:969 GAMECARD/(10208:10217): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:18:57:225 GAMECARD/(10208:10213): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:19:07:225 GAMECARD/(10208:10213): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:19:17:226 GAMECARD/(10208:10213): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:23:38:153 GAMECARD/(10377:10377): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:23:38:157 GAMECARD/(10377:10379): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:23:48:161 GAMECARD/(10377:10379): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:23:58:164 GAMECARD/(10377:10379): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:24:06:757 GAMECARD/(10377:10386): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:24:06:761 GAMECARD/(10377:10386): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:24:08:165 GAMECARD/(10377:10379): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:24:11:759 GAMECARD/(10377:10390): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:24:11:767 GAMECARD/(10377:10390): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:24:18:167 GAMECARD/(10377:10379): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:13:51:631 GAMECARD/(11513:11513): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:13:52:910 GAMECARD/(11513:11516): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:13:56:541 GAMECARD/(11513:11520): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:14:01:575 GAMECARD/(11513:11520): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:14:02:914 GAMECARD/(11513:11516): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:14:06:609 GAMECARD/(11513:11522): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:14:06:611 GAMECARD/(11513:11522): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:14:12:919 GAMECARD/(11513:11516): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:08:00:194 GAMECARD/(7587:7587): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:08:00:413 GAMECARD/(7587:7591): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:08:10:413 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:08:20:414 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:08:30:414 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:08:37:136 GAMECARD/(7587:7616): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:08:40:421 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:08:42:140 GAMECARD/(7587:7616): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:08:50:422 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:09:00:422 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:09:04:836 GAMECARD/(7587:7649): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:09:04:837 GAMECARD/(7587:7649): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:09:10:120 GAMECARD/(7587:7591): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:10:23:115 GAMECARD/(7907:7907): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:10:23:116 GAMECARD/(7907:7909): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:10:33:117 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:10:34:127 GAMECARD/(7907:7913): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:10:34:127 GAMECARD/(7907:7913): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:10:43:117 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:10:43:175 GAMECARD/(7907:7927): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:10:43:176 GAMECARD/(7907:7927): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:10:53:118 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:11:00:180 GAMECARD/(7907:7938): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:11:00:181 GAMECARD/(7907:7938): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:11:03:123 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:11:13:124 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:11:21:555 GAMECARD/(7907:7983): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:11:21:557 GAMECARD/(7907:7983): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:11:23:125 GAMECARD/(7907:7909): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:12:43:193 GAMECARD/(8034:8034): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:12:43:796 GAMECARD/(8034:8040): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:12:48:685 GAMECARD/(8034:8043): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:12:53:691 GAMECARD/(8034:8043): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:12:53:799 GAMECARD/(8034:8040): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:13:01:763 GAMECARD/(8034:8045): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:13:01:769 GAMECARD/(8034:8045): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:13:03:801 GAMECARD/(8034:8040): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:13:13:802 GAMECARD/(8034:8040): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:20:01:552 GAMECARD/(8558:8558): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:20:02:681 GAMECARD/(8558:8561): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:20:29:924 GAMECARD/(8567:8567): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:20:30:804 GAMECARD/(8567:8571): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:20:35:649 GAMECARD/(8567:8579): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:20:40:655 GAMECARD/(8567:8579): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:20:40:809 GAMECARD/(8567:8571): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:20:47:268 GAMECARD/(8567:8581): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:20:50:811 GAMECARD/(8567:8571): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:20:53:763 GAMECARD/(8567:8584): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:20:53:768 GAMECARD/(8567:8584): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:32:08:712 GAMECARD/(9282:9282): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:32:09:362 GAMECARD/(9282:9287): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:34:29:953 GAMECARD/(9433:9433): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:34:30:733 GAMECARD/(9433:9439): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[ERROR] 21:34:36:419 GAMECARD/(9433:9442): CATCH_POKEMON; No existe el pokemon Pikachu dentro del sistema de archivos
+[INFO] 21:34:36:421 GAMECARD/(9433:9442): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:34:40:738 GAMECARD/(9433:9439): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:36:42:393 GAMECARD/(9752:9752): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:36:42:968 GAMECARD/(9752:9756): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:36:45:837 GAMECARD/(9752:9758): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:36:50:853 GAMECARD/(9752:9758): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:36:52:971 GAMECARD/(9752:9756): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:36:56:4 GAMECARD/(9752:9761): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:36:56:12 GAMECARD/(9752:9761): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:37:02:973 GAMECARD/(9752:9756): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:37:03:960 GAMECARD/(9752:9763): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:46:11:149 GAMECARD/(10243:10243): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 21:46:11:955 GAMECARD/(10243:10247): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 21:46:16:562 GAMECARD/(10243:10249): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:46:21:569 GAMECARD/(10243:10249): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:46:21:961 GAMECARD/(10243:10247): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 21:46:26:701 GAMECARD/(10243:10251): CATCH_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 21:46:26:708 GAMECARD/(10243:10251): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:46:31:730 GAMECARD/(10243:10255): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 21:46:31:963 GAMECARD/(10243:10247): RECONEXION; FALLIDA, se realiza un nuevo intento
