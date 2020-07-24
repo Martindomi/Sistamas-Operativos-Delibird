@@ -63,6 +63,7 @@ void esperar_cliente(int socket_servidor)
 void serve_client(int* socket)
 {
 	op_code cod_op;
+	log_info(loggerBroker,"Se conecto un proceso al broker");
 	if(recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL) == -1)
 		cod_op = -1;
 	process_request(cod_op, *socket);
@@ -93,6 +94,10 @@ void process_request(int cod_op, int socket) {
 
 			list_add(new_pokemon->mensajes, mensaje_completo);
 
+			char* logMensajeNewPokemon = "Llega un mensaje a la cola de NEW_POKEMON";
+
+			log_info(loggerBroker, logMensajeNewPokemon);
+
 			sem_post(&mutexLista[NEW_POKEMON]);
 			break;
 		}
@@ -107,6 +112,9 @@ void process_request(int cod_op, int socket) {
 				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(appeared_pokemon->mensajes, mensaje_completo);
+				char* logMensajeAppearedPokemon = "Llega un mensaje a la cola de APPEARED_POKEMON";
+				log_info(loggerBroker,logMensajeAppearedPokemon);
+
 			} else {
 				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
 				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
@@ -125,6 +133,9 @@ void process_request(int cod_op, int socket) {
 
 			list_add(catch_pokemon->mensajes, mensaje_completo);
 
+			char* logMensajeCatchPokemon = "Llega un mensaje a la cola de CATCH_POKEMON";
+			log_info(loggerBroker,logMensajeCatchPokemon);
+
 			sem_post(&mutexLista[CATCH_POKEMON]);
 			break;
 		}
@@ -139,6 +150,10 @@ void process_request(int cod_op, int socket) {
 				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(caught_pokemon->mensajes, mensaje_completo);
+
+				char* logMensajeCaughtPokemon = "Llega un mensaje a la cola de CAUGHT_POKEMON";
+				log_info(loggerBroker,logMensajeCaughtPokemon);
+
 			} else {
 				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
 				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
@@ -157,6 +172,9 @@ void process_request(int cod_op, int socket) {
 
 			list_add(get_pokemon->mensajes, mensaje_completo);
 
+			char* logMensajeGetPokemon = "Llega un mensaje a la cola de GET_POKEMON";
+			log_info(loggerBroker,logMensajeGetPokemon);
+
 			sem_post(&mutexLista[GET_POKEMON]);
 			break;
 		}
@@ -171,6 +189,10 @@ void process_request(int cod_op, int socket) {
 				asignar_memoria(mensaje_completo, cod_op);
 
 				list_add(localized_pokemon->mensajes, mensaje_completo);
+
+				char* logMensajeLocalizedPokemon = "Llega un mensaje a la cola de LOCALIZED_POKEMON";
+				log_info(loggerBroker,logMensajeLocalizedPokemon);
+
 			} else {
 				char* mensaje_ya_respondido = "MENSAJE YA RESPONDIDO";
 				devolver_mensaje(mensaje_ya_respondido, strlen(mensaje_ya_respondido) + 1, socket);
@@ -188,8 +210,30 @@ void process_request(int cod_op, int socket) {
 
 			agregar_suscriptor_cola(mensaje_suscripcion, socket);
 
+			//-----------------------------------
+			char* proceso;
+			proceso = mensaje_suscripcion->cliente;
+			//printf("Proceso %s\n",proceso);
+			//int cola = (int)mensaje_suscripcion->cola;
+			//char* colaString = string_itoa(cola);
+
+			char* colaString = nombre_cola(mensaje_suscripcion->cola);
+			//printf("colaString2 %s\n",colaString);
+
+			char str[80];
+			strcpy(str, "El proceso ");
+			strcat(str, proceso);
+			strcat(str, " se suscribe a la cola ");
+			strcat(str, colaString);
+
+			char* logSuscripcion = str;
+
+			log_info(loggerBroker, logSuscripcion);
+
+			//---------------------
 			char* suscripcion_aceptada = "SUSCRIPCION COMPLETADA";
 			devolver_mensaje(suscripcion_aceptada, strlen(suscripcion_aceptada) + 1, socket);
+			log_info(loggerBroker, "SUSCRIPCION COMPLETADA");
 
 			sem_wait(&mutexAsignarMemoria);
 			enviar_mensajes_memoria(mensaje_suscripcion, socket);
@@ -292,7 +336,9 @@ void distribuir_mensajes_cola(int cola) {
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			if (!encontre) {
 				printf("Distribucion a %s\n", suscriptor->cliente);
+
 				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
+
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 				// SI NO ESTA, LO AGREGO
@@ -515,6 +561,30 @@ t_cola_mensaje* selecciono_cola(int cola) {
 	}
 }
 
+char* nombre_cola(int cola){
+	switch(cola) {
+		case NEW_POKEMON: {
+			return "NEW_POKEMON";
+		}
+		case APPEARED_POKEMON: {
+			return "APPEARED_POKEMON";
+		}
+		case GET_POKEMON: {
+			return "GET_POKEMON";
+		}
+		case LOCALIZED_POKEMON: {
+			return "LOCALIZED_POKEMON";
+		}
+		case CATCH_POKEMON: {
+			return "CATCH_POKEMON";
+		}
+		case CAUGHT_POKEMON: {
+			return "CAUGHT_POKEMON";
+		}
+		default: return "NO_ASIGNADA";
+	}
+}
+
 void creacion_hilos_distribucion(int lista_colas[]) {
     for(int j= 0; j < THREAD_POOL; j++) {
     	int* puntero_cola = malloc(sizeof(puntero_cola));
@@ -675,7 +745,25 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 				printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
 				printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
+
+				log_info(loggerBroker,"Se ingresa un mensaje en la memoria");
+
+				char* posInicioParticion = string_itoa(i);
+				char* posInicioParticionMemoria = string_itoa((char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
+
+				char str[80];
+				strcpy(str, "Posicion del mensaje, en las particiones: ");
+				strcat(str, posInicioParticion);
+
+				char str2[80];
+				strcpy(str2, "Posicion de inicio del mensaje, en la memoria: ");
+				strcat(str2, posInicioParticionMemoria);
+
+				log_info(loggerBroker,str);
+				log_info(loggerBroker,str2);
+
 				ver_estado_memoria();
+
 				return punteroParticionObtenido->punteroMemoria;
 			}
 		}
@@ -736,6 +824,23 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			printf("Puntero Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
 			printf("Posicion Mensaje: %d\n", (char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
 			printf("Tamanio Mensaje: %d\n", punteroMejorParticion->tamanoMensaje);
+
+			log_info(loggerBroker,"Se ingresa un mensaje en la memoria");
+
+			//char* posInicioParticion = string_itoa(i);
+			char* posInicioParticionMemoria = string_itoa((char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+
+			//char str[80];
+			//strcpy(str, "Posicion del mensaje, en las particiones: ");
+			//strcat(str, posInicioParticion);
+
+			char str2[80];
+			strcpy(str2, "Posicion de inicio del mensaje, en la memoria: ");
+			strcat(str2, posInicioParticionMemoria);
+
+			//log_info(loggerBroker,str);
+			log_info(loggerBroker,str2);
+
 			return punteroMejorParticion->punteroMemoria;
 		}
 	}
@@ -746,6 +851,7 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 
 void compactar_memoria() {
 	printf("Compacta memoria\n");
+	log_info(loggerBroker,"Compactación de particiones ...");
 	punteroParticion punteroParticionDesocupada = NULL;
 	punteroParticion punteroParticionOcupada = NULL;
 
@@ -853,6 +959,15 @@ void eliminar_particion_seleccionada(int index) {
 			break;
 		}
 	}
+
+	char str[80];
+	strcpy(str, "Se elimina el mensaje de ID: ");
+	strcat(str, string_itoa(punteroParticionEliminar->id));
+	strcat(str, " y su posicion en las particiones era: ");
+	strcat(str, string_itoa(index));
+
+	log_info(loggerBroker,str);
+
 }
 
 void intercambio_particiones(punteroParticion punteroParticionDesocupada,
@@ -872,6 +987,7 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 
 void consolidar(int indexEliminado) {
 	printf("Entra consolidar\n");
+	log_info(loggerBroker,"Consolidacion de particiones ...");
 	punteroParticion punteroParticionEliminada;
 	if(indexEliminado == NULL) {
 		punteroParticionEliminada = list_find(particiones, primer_puntero_desocupado);
@@ -936,6 +1052,18 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 			if (!encontre) {
 				printf("Distribucion MEMORIA a %s\n", mensajeSuscripcion->cliente);
 				printf("Posicion de particion %p\n", punteroParticionMensaje->punteroMemoria);
+
+				char* suscriptorSinEnviarMensaje = mensajeSuscripcion->cliente;
+				char* colaAsociada = nombre_cola(mensajeSuscripcion->cola);
+				char str[80];
+				strcpy(str, "Se le envia al suscriptor ");
+				strcat(str, suscriptorSinEnviarMensaje);
+				strcat(str, " un mensaje de la cola ");
+				strcat(str, colaAsociada);
+
+				char* logSuscriptorEspecifico = str;
+				log_info(loggerBroker,logSuscriptorEspecifico);
+
 				puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
 				puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
 				suscriptor->cliente = mensajeSuscripcion->cliente;
@@ -1107,6 +1235,24 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
 					printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
 					printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+
+					log_info(loggerBroker,"Se ingresa un mensaje en la memoria");
+
+					char* posInicioParticion = string_itoa(i);
+					char* posInicioParticionMemoria = string_itoa((char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
+
+					char str[80];
+					strcpy(str, "Posicion del mensaje, en las particiones: ");
+					strcat(str, posInicioParticion);
+
+					char str2[80];
+					strcpy(str2, "Posicion de inicio del mensaje, en la memoria: ");
+					strcat(str2, posInicioParticionMemoria);
+
+					log_info(loggerBroker,str);
+					log_info(loggerBroker,str2);
+
+
 					ver_estado_memoria();
 					return punteroParticionObtenido->punteroMemoria;
 				}
@@ -1193,6 +1339,23 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 				printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
 				printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
 				printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
+
+				log_info(loggerBroker,"Se ingresa un mensaje en la memoria");
+
+				char* posInicioParticion = string_itoa(indexParticionMasChica);
+				char* posInicioParticionMemoria = string_itoa((char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
+
+				char str[80];
+				strcpy(str, "Posicion del mensaje, en las particiones: ");
+				strcat(str, posInicioParticion);
+
+				char str2[80];
+				strcpy(str2, "Posicion de inicio del mensaje, en la memoria: ");
+				strcat(str2, posInicioParticionMemoria);
+
+				log_info(loggerBroker,str);
+				log_info(loggerBroker,str2);
+
 				ver_estado_memoria();
 				return particionMasChica->punteroMemoria;
 			}
@@ -1263,10 +1426,12 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 
 void bs_consolidar(){
 	printf("Consolidar\n");
+
 	// voy a repetir la consolidacion hasta que
 	// no haya mas cambios
 	int cambios;
 	do{
+		log_info(loggerBroker,"Consolidacion de particiones");
 		cambios = 0;
 		for(int i = 0; i < list_size(particiones); i++) {
 			int indexBuddyIzq = i;
@@ -1286,6 +1451,22 @@ void bs_consolidar(){
 					if((buddyIzq->izq == true) && (buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada) && (tamanioBuddyIzq == tamanioBuddyDer)){
 
 						printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
+
+						char* str[80];
+						strcpy(str,"Hay dos buddys de tamaño: ");
+						strcat(str,string_itoa(buddyIzq->tamanoMensaje));
+
+						char* str2[80];
+						strcpy(str2,"El buddy Izquierdo se encuentra en la posicion: ");
+						strcat(str2,string_itoa(indexBuddyIzq));
+
+						char* str3[80];
+						strcpy(str3,"El buddy Derecho se encuentra en la posicion: ");
+						strcat(str3,string_itoa(indexBuddyDer));
+
+						log_info(loggerBroker,str);
+						log_info(loggerBroker,str2);
+						log_info(loggerBroker,str3);
 
 						// "UNIFICO" los buddys
 						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
@@ -1320,6 +1501,18 @@ void bs_consolidar(){
 						list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
 						list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
 						printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
+
+						char* str4[80];
+						strcpy(str4,"Ahora hay un buddy de tamaño: ");
+						strcat(str4,string_itoa(buddyIzq->tamanoMensaje));
+
+						char* str5[80];
+						strcpy(str5,"El buddy consolidado se encuentra en la posicion: ");
+						strcat(str5,string_itoa(indexBuddyIzq));
+
+						log_info(loggerBroker, str4);
+						log_info(loggerBroker, str5);
+
 						cambios++;
 						//ver_estado_memoria();
 						break; // detiene el for para que no se buguee la lista
@@ -1375,6 +1568,16 @@ void bs_eliminar_particion_fifo(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+
+		char str[80];
+		strcpy(str, "Se elimina el mensaje de ID: ");
+		strcat(str, string_itoa(punteroParticionMenorId->id));
+		strcat(str, " y su posicion en las particiones era: ");
+		strcat(str, string_itoa(index));
+
+		log_info(loggerBroker,str);
+
+
 		printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
 		punteroParticionMenorId->id = NULL;
 		punteroParticionMenorId->colaMensaje = NULL;
@@ -1431,6 +1634,15 @@ void bs_eliminar_particion_lru(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+
+		char str[80];
+		strcpy(str, "Se elimina el mensaje de ID: ");
+		strcat(str, string_itoa(punteroParticionLru->id));
+		strcat(str, " y su posicion en las particiones era: ");
+		strcat(str, string_itoa(index));
+
+		log_info(loggerBroker,str);
+
 		punteroParticionLru->id = NULL;
 		punteroParticionLru->colaMensaje = NULL;
 	}
@@ -1568,4 +1780,7 @@ void manejo_dump_cache(int num) {
 	fprintf(dump, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
 	fclose(dump);
+
+	log_info(loggerBroker, "Se solicito la ejecucion del dump de la cache");
+
 }
