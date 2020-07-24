@@ -1,0 +1,17 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dump: 21/07/2020 01:47:16
+Particion 0: 0x9db4500 - 0x9db4503.	[X]	Size: 4b	LRU: 01:47:05	Cola: CAUGHT_POKEMON	ID: 1
+Particion 1: 0x9db4504 - 0x9db4507.	[X]	Size: 4b	LRU: 01:47:05	Cola: CAUGHT_POKEMON	ID: 2
+Particion 2: 0x9db4508 - 0x9db451a.	[X]	Size: 19b	LRU: 01:46:56	Cola: CATCH_POKEMON	ID: 3
+Particion 3: 0x9db451b - 0x9db452e.	[X]	Size: 20b	LRU: 01:46:58	Cola: CATCH_POKEMON	ID: 4
+Particion 4: 0x9db452f - 0x9db453e.	[X]	Size: 16b	LRU: 01:47:01	Cola: CATCH_POKEMON	ID: 5
+Particion 5: 0x9db453f - 0x9db453f.	[L]	Size: 1b	LRU: 01:47:01	Cola: NO_ASIGNADA	ID: 0
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dump: 21/07/2020 01:47:31
+Particion 0: 0x9db4500 - 0x9db4503.	[X]	Size: 4b	LRU: 01:47:05	Cola: CAUGHT_POKEMON	ID: 1
+Particion 1: 0x9db4504 - 0x9db4507.	[X]	Size: 4b	LRU: 01:47:05	Cola: CAUGHT_POKEMON	ID: 2
+Particion 2: 0x9db4508 - 0x9db451b.	[X]	Size: 20b	LRU: 01:46:58	Cola: CATCH_POKEMON	ID: 4
+Particion 3: 0x9db451c - 0x9db452b.	[X]	Size: 16b	LRU: 01:47:01	Cola: CATCH_POKEMON	ID: 5
+Particion 4: 0x9db452c - 0x9db453f.	[X]	Size: 20b	LRU: 01:47:27	Cola: CATCH_POKEMON	ID: 6
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -81,6 +81,7 @@ typedef t_ack* puntero_ack;
 int mensajes_nuevos();
 void distribuir_mensajes_cola(int cola);
 t_cola_mensaje* selecciono_cola(int cola);
+char* nombre_cola(int cola);
 void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo, punteroParticion punteroParticion);
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
