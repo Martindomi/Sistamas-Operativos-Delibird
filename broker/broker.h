@@ -51,7 +51,7 @@ typedef struct {
 	uint32_t tamanoMensaje;
 	t_list* suscriptores_enviados;
 	t_list* suscriptores_ack;
-	time_t lruHora;
+	uint32_t lruHora;
 } t_particion;
 typedef t_particion* punteroParticion;
 
@@ -123,6 +123,7 @@ uint32_t convertir_hexadecimal_decimal(char* hexadecimal);
 bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
 void manejo_dump_cache(int num);
 void esperar_mensaje_ack(puntero_ack punteroAck);
+uint32_t obtener_milisegundos();
 
 int cantidad_mensajes;
 

@@ -492,7 +492,7 @@ void inicializar_datos() {
 	particionInicial->tamanoMensaje = calcular_tamano(tamanoMemoria, 0);
 	particionInicial->suscriptores_ack = list_create();
 	particionInicial->suscriptores_enviados = list_create();
-	particionInicial->lruHora = time(NULL);
+	particionInicial->lruHora = obtener_milisegundos();
 	list_add(particiones, particionInicial);
 	punteroMemoriaFinal = (char*)punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
 	printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
@@ -663,7 +663,7 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 						calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
 				nuevaParticion->suscriptores_ack = list_create();
 				nuevaParticion->suscriptores_enviados = list_create();
-				nuevaParticion->lruHora = time(NULL);
+				nuevaParticion->lruHora = obtener_milisegundos();
 				list_add(particiones, nuevaParticion);
 				printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
 				printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -675,7 +675,7 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				punteroParticionObtenido->idCorrelativo = mensajeCompleto->id_correlativo;
 				punteroParticionObtenido->ocupada = true;
 				punteroParticionObtenido->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
-				punteroParticionObtenido->lruHora = time(NULL);
+				punteroParticionObtenido->lruHora = obtener_milisegundos();
 				list_clean(punteroParticionObtenido->suscriptores_ack);
 				list_clean(punteroParticionObtenido->suscriptores_enviados);
 
@@ -724,7 +724,7 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 					calcular_tamano((char*) mensajeCompleto->size_mensaje_cuerpo, 0);
 			nuevaParticion->suscriptores_ack = list_create();
 			nuevaParticion->suscriptores_enviados = list_create();
-			nuevaParticion->lruHora = time(NULL);
+			nuevaParticion->lruHora = obtener_milisegundos();
 			list_add(particiones, nuevaParticion);
 			printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
 			printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -736,7 +736,7 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			punteroMejorParticion->idCorrelativo = mensajeCompleto->id_correlativo;
 			punteroMejorParticion->ocupada = true;
 			punteroMejorParticion->tamanoMensaje = calcular_tamano((char*)mensajeCompleto->size_mensaje_cuerpo, 0);
-			punteroMejorParticion->lruHora = time(NULL);
+			punteroMejorParticion->lruHora = obtener_milisegundos();
 			list_clean(punteroMejorParticion->suscriptores_ack);
 			list_clean(punteroMejorParticion->suscriptores_enviados);
 
@@ -834,8 +834,7 @@ int eliminar_particion_lru() {
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticion = list_get(particiones, i);
 		if(punteroParticion->ocupada) {
-			double seconds = difftime(punteroParticion->lruHora, punteroParticionLru->lruHora);
-			if(seconds <= 0) {
+			if(punteroParticion->lruHora <= punteroParticionLru->lruHora) {
 				punteroParticionLru = punteroParticion;
 				index = i;
 			}
@@ -975,7 +974,7 @@ void actualizar_lru_mensaje(uint32_t idMensaje) {
 		return particion->id == idMensaje;
 	}
 	punteroParticion particionEncontrada = list_find(particiones, encuentra_mensaje_con_id);
-	particionEncontrada->lruHora = time(NULL);
+	particionEncontrada->lruHora = obtener_milisegundos();
 }
 
 puntero_mensaje obtener_mensaje_memoria(punteroParticion particion) {
@@ -1112,7 +1111,7 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					punteroParticionObtenido->ocupada = true;
 					//punteroParticionObtenido->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
 					punteroParticionObtenido->tamanoMensaje = tamanioNecesario;
-					punteroParticionObtenido->lruHora = time(NULL);
+					punteroParticionObtenido->lruHora = obtener_milisegundos();
 					list_clean(punteroParticionObtenido->suscriptores_ack);
 					list_clean(punteroParticionObtenido->suscriptores_enviados);
 
@@ -1198,7 +1197,7 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 				particionMasChica->ocupada = true;
 				//particionMasChica->tamanoMensaje = mensajeCompleto->size_mensaje_cuerpo;
 				particionMasChica->tamanoMensaje = tamanioNecesario;
-				particionMasChica->lruHora = time(NULL);
+				particionMasChica->lruHora = obtener_milisegundos();
 				list_clean(particionMasChica->suscriptores_ack);
 				list_clean(particionMasChica->suscriptores_enviados);
 
@@ -1239,7 +1238,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		particionInicial->tamanoMensaje = particionInicial->tamanoMensaje / 2;
 		particionInicial->izq = true;
 		particionInicial->der = false;
-		particionInicial->lruHora = time(NULL);
+		particionInicial->lruHora = obtener_milisegundos();
 		printf("Crea particion izquierda\n");
 
 		// particion derecha
@@ -1250,7 +1249,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		nuevaParticion->ocupada = false;
 		nuevaParticion->izq = false;
 		nuevaParticion->der = true;
-		nuevaParticion->lruHora = time(NULL);
+		nuevaParticion->lruHora = obtener_milisegundos();
 		nuevaParticion->historicoBuddy = list_duplicate(particionInicial->historicoBuddy);
 		list_add(nuevaParticion->historicoBuddy,"D");
 
@@ -1301,7 +1300,7 @@ void bs_consolidar(){
 
 						// "UNIFICO" los buddys
 						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
-						buddyIzq->lruHora = time(NULL);
+						buddyIzq->lruHora = obtener_milisegundos();
 						buddyIzq->id = NULL;
 						buddyIzq->colaMensaje = NULL;
 						// analizo si el buddy que consolidé
@@ -1420,9 +1419,8 @@ void bs_eliminar_particion_lru(){
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticion = list_get(particiones, i);
 		if(punteroParticion->ocupada) {
-			double seconds = difftime(punteroParticion->lruHora, punteroParticionLru->lruHora);
 			//printf("seconds: %f\n",seconds);
-			if(seconds <= 0) {
+			if(punteroParticion->lruHora <= punteroParticionLru->lruHora) {
 				punteroParticionLru = punteroParticion;
 				index = i;
 			}
@@ -1541,15 +1539,19 @@ void ver_estado_memoria() {
 	}
 }
 
+uint32_t obtener_milisegundos() {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	uint32_t a1 = (int64_t)(tv.tv_sec) * 1000;
+	uint32_t a2 = (tv.tv_usec);
+	return a1 + a2;
+}
+
 void guardar_estado_memoria(FILE* file) {
 	t_list* listaParticiones = list_sorted(particiones, ordernar_particiones_memoria);
 	for(int j = 0; j < list_size(listaParticiones); j++) {
 		punteroParticion particion = list_get(listaParticiones, j);
-		char fecha[50];
-		struct tm* timeinfo;
-		//time(&particion->lruHora);
-		timeinfo = localtime(&particion->lruHora);
-		strftime(fecha, 50, "%H:%M:%S", timeinfo);
+
 		char* ocupada = particion->ocupada ? "X" : "L";
 		char* cola;
 		switch(particion->colaMensaje) {
@@ -1561,8 +1563,8 @@ void guardar_estado_memoria(FILE* file) {
 			case CAUGHT_POKEMON: cola = "CAUGHT_POKEMON"; break;
 			default: cola = "NO_ASIGNADA"; break;
 		}
-		fprintf(file, string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %s	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
-				(char*)particion->punteroMemoria + particion->tamanoMensaje - 1, ocupada, particion->tamanoMensaje, fecha, cola, particion->id));
+		fprintf(file, string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %d	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
+				(char*)particion->punteroMemoria + particion->tamanoMensaje - 1, ocupada, particion->tamanoMensaje, particion->lruHora, cola, particion->id));
 	}
 }
 
