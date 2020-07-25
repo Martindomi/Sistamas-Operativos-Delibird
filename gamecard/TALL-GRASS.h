@@ -78,7 +78,7 @@ void iniciar_metadata_dir();
 void montar_punto_montaje();
 void iniciar_filesystem();
 t_configFS* levantar_configuracion_filesystem(char* archivo);
-t_configFS* crear_config(int argc, char* argv[]);
+void crear_config(int argc, char* argv[]);
 void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje);
 void quitar_bloque_de_metadata(char*path, char* bloque);
 void vaciar_bloque(char* bloque);

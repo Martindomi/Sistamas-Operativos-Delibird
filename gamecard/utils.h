@@ -40,7 +40,7 @@ bool seCreoHiloReconexion;
 sem_t mutex_boolReconexion; // 	sem_init(&mutex_boolReconexion,0,1);
 sem_t mutex_reconexion;// 	sem_init(&(mutex_reconexion),0,1);
 sem_t mutex_suscripcion; //	sem_init(&mutex_suscripcion,0,0);
-
+sem_t mutex_end;
 void _reintentar_conexion(char* path);
 void crear_hilo_escucha_suscripcion(int conexion);
 bool suscribirse_a_colas(char* path);

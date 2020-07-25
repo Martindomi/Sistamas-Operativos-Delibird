@@ -8,6 +8,9 @@
 
 int main (int argc, char *argv[]) {
 
+	sem_init(&mutex_end, 0, 0);
+	signal(SIGINT, post_semaforo);
+
 	informacion = malloc(sizeof(t_info));
 	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
 	int idGamecardSize = strlen(config_get_string_value(config, "ID_GAMECARD"))+1;
@@ -41,7 +44,8 @@ int main (int argc, char *argv[]) {
 	tiempo_de_reintento_operacion = config_get_int_value(config,"TIEMPO_DE_REINTENTO_OPERACION");
 	tiempo_retardo_operacion = config_get_int_value(config,"TIEMPO_RETARDO_OPERACION");
 
-	t_configFS* configTG= crear_config(argc,argv);
+	//t_configFS* configTG= crear_config(argc,argv);
+	crear_config(argc,argv);
 	ptoMontaje = configTG->ptoMontaje;
 	block_size = configTG->block_size;
 	blocks = configTG->blocks;
@@ -87,11 +91,14 @@ int main (int argc, char *argv[]) {
 		crear_hilo_reconexion("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
 	}
 
+	pthread_t threadExit;
+	pthread_create(&threadExit, NULL, liberar_memoria, NULL);
+	pthread_join(threadExit, NULL);
 
 
 	//log_destroy(logger);
 	//liberar_conexion(conexion);
-	sleep(50000);
+	//sleep(50000);
 }
 
 int aplica_funcion_escucha(int * socket){
@@ -198,6 +205,7 @@ void funcion_NEW_POKEMON(puntero_mensaje mensajeRecibido){
 		log_info(logger,"MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 	}
 	//printf("salioc del else\n");
+	free(newRecibido);
 	free(mensajeRecibido);
 	liberar_conexion(conexion);
 }
@@ -229,6 +237,7 @@ void funcion_CATCH_POKEMON(puntero_mensaje mensajeRecibido){
 	}else{
 		log_info(logger,"MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 	}
+	free(catchRecibido);
 	free(mensajeRecibido);
 	liberar_conexion(conexion);
 }
@@ -260,7 +269,35 @@ void funcion_GET_POKEMON(puntero_mensaje mensajeRecibido){
 	}else{
 		log_info(logger,"MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 	}
+	free(getRecibido);
 	free(mensajeRecibido);
 	free(listadoPosiciones);
 	liberar_conexion(conexion);
+}
+void liberar_memoria() {
+	sem_wait(&mutex_end);
+	free(informacion->idGamecard);
+	free(informacion->ipBroker);
+	free(informacion->ipGamecard);
+	free(informacion->puertoBroker);
+	free(informacion->puertoGamecard);
+	free(informacion);
+	config_destroy(config);
+	log_destroy(logger);
+	free(configTG->ptoEscucha);
+	free(configTG->ptoMontaje);
+	free(configTG);
+	void eliminar_semaforos(void* el) {
+		sem_t* sem = (sem_t*) el;
+		sem_destroy(sem);
+	}
+	dictionary_destroy_and_destroy_elements(dicSemaforos, eliminar_semaforos);
+	liberar_conexion(socketEscucha);
+	liberar_conexion(socketSuscripcion);
+	bitarray_destroy(bitmap);
+	exit(0);
+}
+
+void post_semaforo() {
+	sem_post(&mutex_end);
 }
