@@ -1,6 +1,5 @@
 #include "TALL-GRASS.h"
 
-
 /*---------------Generadores de strings (paths y mensajes)--------------------*/
 char* generar_linea_de_entrada_mensaje(int posX, int posY, int cant) {
 	char* entradaMensaje = string_new();
@@ -55,9 +54,8 @@ t_configFS* levantar_configuracion_filesystem(char* archivo) {
 	t_config* configuracion = config_create(archivo);
 
 	configTG->ptoEscucha = malloc(
-			strlen(
-					config_get_string_value(configuracion,
-							"PUERTO_BROKER")) + 1);
+			strlen(config_get_string_value(configuracion, "PUERTO_BROKER"))
+					+ 1);
 	strcpy(configTG->ptoEscucha,
 			config_get_string_value(configuracion, "PUERTO_BROKER"));
 
@@ -66,13 +64,11 @@ t_configFS* levantar_configuracion_filesystem(char* archivo) {
 					config_get_string_value(configuracion,
 							"PUNTO_MONTAJE_TALLGRASS")) + 1);
 	strcpy(configTG->ptoMontaje,
-			config_get_string_value(configuracion,
-					"PUNTO_MONTAJE_TALLGRASS"));
+			config_get_string_value(configuracion, "PUNTO_MONTAJE_TALLGRASS"));
 
 	//if(!string_ends_with(configTG->ptoMontaje,"/")) string_append(&configTG->ptoMontaje,"/");
 
-	configTG->block_size = config_get_int_value(configuracion,
-			"BLOCK_SIZE");
+	configTG->block_size = config_get_int_value(configuracion, "BLOCK_SIZE");
 	configTG->blocks = config_get_int_value(configuracion, "BLOCKS");
 
 	config_destroy(configuracion);
@@ -186,7 +182,8 @@ void iniciar_bitmap() {
 			"INICIO FILE SYSTEM :: BITMAP: Se ha inicializado correctamente el bitmap");
 }
 void iniciar_files_dir() {
-	char* pathDirectorio = string_from_format("%s/Files/Metadata.bin", ptoMontaje);
+	char* pathDirectorio = string_from_format("%s/Files/Metadata.bin",
+			ptoMontaje);
 	if (!validar_existencia_archivo(pathDirectorio)) {
 		char* pathAux = string_from_format("%s/Files", ptoMontaje);
 		crear_directorio(pathAux);
@@ -199,13 +196,13 @@ void iniciar_blocks_dir() {
 	char* pathAux = string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje);
 	if (bitmap_vacio(pathAux)) {
 		char* pathBloques = string_from_format("%s/Blocks", ptoMontaje);
-				crear_directorio(pathBloques);
-				crear_block();
-				//log_info(logger, "existen valores previos");
+		crear_directorio(pathBloques);
+		crear_block();
+		//log_info(logger, "existen valores previos");
 		free(pathBloques);
-		}
-	free(pathAux);
 	}
+	free(pathAux);
+}
 
 /*------------------------Creación de directorios ------------------------------*/
 void crear_directorio(char*path) {
@@ -213,7 +210,7 @@ void crear_directorio(char*path) {
 	//log_debug(logger, "INICIO FILE SYSTEM :: DIRECTORIO: Se ha creado el directorio %d", path);
 }
 void crear_metadata_directorio(char* dir) {
-	char* path =(string_from_format("%s/Metadata.bin", dir));
+	char* path = (string_from_format("%s/Metadata.bin", dir));
 	FILE* directorio = fopen(path, "a");
 	fputs(("DIRECTORY=%s\n", "Y"), directorio);
 	//fputs((string_from_format("DIRECTORY=%s\n", "Y")), directorio);
@@ -227,8 +224,9 @@ int crear_block() {
 
 	int i;
 	for (i = 0; i < blocks; i++) {
-		char* pathBloque =string_from_format("%s/Blocks/%d.bin", ptoMontaje, i);
-		int block_fd = open(pathBloque,O_CREAT | O_RDWR, 0664);
+		char* pathBloque = string_from_format("%s/Blocks/%d.bin", ptoMontaje,
+				i);
+		int block_fd = open(pathBloque, O_CREAT | O_RDWR, 0664);
 		if (block_fd < 0) {
 			//	log_info(logger, "INICIO FILE SYSTEM :: BLOQUES : No se creo el bloque correctamente");
 			exit(1);
@@ -509,23 +507,19 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 	int posY = newRecibido->pos_y;
 	int cant = newRecibido->quant_pokemon;
 	char* pokemon = newRecibido->name_pokemon;
-
+	bool pudoTratar = false;
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 	char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
 
-	sem_t* semaforoNewPokemon = (sem_t*)dictionary_get(dicSemaforos, pokemon);
+	sem_t* semaforoNewPokemon = (sem_t*) dictionary_get(dicSemaforos, pokemon);
 
 	sem_wait(semaforoNewPokemon);
 
 	if (validar_existencia_archivo(pathPokemon)) {
-		sem_post(semaforoNewPokemon);
 
-		sem_wait(semaforoNewPokemon);
 		if (!archivo_abierto(pathPokemon)) {
 
-
 			abrir_archivo(pathPokemon);
-			sem_post(semaforoNewPokemon);
 
 			//char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
 			int i = 0;
@@ -552,8 +546,7 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 				free(pathBloque);
 				close(bloque_fd);
 			}
-			char*mensajeCorto = string_from_format("%i-%i=", posX,
-					posY);
+			char*mensajeCorto = string_from_format("%i-%i=", posX, posY);
 			if (string_contains(contenidoBloques, mensajeCorto)) {
 				int i;
 				int siguientePos = 0;
@@ -562,8 +555,7 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 						siguientePos) {
 					char*stringComparar = string_substring_from(
 							contenidoBloques, i);
-					if (!(string_starts_with(stringComparar,
-							mensajeCorto))) {
+					if (!(string_starts_with(stringComparar, mensajeCorto))) {
 						int j;
 						for (j = 0; stringComparar[j] != '\n'; j++)
 							;
@@ -572,25 +564,22 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 						break;
 					}
 				}
-				char* stringCant = string_substring_from(
-						contenidoBloques,
+				char* stringCant = string_substring_from(contenidoBloques,
 						(i + string_length(mensajeCorto)));
-				char** listaDeContenidosTotal = string_n_split(
-						stringCant, 2, "\n");
+				char** listaDeContenidosTotal = string_n_split(stringCant, 2,
+						"\n");
 				int cantActual = atoi(listaDeContenidosTotal[0]);
 				int nuevaCantidad = cant + cantActual;
 				char*contenidoFinal = string_new();
 				string_append(&contenidoFinal,
 						string_substring_until(contenidoBloques,
 								(i + (string_length(mensajeCorto)))));
-				string_append(&contenidoFinal,
-						string_itoa(nuevaCantidad));
+				string_append(&contenidoFinal, string_itoa(nuevaCantidad));
 				string_append(&contenidoFinal,
 						string_substring_from(stringCant,
 								cantidad_digitos(cantActual)));
 
-				tratar_contenido_en_bloques(contenidoFinal,
-						pathPokemon);
+				tratar_contenido_en_bloques(contenidoFinal, pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
 				free(stringCant);
 				free(contenidoFinal);
@@ -602,12 +591,14 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 					"NEW_POKEMON: Se ha modificado el contenido del archivo %s",
 					pokemon);
 			cerrar_archivo(pathPokemon);
+			sem_post(semaforoNewPokemon);
+
+			pudoTratar = true;
 			free(mensajeCorto);
 			free(contenidoBloques);
 
 		} else {
 			//printf("Reintenta operacion\n");
-			sem_post(semaforoNewPokemon);
 
 			sleep(tiempo_de_reintento_operacion);
 			tratar_mensaje_NEW_POKEMON(mensajeRecibido);
@@ -616,40 +607,48 @@ void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido) {
 	} else {
 		crear_archivo_pokemon_metadata(pokemon, mensaje);
 		sleep(tiempo_retardo_operacion);
-		log_info(logger,
-				"NEW_POKEMON: Se ha creado el archivo %s",
-				pokemon);
+		log_info(logger, "NEW_POKEMON: Se ha creado el archivo %s", pokemon);
 		sem_post(semaforoNewPokemon);
+		pudoTratar = true;
 	}
 
-	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
-	if(conexion != -1){
-		char* mensajeC;
-		send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
-		mensajeC = client_recibir_mensaje(conexion);
-		free(mensajeC);
-	}else{
-		log_info(logger,"MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
+	if (pudoTratar) {
+		int conexion = crear_conexion(informacion->ipBroker,
+				informacion->puertoBroker);
+		if (conexion != -1) {
+			char* mensajeC;
+			send_message_appeared_pokemon(newRecibido->name_pokemon,
+					newRecibido->pos_x, newRecibido->pos_y, 0,
+					mensajeRecibido->id, conexion);
+			mensajeC = client_recibir_mensaje(conexion);
+			free(mensajeC);
+		} else {
+			log_info(logger,
+					"MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
+		}
+
+		liberar_conexion(conexion);
+
+		free(pokemon);
+		free(newRecibido);
+		free(pathPokemon);
+		free(mensaje);
+		free(mensajeRecibido);
 	}
-
-	liberar_conexion(conexion);
-
-	free(pokemon);
-	free(newRecibido);
-	free(pathPokemon);
-	free(mensaje);
-	free(mensajeRecibido);
 }
 
 void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 
-	puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
+	puntero_mensaje_catch_pokemon catchRecibido =
+			mensajeRecibido->mensaje_cuerpo;
 	char* respuesta;
 	int posX = catchRecibido->pos_x;
 	int posY = catchRecibido->pos_y;
 	char* pokemon = catchRecibido->name_pokemon;
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
-	sem_t* semaforoCatchPokemon =(sem_t*) dictionary_get(dicSemaforos,catchRecibido->name_pokemon);
+	bool pudoTratar = false;
+	sem_t* semaforoCatchPokemon = (sem_t*) dictionary_get(dicSemaforos,
+			catchRecibido->name_pokemon);
 
 	sem_wait(semaforoCatchPokemon);
 	if (validar_existencia_archivo(pathPokemon)) {
@@ -702,10 +701,10 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 					} else
 						break;
 				}
-				char* stringCant = string_substring_from(
-						contenidoBloques, (i + string_length(mensaje)));
-				char** listaDeContenidosTotal = string_n_split(
-						stringCant, 2, "\n");
+				char* stringCant = string_substring_from(contenidoBloques,
+						(i + string_length(mensaje)));
+				char** listaDeContenidosTotal = string_n_split(stringCant, 2,
+						"\n");
 				int cantActual = atoi(listaDeContenidosTotal[0]);
 				int nuevaCantidad = cantActual - 1;
 				char*contenidoFinal = string_new();
@@ -716,16 +715,13 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 								== string_length(contenidoBloques)) {
 							string_append(&contenidoFinal,
 									string_repeat('\0',
-											string_length(
-													contenidoBloques)));
+											string_length(contenidoBloques)));
 						} else {
 							string_append(&contenidoFinal,
-									string_substring_from(
-											contenidoBloques,
+									string_substring_from(contenidoBloques,
 											(i + string_length(mensaje)
 													+ cantidad_digitos(
-															cantActual)
-													+ 1)));
+															cantActual) + 1)));
 						}
 					} else {
 						string_append(&contenidoFinal,
@@ -739,7 +735,8 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 					if (nuevaCantidad < 0) {
 						log_info(logger,
 								"Ocurrio un error con las posiciones mencionadas");
-						respuesta = "FAIL" ;
+						respuesta = "FAIL";
+						pudoTratar = true;
 					} else {
 						string_append(&contenidoFinal,
 								string_substring_until(contenidoBloques,
@@ -752,8 +749,7 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 					}
 
 				}
-				tratar_contenido_en_bloques(contenidoFinal,
-						pathPokemon);
+				tratar_contenido_en_bloques(contenidoFinal, pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
 				sleep(tiempo_retardo_operacion);
 				log_info(logger,
@@ -763,11 +759,14 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 				free(contenidoFinal);
 				respuesta = "OK";
 				free(stringCant);
+				pudoTratar = true;
+			} else {
+				log_info(logger,
+						"CATCH_POKEMON: No hay ningun pokemon %s en la posicion %i-%i solicitada",
+						pokemon, posX, posY);
+				respuesta = "FAIL";
+				pudoTratar = true;
 			}
-			log_info(logger,
-					"CATCH_POKEMON: No hay ningun pokemon %s en la posicion %i-%i solicitada",
-					pokemon, posX, posY);
-			respuesta = "FAIL";
 		} else {
 			sem_post(semaforoCatchPokemon);
 			sleep(tiempo_de_reintento_operacion);
@@ -779,32 +778,17 @@ void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido) {
 				"CATCH_POKEMON; No existe el pokemon %s dentro del sistema de archivos",
 				pokemon);
 		respuesta = "FAIL";
+		pudoTratar = true;
 	}
 
-
-	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
-	if(conexion != -1){
-		char* mensaje;
-		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
-		mensaje = client_recibir_mensaje(conexion);
-		free(mensaje);
-	}else{
-		log_info(logger,"MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
-	}
-	liberar_conexion(conexion);
-
-	free(catchRecibido->name_pokemon);
-	free(catchRecibido);
-	free(mensajeRecibido);
-	free(respuesta);
-	free(pathPokemon);
 }
 
 void tratar_mensaje_GET_POKEMON(puntero_mensaje mensajeRecibido) {
 	puntero_mensaje_get_pokemon getRecibido = mensajeRecibido->mensaje_cuerpo;
 	char* pokemon = getRecibido->name_pokemon;
-	sem_t* semaforoGetPokemon =(sem_t*) dictionary_get(dicSemaforos,getRecibido->name_pokemon);
-
+	sem_t* semaforoGetPokemon = (sem_t*) dictionary_get(dicSemaforos,
+			getRecibido->name_pokemon);
+	bool pudoTratar = false;
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 	t_list* listadoPos = list_create();
 
@@ -813,93 +797,98 @@ void tratar_mensaje_GET_POKEMON(puntero_mensaje mensajeRecibido) {
 		sem_post(semaforoGetPokemon);
 
 		sem_wait(semaforoGetPokemon);
-		if(!archivo_abierto(pathPokemon)){
-		abrir_archivo(pathPokemon);
-		sem_post(semaforoGetPokemon);
-		int i = 0;
-		char* contenidoBloques = string_new();
-		char** bloques = obtener_array_de_bloques(pathPokemon);
+		if (!archivo_abierto(pathPokemon)) {
+			abrir_archivo(pathPokemon);
+			sem_post(semaforoGetPokemon);
+			int i = 0;
+			char* contenidoBloques = string_new();
+			char** bloques = obtener_array_de_bloques(pathPokemon);
 
-		for (i = 0; i < tam_array_bloques(bloques); i++) {
-			char*pathBloque = generar_path_bloque(bloques[i]);
-			int bloque_fd = open(pathBloque, O_RDWR, 0664);
+			for (i = 0; i < tam_array_bloques(bloques); i++) {
+				char*pathBloque = generar_path_bloque(bloques[i]);
+				int bloque_fd = open(pathBloque, O_RDWR, 0664);
 
-			if (bloque_fd < 0) {
-				//log_error(logger, "No se pudo abrir el archivo");
-				error(1);
+				if (bloque_fd < 0) {
+					//log_error(logger, "No se pudo abrir el archivo");
+					error(1);
+				}
+				struct stat stats;
+				stat(pathBloque, &stats);
+
+				char*data = malloc(stats.st_size);
+				read(bloque_fd, data, stats.st_size);
+
+				string_append(&contenidoBloques,
+						string_substring_until(data, stats.st_size));
+				free(data);
+				free(pathBloque);
+				close(bloque_fd);
 			}
-			struct stat stats;
-			stat(pathBloque, &stats);
+			int h, j;
+			int siguientePos;
 
-			char*data = malloc(stats.st_size);
-			read(bloque_fd, data, stats.st_size);
+			for (h = 0; h < string_length(contenidoBloques); h = siguientePos) {
+				for (j = h; contenidoBloques[j] != '\n'; j++)
+					;
 
-			string_append(&contenidoBloques,
-					string_substring_until(data, stats.st_size));
-			free(data);
-			free(pathBloque);
-			close(bloque_fd);
+				char*mensajeAux = string_new();
+				char*mensajeAux2 = string_substring_from(contenidoBloques, h);
+				string_append(&mensajeAux,
+						string_substring_until(mensajeAux2, j - h));
+
+				char** listaMensajeAux = string_n_split(mensajeAux, 2, "=");
+				char**listaMensaje = string_n_split(listaMensajeAux[0], 2, "-");
+
+				list_add(listadoPos, atoi(listaMensaje[0]));
+				list_add(listadoPos, atoi(listaMensaje[1]));
+
+				siguientePos = j + 1;
+			}
+			sleep(tiempo_retardo_operacion);
+			cerrar_archivo(pathPokemon);
+			log_info(logger,
+					"GET_POKEMON: listado de coordenadas del pokemon %s existentes dentro del file system",
+					pokemon);
+			free(pathPokemon);
+			pudoTratar = true;
+			//return listadoPos;
+
+		} else {
+			sem_post(semaforoGetPokemon);
+			sleep(tiempo_de_reintento_operacion);
+			tratar_mensaje_GET_POKEMON(pokemon);
 		}
-		int h, j;
-		int siguientePos;
-
-		for (h = 0; h < string_length(contenidoBloques); h =
-				siguientePos) {
-			for (j = h; contenidoBloques[j] != '\n'; j++)
-				;
-
-			char*mensajeAux = string_new();
-			char*mensajeAux2 = string_substring_from(
-					contenidoBloques, h);
-			string_append(&mensajeAux,
-					string_substring_until(mensajeAux2, j - h));
-
-			char** listaMensajeAux = string_n_split(mensajeAux, 2,
-					"=");
-			char**listaMensaje = string_n_split(listaMensajeAux[0],
-					2, "-");
-
-			list_add(listadoPos, atoi(listaMensaje[0]));
-			list_add(listadoPos, atoi(listaMensaje[1]));
-
-			siguientePos = j + 1;
-		}
-		sleep(tiempo_retardo_operacion);
-		cerrar_archivo(pathPokemon);
-		log_info(logger,"GET_POKEMON:se envío el listado de posiciones del pokemon %s existente dentro del file system",
-						pokemon);
-		free(pathPokemon);
-		//return listadoPos;
-
-	}else{
-		sem_post(semaforoGetPokemon);
-		sleep(tiempo_de_reintento_operacion);
-		tratar_mensaje_GET_POKEMON(pokemon);
-	}
 	} else {
 		sem_post(semaforoGetPokemon);
-		log_error(logger, "GET_POKEMON: No existe el pokemon %s dentro del file system",
+		log_error(logger,
+				"GET_POKEMON: No existe el pokemon %s dentro del file system",
 				pokemon);
 		list_clean(listadoPos);
 		free(pathPokemon);
+		pudoTratar = true;
 
 	}
 
-	uint32_t cantidadPos = (list_size(listadoPos)/2);
-	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
-	if(conexion != -1){
-		char* mensaje;
-		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPos,0,mensajeRecibido->id,conexion);
-		mensaje = client_recibir_mensaje(conexion);
-		free(mensaje);
-	}else{
-		log_info(logger,"MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
+	if (pudoTratar) {
+		uint32_t cantidadPos = (list_size(listadoPos) / 2);
+		int conexion = crear_conexion(informacion->ipBroker,
+				informacion->puertoBroker);
+		if (conexion != -1) {
+			char* mensaje;
+			send_message_localized_pokemon(getRecibido->name_pokemon,
+					cantidadPos, listadoPos, 0, mensajeRecibido->id, conexion);
+			mensaje = client_recibir_mensaje(conexion);
+			free(mensaje);
+		} else {
+			log_info(logger,
+					"MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
+		}
+		free(pokemon);
+		free(getRecibido);
+		free(mensajeRecibido);
+		list_destroy(listadoPos);
+		liberar_conexion(conexion);
 	}
-	free(pokemon);
-	free(getRecibido);
-	free(mensajeRecibido);
-	list_destroy(listadoPos);
-	liberar_conexion(conexion);
 
 }
 void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
@@ -930,9 +919,8 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 						string_substring_until(contenidoAux, j));
 				free(contenidoAux);
 			}
-			escribir_mensaje_en_block(atoi(bloques[i]),
-					mensajePorBloque,
-					MODIFICAR);
+			escribir_mensaje_en_block(atoi(bloques[i]), mensajePorBloque,
+			MODIFICAR);
 			j = j + block_size;
 		}
 	} else {
@@ -944,9 +932,8 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 						j - block_size);
 				string_append(&mensajePorBloque,
 						string_substring_until(contenidoAux, j));
-				escribir_mensaje_en_block(atoi(bloques[i]),
-						mensajePorBloque,
-						MODIFICAR);
+				escribir_mensaje_en_block(atoi(bloques[i]), mensajePorBloque,
+				MODIFICAR);
 				j = j + block_size;
 				free(contenidoAux);
 			}
@@ -959,23 +946,20 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 				sem_post(&mutexBitmap);
 				char*mensajePorBloque = string_new();
 				if ((tamContenido - j) < block_size) {
-					char* contenidoMuletita = string_substring_from(
-							contenido, j);
+					char* contenidoMuletita = string_substring_from(contenido,
+							j);
 					string_append(&mensajePorBloque,
 							string_substring_until(contenidoMuletita,
 									tamContenido - j));
 					free(contenidoMuletita);
 				} else {
-					char*contenidoM = string_substring_from(contenido,
-							j);
+					char*contenidoM = string_substring_from(contenido, j);
 					string_append(&mensajePorBloque,
-							string_substring_until(contenidoM,
-									j + block_size));
+							string_substring_until(contenidoM, j + block_size));
 				}
 				j = j + block_size;
-				escribir_mensaje_en_block(atoi(bloques[i]),
-						mensajePorBloque,
-						MODIFICAR);
+				escribir_mensaje_en_block(atoi(bloques[i]), mensajePorBloque,
+				MODIFICAR);
 				agregar_block_al_metadata(nuevoBloque, pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
 			}
@@ -991,14 +975,14 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 				for (i = 0; i < cantBloques; i++) {
 					char*mensajePorBloque = string_new();
 					if ((tamContenido - j) < block_size) {
-						char* contenidoAux = string_substring_from(
-								contenido, j);
+						char* contenidoAux = string_substring_from(contenido,
+								j);
 						string_append(&mensajePorBloque,
 								string_substring_until(contenidoAux,
 										tamContenido - j));
 					} else {
-						char* contenidoAux = string_substring_from(
-								contenido, j);
+						char* contenidoAux = string_substring_from(contenido,
+								j);
 						string_append(&mensajePorBloque,
 								string_substring_until(contenidoAux,
 										j + block_size));
@@ -1029,11 +1013,9 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 		char*path = generar_path_bloque(bloques[tamArray - 1]);
 		int tamDisponible = tam_disponible_en_bloque(path);
 		if (tamMensaje <= tamDisponible) {
-			escribir_mensaje_en_block(atoi(bloques[tamArray - 1]),
-					mensaje,
-					AGREGAR);
+			escribir_mensaje_en_block(atoi(bloques[tamArray - 1]), mensaje,
+			AGREGAR);
 			actualizar_tamanio_archivo(pathPokemon);
-
 
 		} else {
 			char* mensajeBloqueFinal = string_substring_until(mensaje,
@@ -1119,18 +1101,38 @@ void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 	crear_directorio(generar_path_directorio_pokemon(pokemon));
 
 	FILE* archivo = fopen(pathPokemon, "a");
-	fprintf(archivo,"DIRECTORY=%s\n", "N");
+	fprintf(archivo, "DIRECTORY=%s\n", "N");
 	char* blocks = string_from_format("BLOCKS=[%d]\n", bloquePokemon);
 	fprintf(archivo, blocks);
 	/*char* pathPokemonMetadata = string_from_format("%s/Metadata.bin",
-			pathPokemon);*/
+	 pathPokemon);*/
 	fprintf(archivo,
 			string_from_format("SIZE=%i\n",
 					(tamanio_ocupado_bloque(pathBloque))));
-	fprintf(archivo,"OPEN=%s", "N");
+	fprintf(archivo, "OPEN=%s", "N");
 	fclose(archivo);
-	log_debug(logger,
-			"NEW_POKEMON: Se ha creado el archivo para el pokemon %s",
+	log_debug(logger, "NEW_POKEMON: Se ha creado el archivo para el pokemon %s",
 			pokemon);
 	return;
+}
+
+void crear_conex(char* pathPokemon, puntero_mensaje mensajeRecibido, char* respuesta, puntero_mensaje_catch_pokemon catchRecibido) {
+	int conexion = crear_conexion(informacion->ipBroker,
+			informacion->puertoBroker);
+	if (conexion != -1) {
+		char* mensaje;
+		send_message_caught_pokemon(respuesta, 0, mensajeRecibido->id,
+				conexion);
+		mensaje = client_recibir_mensaje(conexion);
+		free(mensaje);
+	} else {
+		log_info(logger,
+				"MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
+	}
+	liberar_conexion(conexion);
+
+	free(catchRecibido->name_pokemon);
+	free(catchRecibido);
+	free(mensajeRecibido);
+	free(pathPokemon);
 }
