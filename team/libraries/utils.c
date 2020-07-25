@@ -184,7 +184,7 @@ void enviar_get_objetivos(){
 		}
 	}
 
-	sem_post(&sem_localized_appeared);
+	//sem_post(&sem_localized_appeared);
 
 
 }
@@ -204,7 +204,7 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	t_pokemonObjetivo *poke = buscarPokemon(especiePokemon);
 	sem_wait(&mutex_objetivo);
-	poke->diferenciaARecibir--;
+	//poke->diferenciaARecibir--;
 	sem_post(&mutex_objetivo);
 	//free(pokemon);
 	mensaje=client_recibir_mensaje(conexion);

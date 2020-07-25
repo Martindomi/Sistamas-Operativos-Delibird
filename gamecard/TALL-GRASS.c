@@ -27,8 +27,10 @@ char* generar_path_directorio_pokemon(char* pokemon) {
 }
 char* generar_path_archivo_pokemon_metadata(char*pokemon) {
 	char* path = string_new();
+	char* pathDirectorioPokemon = generar_path_directorio_pokemon(pokemon);
 	char* aux = string_from_format("%s/Metadata.bin",
-			(generar_path_directorio_pokemon(pokemon)));
+			pathDirectorioPokemon);
+	free(pathDirectorioPokemon);
 	string_append(&path, aux);
 	/*string_append(&path, generar_path_directorio_pokemon(pokemon));
 	 string_append(&path, string_from_format("/Metadata.bin"));*/
@@ -78,7 +80,7 @@ t_configFS* levantar_configuracion_filesystem(char* archivo) {
 	config_destroy(configuracion);
 	return configTG;
 }
-t_configFS* crear_config(int argc, char* argv[]) {
+void crear_config(int argc, char* argv[]) {
 	if (argc > 1) {
 		if (validar_existencia_archivo(argv[1])) {
 			configTG = levantar_configuracion_filesystem(argv[1]);
@@ -101,7 +103,7 @@ t_configFS* crear_config(int argc, char* argv[]) {
 		//log_info(logger, "INICIO FILE SYSTEM: No se pudo levatar el archivo de configuración");
 		exit(EXIT_FAILURE);
 	}
-	return configTG;
+	//return configTG;
 }
 void iniciar_filesystem() {
 	log_debug(logger, "inicializando filesystem TALLGRASS");
@@ -297,6 +299,7 @@ void vaciar_bloque(char* bloque) {
 	munmap(bloqueVacio, 0);
 	close(bloque_fd);
 	free(cadenaVacia);
+	free(pathBloque);
 }
 void actualizar_bitmap(bool valor, int pos) {
 	char*pathBitmap = string_from_format("%s/Metadata/Bitmap.bin", ptoMontaje);
@@ -358,7 +361,7 @@ int validar_existencia_archivo(char*path) {
 int archivo_abierto(char* path) {
 	t_config* configuracion = config_create(path);
 	char* estado = config_get_string_value(configuracion, "OPEN");
-
+	config_destroy(configuracion);
 	if (strcmp(estado, "Y") == 0) {
 		return true;
 	} else
@@ -398,8 +401,9 @@ void actualizar_tamanio_archivo(char*path) {
 	int tamanio = config_get_int_value(configuracion, "SIZE");
 
 	tamanio = calcular_tamanio_archivo(path);
-
-	config_set_value(configuracion, "SIZE", string_itoa(tamanio));
+	char* stringTamanio = string_itoa(tamanio);
+	config_set_value(configuracion, "SIZE", stringTamanio);
+	free(stringTamanio);
 	config_save(configuracion);
 	config_destroy(configuracion);
 }
@@ -412,7 +416,9 @@ void agregar_block_al_metadata(int block, char* pathPokemon) {
 	if (strcmp(bloques, "[")) {
 		string_append(&bloques, ",");
 	}
-	string_append(&bloques, string_itoa(block));
+	char* numeroBloque = string_itoa(block);
+	string_append(&bloques, numeroBloque);
+	free(numeroBloque);
 	string_append(&bloques, "]");
 
 	config_set_value(configuracion, "BLOCKS", bloques);
@@ -468,10 +474,7 @@ int tam_disponible_en_bloque(char*path) {
 		log_debug(logger, "BLOCKS: no tiene espacio disponible");
 	} else {
 		tamDisponible = tamDisponiblePrevio;
-		log_debug(logger,
-				string_from_format(
-						"BLOCKS: el bloque tiene %i bytes disponibles",
-						tamDisponible));
+		log_debug(logger, "BLOCKS: el bloque tiene %i bytes disponibles", tamDisponible);
 	}
 	return tamDisponible;
 }
@@ -485,8 +488,10 @@ int calcular_tamanio_archivo(char*path) {
 		for (i = 0; i < (tam_array_bloques(blocks)); i++) {
 			char* pathBlock = generar_path_bloque(blocks[i]);
 			tamanio = tamanio + tamanio_ocupado_bloque(pathBlock);
+			free(pathBlock);
 		}
 	}
+	free(blocks);
 	return tamanio;
 }
 int cantidad_digitos(int numero) {
@@ -540,9 +545,10 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant,
 
 				char*data = malloc(stats.st_size);
 				read(bloque_fd, data, stats.st_size);
-
+				char* untilString = string_substring_until(data, stats.st_size);
 				string_append(&contenidoBloques,
-						string_substring_until(data, stats.st_size));
+						untilString);
+				free(untilString);
 				free(data);
 				free(pathBloque);
 				close(bloque_fd);
@@ -563,7 +569,9 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant,
 						for (j = 0; stringComparar[j] != '\n'; j++)
 							;
 						siguientePos = i + j + 1;
+						free(stringComparar);
 					} else {
+						free(stringComparar);
 						break;
 					}
 				}
@@ -575,20 +583,24 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant,
 				int cantActual = atoi(listaDeContenidosTotal[0]);
 				int nuevaCantidad = cant + cantActual;
 				char*contenidoFinal = string_new();
+				char* stringNiIdea = string_substring_until(contenidoBloques,
+						(i + (string_length(mensajeCorto))));
+				string_append(&contenidoFinal, stringNiIdea);
+				free(stringNiIdea);
+				char* cantidadNuevaString = string_itoa(nuevaCantidad);
 				string_append(&contenidoFinal,
-						string_substring_until(contenidoBloques,
-								(i + (string_length(mensajeCorto)))));
+						cantidadNuevaString);
+				free(cantidadNuevaString);
+				char* strinPirulito = string_substring_from(stringCant, cantidad_digitos(cantActual));
 				string_append(&contenidoFinal,
-						string_itoa(nuevaCantidad));
-				string_append(&contenidoFinal,
-						string_substring_from(stringCant,
-								cantidad_digitos(cantActual)));
-
+						strinPirulito);
+				free(strinPirulito);
 				tratar_contenido_en_bloques(contenidoFinal,
 						pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
 				free(stringCant);
 				free(contenidoFinal);
+				free(listaDeContenidosTotal);
 			} else {
 				agregar_nuevo_mensaje(mensaje, pathPokemon);
 			}
@@ -641,9 +653,9 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 
 				char*data = malloc(stats.st_size);
 				read(bloque_fd, data, stats.st_size);
-
-				string_append(&contenidoBloques,
-						string_substring_until(data, stats.st_size));
+				char* dataSubstring = string_substring_until(data, stats.st_size);
+				string_append(&contenidoBloques, dataSubstring);
+				free(dataSubstring);
 				free(data);
 				free(pathBloque);
 				close(bloque_fd);
@@ -662,8 +674,11 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 						for (j = 0; stringComparar[j] != '\n'; j++)
 							;
 						siguientePos = i + j + 1;
-					} else
+						free(stringComparar);
+					} else {
+						free(stringComparar);
 						break;
+					}
 				}
 				char* stringCant = string_substring_from(
 						contenidoBloques, (i + string_length(mensaje)));
@@ -691,27 +706,35 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 													+ 1)));
 						}
 					} else {
-						string_append(&contenidoFinal,
-								string_substring_until(contenidoBloques,
-										(i - 1)));
-						string_append(&contenidoFinal,
-								string_substring_from(stringCant,
-										(cantidad_digitos(cantActual))));
+						char* contenidoBloqMenosUno =
+						string_substring_until(contenidoBloques,
+								(i - 1));
+						string_append(&contenidoFinal,contenidoBloqMenosUno);
+						free(contenidoBloqMenosUno);
+						char* subStringCantidadDigitos = string_substring_from(stringCant,
+								(cantidad_digitos(cantActual)));
+						string_append(&contenidoFinal,subStringCantidadDigitos);
+						free(subStringCantidadDigitos);
 					}
 				} else {
 					if (nuevaCantidad < 0) {
 						log_info(logger,
 								"Ocurrio un error con las posiciones mencionadas");
+						free(listaDeContenidosTotal);
 						return "fail";
 					} else {
+						char* stringHasta = string_substring_until(contenidoBloques,
+								(i + (string_length(mensaje))));
+						string_append(&contenidoFinal, stringHasta);
+						free(stringHasta);
+						char* cantNuev = string_itoa(nuevaCantidad);
 						string_append(&contenidoFinal,
-								string_substring_until(contenidoBloques,
-										(i + (string_length(mensaje)))));
-						string_append(&contenidoFinal,
-								string_itoa(nuevaCantidad));
-						string_append(&contenidoFinal,
-								string_substring_from(stringCant,
-										cantidad_digitos(cantActual)));
+								cantNuev);
+						free(cantNuev);
+						char* stringAlgo = string_substring_from(stringCant,
+								cantidad_digitos(cantActual));
+						string_append(&contenidoFinal,stringAlgo);
+						free(stringAlgo);
 					}
 
 				}
@@ -723,6 +746,8 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 						"CATCH_POKEMON: Se ha modificado el contenido del archivo %s",
 						pokemon);
 				cerrar_archivo(pathPokemon);
+				free(contenidoBloques);
+				free(listaDeContenidosTotal);
 				free(contenidoFinal);
 				free(pathPokemon);
 				free(stringCant);
@@ -733,6 +758,7 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 					"CATCH_POKEMON: No hay ningun pokemon %s en la posicion %i-%i solicitada",
 					pokemon, posX, posY);
 			free(pathPokemon);
+			free(mensaje);
 			return "FAIL";
 		} else {
 			sleep(tiempo_de_reintento_operacion);
@@ -845,14 +871,17 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 			} else {
 				char* contenidoAux = string_substring_from(contenido,
 						j - block_size);
+				char* subtringUntil = string_substring_until(contenidoAux, j);
 				string_append(&mensajePorBloque,
-						string_substring_until(contenidoAux, j));
+						subtringUntil);
+				free(subtringUntil);
 				free(contenidoAux);
 			}
 			escribir_mensaje_en_block(atoi(bloques[i]),
 					mensajePorBloque,
 					MODIFICAR);
 			j = j + block_size;
+			free(mensajePorBloque);
 		}
 	} else {
 		if (cantBloques > tamArray) {
@@ -918,13 +947,15 @@ void tratar_contenido_en_bloques(char*contenido, char* pathPokemon) {
 					} else {
 						char* contenidoAux = string_substring_from(
 								contenido, j);
-						string_append(&mensajePorBloque,
-								string_substring_until(contenidoAux,
-										j + block_size));
+						char* substringUntil = string_substring_until(contenidoAux, j + block_size);
+						string_append(&mensajePorBloque,substringUntil);
+						free(substringUntil);
+						free(contenidoAux);
 					}
 					escribir_mensaje_en_block(atoi(bloques[i]),
 							mensajePorBloque, MODIFICAR);
 					j = j + block_size;
+					free(mensajePorBloque);
 				}
 			}
 		}
@@ -975,11 +1006,14 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 			free(mensajeBloqueNuevo);
 
 		}
+		free(path);
 	}
-
+	free(bloques);
 }
 void escribir_mensaje_en_block(int bloque, char* mensaje, int accion) {
-	char* pathBloque = generar_path_bloque(string_itoa(bloque));
+	char* numeroBloque = string_itoa(bloque);
+	char* pathBloque = generar_path_bloque(numeroBloque);
+	free(numeroBloque);
 	int tamMensaje = string_length(mensaje);
 	int tamOcupado = tamanio_ocupado_bloque(pathBloque);
 
@@ -1022,7 +1056,7 @@ void escribir_mensaje_en_block(int bloque, char* mensaje, int accion) {
 		munmap(mensajeArchivo2, tamMensaje);
 		break;
 	}
-
+	free(pathBloque);
 	close(bloque_fd);
 }
 void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
@@ -1030,12 +1064,15 @@ void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 	char*pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
 	sem_wait(&mutexBitmap);
 	int bloquePokemon = buscar_block_disponible(tamanioMensaje);
-	char* pathBloque = generar_path_bloque(string_itoa(bloquePokemon));
+	char* stringBloquePokemon = string_itoa(bloquePokemon);
+	char* pathBloque = generar_path_bloque(stringBloquePokemon);
 
 	actualizar_bitmap(1, bloquePokemon);
 	sem_post(&mutexBitmap);
 	escribir_mensaje_en_block(bloquePokemon, mensaje, AGREGAR);
-	crear_directorio(generar_path_directorio_pokemon(pokemon));
+	char* pathString = generar_path_directorio_pokemon(pokemon);
+	crear_directorio(pathString);
+	free(pathString);
 
 	FILE* archivo = fopen(pathPokemon, "a");
 	fprintf(archivo,"DIRECTORY=%s\n", "N");
@@ -1051,5 +1088,8 @@ void crear_archivo_pokemon_metadata(char* pokemon, char* mensaje) {
 	log_debug(logger,
 			"NEW_POKEMON: Se ha creado el archivo para el pokemon %s",
 			pokemon);
+	free(pathBloque);
+	free(stringBloquePokemon);
+	free(pathPokemon);
 	return;
 }

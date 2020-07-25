@@ -262,7 +262,7 @@ void procesar_localized(puntero_mensaje_localized_pokemon localizedRecibido, uin
 	}else{
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: LOCALIZED. Contenido: ID Correalitvo = %d Pokemon = %s Posicion = Sin locaciones",id_correlativo, localizedRecibido->name_pokemon);
 			sem_wait(&mutex_objetivo);
-			poke->diferenciaARecibir++;
+			poke->diferenciaARecibir = poke->cantidad;
 			sem_post(&mutex_objetivo);
 	}
 
@@ -300,7 +300,7 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 
 void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 
-	sem_wait(&sem_localized_appeared);
+	//sem_wait(&sem_localized_appeared);
 	t_pokemon *pokemon = malloc(sizeof(t_pokemon));
 	pokemon->especie=malloc(appearedRecibido->name_size);
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
@@ -314,7 +314,7 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	if(poke ==NULL || poke->cantidad <= 0 || poke->diferenciaARecibir <= 0){
 		//log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. No necesita atrapar pokemon: %s.", pokemon->especie);
 		sem_post(&mutex_objetivo);
-		sem_post(&sem_localized_appeared);
+		//sem_post(&sem_localized_appeared);
 		return;
 	}
 	poke->diferenciaARecibir--;
@@ -328,6 +328,6 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	sem_post(&mutex_recibidos);
 	sem_post(&sem_recibidos);
 
-	sem_post(&sem_localized_appeared);
+	//sem_post(&sem_localized_appeared);
 }
 

@@ -283,7 +283,7 @@ void agregarPokemonALista(char* pokemon){
 		strcpy(pokemonObjetivo->pokemon,pokemon);
 		//pokemonObjetivo->pokemon = pokemon;
 		pokemonObjetivo->cantidad = 1;
-		pokemonObjetivo->diferenciaARecibir = 1;
+		pokemonObjetivo->diferenciaARecibir = 0;
 //		printf("%d\n",pokemonObjetivo->cantidad);
 		sem_wait(&mutex_objetivo);
 		list_add(lista_objetivo,pokemonObjetivo);
@@ -292,7 +292,7 @@ void agregarPokemonALista(char* pokemon){
 	}else{
 
 		pokemonBuscado->cantidad = pokemonBuscado->cantidad +1;
-		pokemonBuscado->diferenciaARecibir++;
+		//pokemonBuscado->diferenciaARecibir++;
 	//	printf("%d\n",pokemonBuscado->cantidad);
 	}
 
