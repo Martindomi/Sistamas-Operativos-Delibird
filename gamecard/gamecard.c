@@ -111,7 +111,7 @@ int main (int argc, char *argv[]) {
 
 int aplica_funcion_escucha(int * socket){
 
-	printf("recibe mensaje del broker\n");
+	//printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	char *msj;
 	int recv_data;
@@ -120,7 +120,7 @@ int aplica_funcion_escucha(int * socket){
 	if(recv_data==-1){
 		return -1;
 	}
-	printf("recibio cod op \n");
+	//printf("recibio cod op \n");
 	devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
 
 	puntero_mensaje mensajeRecibido;
@@ -172,19 +172,7 @@ int aplica_funcion_escucha(int * socket){
 		break;
 	}
 
-
-
-
 	return 0;
-
-
-
-	//liberar_conexion(*socket);
-	//free(mensajeRecibido);
-	// TODO esto esta para hacer loop infinito con un mensaje que tiene de id correlativo al primer mensaje enviado.
-	/*sleep(10);
-	enviar_mensaje_appeared_pokemon2(logger, ip_broker, puerto_broker);*/
-
 
 }
 
@@ -196,20 +184,16 @@ void funcion_NEW_POKEMON(){
 		puntero_mensaje mensajeRecibido = list_remove(lista_NEW,0);
 		puntero_mensaje_new_pokemon newRecibido = mensajeRecibido->mensaje_cuerpo;
 		sem_post(&mutexNEW);
-		printf("creacion de semaforo %s\n", newRecibido->name_pokemon);
 		sem_wait(&semDict);
 		if(!dictionary_has_key(dicSemaforos, newRecibido->name_pokemon)){
 			sem_t asd;
 			sem_init((&asd),0,1);
 			dictionary_put(dicSemaforos,newRecibido->name_pokemon, &asd);
-			printf("Se creo la clave %s\n", newRecibido->name_pokemon);
 		}
 		sem_post(&semDict);
-		printf("sem wait %s\n", newRecibido->name_pokemon);
 		pthread_create(&hilo, NULL, tratar_mensaje_NEW_POKEMON, mensajeRecibido);
 		pthread_detach(hilo);
-		printf("paso sem_post %s\n", newRecibido->name_pokemon);
-		}
+	}
 }
 
 void funcion_CATCH_POKEMON(){
@@ -220,20 +204,15 @@ void funcion_CATCH_POKEMON(){
 		puntero_mensaje mensajeRecibido = list_remove(lista_CATCH,0);
 		puntero_mensaje_catch_pokemon catchRecibido = mensajeRecibido->mensaje_cuerpo;
 		sem_post(&mutexCATCH);
-		printf("creacion de semaforo \n");
 		sem_wait(&semDict);
 		if(!dictionary_has_key(dicSemaforos, catchRecibido->name_pokemon)){
 			sem_t asd;
-			printf("No encontro la clave\n");
 			sem_init((&asd),0,1);
-			printf("cual rompe? incio semaforo\n");
 			dictionary_put(dicSemaforos,catchRecibido->name_pokemon, &asd);
-			printf("Se creo la clave\n");
 		}
 		sem_post(&semDict);
 		pthread_create(&hilo2,NULL,tratar_mensaje_CATCH_POKEMON, mensajeRecibido);
 		pthread_detach(hilo2);
-
 	}
 }
 
@@ -248,33 +227,12 @@ void funcion_GET_POKEMON(){
 		sem_wait(&semDict);
 		if(!dictionary_has_key(dicSemaforos, getRecibido->name_pokemon)){
 				sem_t asd;
-				printf("No encontro la clave\n");
 				sem_init((&asd),0,1);
-				printf("cual rompe? incio semaforo\n");
 				dictionary_put(dicSemaforos,getRecibido->name_pokemon, &asd);
-				printf("Se creo la clave\n");
 			}
 		sem_post(&semDict);
 		pthread_create(&hilo3,NULL,tratar_mensaje_GET_POKEMON, mensajeRecibido);
 		pthread_detach(hilo3);
 
-		}
+	}
 }
-
-void verificar_semaforo_pokemon(char* name_pokemon){
-
-	sem_wait(&semDict);
-	if(!dictionary_has_key(dicSemaforos, name_pokemon)){
-			sem_t asd;
-			printf("No encontro la clave\n");
-			sem_init((&asd),0,1);
-			printf("cual rompe? incio semaforo\n");
-			dictionary_put(dicSemaforos,name_pokemon, &asd);
-			printf("Se creo la clave\n");
-		}
-	sem_t* semaforoGetPokemon = (sem_t*)dictionary_get(dicSemaforos,name_pokemon);
-	sem_post(&semDict);
-
-}
-
-

@@ -91,8 +91,8 @@ int calcular_tamanio_archivo(char*path) ;
 void escribir_mensaje_en_block(int bloque, char* mensaje, int accion);
 void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon);
 void tratar_contenido_en_bloques(char*contenido, char* pathPokemon);
-void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon);
-char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon);
-t_list* tratar_mensaje_GET_POKEMON(char*pokemon);
+void tratar_mensaje_NEW_POKEMON(puntero_mensaje mensajeRecibido);
+void tratar_mensaje_CATCH_POKEMON(puntero_mensaje mensajeRecibido);
+void tratar_mensaje_GET_POKEMON(puntero_mensaje mensajeRecibido);
 
 #endif /* TALL_GRASS_H_ */

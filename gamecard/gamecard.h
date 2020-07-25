@@ -10,9 +10,9 @@
 #include "TALL-GRASS.h"
 #include <commons/collections/list.h>
 
-void funcion_NEW_POKEMON(puntero_mensaje mensajeRecibido);
-void funcion_CATCH_POKEMON(puntero_mensaje mensajeRecibido);
-void funcion_GET_POKEMON(puntero_mensaje mensajeRecibido);
+void funcion_NEW_POKEMON();
+void funcion_CATCH_POKEMON();
+void funcion_GET_POKEMON();
 
 
 int aplica_funcion_escucha(int * socket);
