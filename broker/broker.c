@@ -78,14 +78,16 @@ void process_request(int cod_op, int socket) {
 			msg = "1";
 			size = sizeof(4);
 			devolver_mensaje(msg, size, socket);
-			log_info(loggerBroker, "MESSAGE");
-			log_info(loggerBroker, msg);
+			////log_info(loggerBroker, "MESSAGE");
+			////log_info(loggerBroker, msg);
 			free(msg);
 			break;
 		}
 		case NEW_POKEMON: {
 
 			mensaje_completo = recibir_new_pokemon(socket, &size);
+
+			//log_info(loggerBroker, "LLega un mensaje a la cola de NEW_POKEMON");
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
@@ -99,7 +101,7 @@ void process_request(int cod_op, int socket) {
 		case APPEARED_POKEMON: {
 
 			mensaje_completo = recibir_appeared_pokemon(socket, &size);
-
+			//log_info(loggerBroker,"Llega un mensaje a la cola de APPEARED_POKEMON");
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, appeared_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
@@ -118,6 +120,7 @@ void process_request(int cod_op, int socket) {
 		case CATCH_POKEMON: {
 
 			mensaje_completo = recibir_catch_pokemon(socket, &size);
+			////log_info(loggerBroker,"Llega un mensaje a la cola de CATCH_POKEMON");
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
@@ -131,7 +134,7 @@ void process_request(int cod_op, int socket) {
 		case CAUGHT_POKEMON: {
 
 			mensaje_completo = recibir_caught_pokemon(socket, &size);
-
+			////log_info(loggerBroker,"Llega un mensaje a la cola de CAUGHT_POKEMON");
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
@@ -150,7 +153,7 @@ void process_request(int cod_op, int socket) {
 		case GET_POKEMON: {
 
 			mensaje_completo = recibir_get_pokemon(socket, &size);
-
+			////log_info(loggerBroker,"Llega un mensaje a la cola de GET_POKEMON");
 			asignar_y_devolver_id(mensaje_completo, socket);
 
 			asignar_memoria(mensaje_completo, cod_op);
@@ -163,7 +166,7 @@ void process_request(int cod_op, int socket) {
 		case LOCALIZED_POKEMON: {
 
 			mensaje_completo = recibir_localized_pokemon(socket, &size);
-
+			////log_info(loggerBroker,"Llega un mensaje a la cola de LOCALIZED_POKEMON");
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
@@ -183,7 +186,7 @@ void process_request(int cod_op, int socket) {
 			puntero_suscripcion_cola mensaje_suscripcion;
 
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
-
+			////log_info(loggerBroker, "El proceso %s se suscribe a la cola %s", mensaje_suscripcion->cliente, nombre_cola(mensaje_suscripcion->cola));
 			printf("Recibe una suscripcion\n");
 
 			agregar_suscriptor_cola(mensaje_suscripcion, socket);
@@ -332,6 +335,11 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		id = punteroParticion->id;
 		id_correlativo = punteroParticion->idCorrelativo;
 	}
+	/*char* stringId = string_itoa(id);
+	//log_info(loggerBroker,"Se le envia al suscriptor %s un mensaje de la cola %s y su ID es: %s", suscriptor->cliente,nombre_cola(cola), stringId);
+	free(stringId);*/
+	////log_info(loggerBroker,"Se le envia al suscriptor un mensaje");
+
 	switch(cola) {
 		case NEW_POKEMON: {
 			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
@@ -421,6 +429,11 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 	mensaje_recibido = client_recibir_mensaje(punteroAck->conexion);
 	printf("RECIBE %s\n", mensaje_recibido);
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
+		/*char* idACK = string_itoa(punteroAck->idMensaje);
+		//log_info(loggerBroker, "El proceso %s envia el %s del mensaje con ID: %s", punteroAck->suscriptor, mensaje_recibido, idACK);
+		free(idACK);*/
+		//log_info(loggerBroker, "El proceso envia un mensaje");
+
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
 		if(punteroParticionEncontrado != NULL) {
 			list_add(punteroParticionEncontrado->suscriptores_ack, punteroAck->suscriptor);
@@ -435,7 +448,7 @@ void inicializar_datos() {
 	printf("Process id %d\n", getpid());
 
 	signal(SIGUSR1, manejo_dump_cache);
-
+	signal(SIGINT, manejo_end);
 	new_pokemon = malloc(sizeof(t_cola_mensaje));
 	(*new_pokemon).suscriptores = list_create();
 	(*new_pokemon).mensajes = list_create();
@@ -538,7 +551,7 @@ void asignar_y_devolver_id(t_mensaje* mensaje_completo, int socket) {
 	mensaje_completo->id = cantidad_mensajes;
 	char* id_mensaje = string_itoa(cantidad_mensajes);
 	devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
-
+	free(id_mensaje);
 	aumentar_cantidad_mensajes();
 
 	sem_post(&mutexIds);
@@ -572,7 +585,7 @@ void leer_archivo_config() {
 	algoritmoParticionLibre = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_PARTICION_LIBRE"), "FF", "BF");
 	frecuenciaCompactacion = obtener_int_config(configBroker, "FRECUENCIA_COMPACTACION");
 
-	loggerBroker =log_create(logFile, "BROKER", false, LOG_LEVEL_INFO);
+	loggerBroker =log_create(logFile, "BROKER", true, LOG_LEVEL_INFO);
 
 }
 
@@ -622,6 +635,10 @@ void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
 		printf("Encontro memoria\n");
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
+		/*char* posInicioParticionMemoria = string_itoa((char*)posMemoria - (char*)punteroMemoriaPrincipal);
+		//log_info(loggerBroker, "Se ingresa un mensaje con ID: %d con posicion relativa: %s", mensajeCompleto->id, posInicioParticionMemoria);
+		free(posInicioParticionMemoria);*/
+		//log_info(loggerBroker, "Se guarda un mensaje en memoria");
 
 		printf("Asigno memoria!!!!!\n");
 	} else {
@@ -859,6 +876,13 @@ void eliminar_particion_seleccionada(int index) {
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
 			sem_post(&mutexDistribucion);
 
+			/*char* posInicioMemoriaR = string_itoa((char*)punteroParticionEliminar->punteroMemoria - (char*)punteroMemoriaPrincipal);
+			char* idString = string_itoa(punteroParticionEliminar->id);
+			//log_info(loggerBroker,"Se elimina el mensaje de ID: %s y su posicion en memoria era: %s", idString, posInicioMemoriaR);
+			free(posInicioMemoriaR);
+			free(idString);*/
+			//log_info(loggerBroker,"Se elimina un mensaje de memoria");
+
 			free(list_get(cola->mensajes, j));
 			list_remove(cola->mensajes, j);
 			break;
@@ -1071,6 +1095,10 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 		printf("Encontro memoria\n");
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
+		/*char* posInicioParticionMemoria = string_itoa((char*)posMemoria - (char*)punteroMemoriaPrincipal);
+		//log_info(loggerBroker, "Se ingresa un mensaje con ID: %d con posicion relativa: %s", mensajeCompleto->id, posInicioParticionMemoria);
+		free(posInicioParticionMemoria);*/
+		//log_info(loggerBroker, "Ingresa un mensaje a memoria");
 
 		printf("Asigno memoria!!!!!\n");
 	} else {
@@ -1295,6 +1323,12 @@ void bs_consolidar(){
 				// Chequeo si las dos particiones que tomo son buddys
 				if(buddyDer != NULL){
 					if((buddyIzq->izq == true) && (buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada) && (tamanioBuddyIzq == tamanioBuddyDer)){
+						/*char* buddyIzqString = string_itoa((char*)buddyIzq->punteroMemoria - (char*)punteroMemoriaPrincipal);
+						char* buddyDerString = string_itoa((char*)buddyDer->punteroMemoria - (char*)punteroMemoriaPrincipal);
+						//log_info(loggerBroker, "Consolidacion de buddys, el buddy Izq con posicion: %s y el buddy Der con posicion: %s", buddyIzqString, buddyDerString);
+						free(buddyIzqString);
+						free(buddyDerString);*/
+						//log_info(loggerBroker, "Consolidacion de buddys");
 
 						printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
 
@@ -1390,6 +1424,13 @@ void bs_eliminar_particion_fifo(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+		/*char* posInicioMemoriaR = string_itoa((char*)punteroParticionMenorId->punteroMemoria - (char*)punteroMemoriaPrincipal);
+		char* idString = string_itoa(punteroParticionMenorId->id);
+		//log_info(loggerBroker, "Se elimina el mensaje de ID: %s y su posicion relativa era: %s", idString, posInicioMemoriaR);
+		free(posInicioMemoriaR);
+		free(idString);*/
+		//log_info(loggerBroker, "Se elimina un mensaje");
+
 		printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
 		punteroParticionMenorId->id = NULL;
 		punteroParticionMenorId->colaMensaje = NULL;
@@ -1449,6 +1490,13 @@ void bs_eliminar_particion_lru(){
 				list_remove(cola->mensajes, j);
 			}
 		}
+		/*char* posInicioMemoriaR = string_itoa((char*)punteroParticionLru->punteroMemoria - (char*)punteroMemoriaPrincipal);
+		char* idString = string_itoa(punteroParticionLru->id);
+		//log_info(loggerBroker, "Se elimina el mensaje de ID: %s y su posicion relativa era: %s", idString, posInicioMemoriaR);
+		free(posInicioMemoriaR);
+		free(idString);*/
+		//log_info(loggerBroker, "Se elimina un mensaje de memoria");
+
 		punteroParticionLru->id = NULL;
 		punteroParticionLru->colaMensaje = NULL;
 	}
@@ -1590,4 +1638,60 @@ void manejo_dump_cache(int num) {
 	fprintf(dump, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
 	fclose(dump);
+}
+
+void manejo_end() {
+	list_destroy(new_pokemon->suscriptores);
+	list_destroy(new_pokemon->mensajes);
+	free(new_pokemon);
+	list_destroy(get_pokemon->suscriptores);
+	list_destroy(get_pokemon->mensajes);
+	free(get_pokemon);
+	list_destroy(localized_pokemon->suscriptores);
+	list_destroy(localized_pokemon->mensajes);
+	free(localized_pokemon);
+	list_destroy(appeared_pokemon->suscriptores);
+	list_destroy(appeared_pokemon->mensajes);
+	free(appeared_pokemon);
+	list_destroy(catch_pokemon->suscriptores);
+	list_destroy(catch_pokemon->mensajes);
+	free(catch_pokemon);
+	list_destroy(caught_pokemon->suscriptores);
+	list_destroy(caught_pokemon->mensajes);
+	free(caught_pokemon);
+
+	void liberar_particion(void* part) {
+		punteroParticion particion = (punteroParticion) part;
+		list_destroy(particion->suscriptores_enviados);
+		list_destroy(particion->suscriptores_ack);
+		//list_destroy(particion->historicoBuddy);
+		free(particion);
+	}
+	list_destroy_and_destroy_elements(particiones, liberar_particion);
+	free(punteroMemoriaPrincipal);
+	exit(0);
+}
+
+char* nombre_cola(int cola){
+	switch(cola) {
+		case NEW_POKEMON: {
+			return "NEW_POKEMON";
+		}
+		case APPEARED_POKEMON: {
+			return "APPEARED_POKEMON";
+		}
+		case GET_POKEMON: {
+			return "GET_POKEMON";
+		}
+		case LOCALIZED_POKEMON: {
+			return "LOCALIZED_POKEMON";
+		}
+		case CATCH_POKEMON: {
+			return "CATCH_POKEMON";
+		}
+		case CAUGHT_POKEMON: {
+			return "CAUGHT_POKEMON";
+		}
+		default: return "NO_ASIGNADA";
+	}
 }
