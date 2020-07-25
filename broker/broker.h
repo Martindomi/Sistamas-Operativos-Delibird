@@ -123,6 +123,7 @@ bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
 void manejo_dump_cache(int num);
 void esperar_mensaje_ack(puntero_ack punteroAck);
 uint32_t obtener_milisegundos();
+void manejo_end();
 
 int cantidad_mensajes;
 
