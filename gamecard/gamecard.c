@@ -204,7 +204,6 @@ void funcion_NEW_POKEMON(){
 			dictionary_put(dicSemaforos,newRecibido->name_pokemon, &asd);
 			printf("Se creo la clave %s\n", newRecibido->name_pokemon);
 		}
-		sem_t* semaforoNewPokemon = (sem_t*)dictionary_get(dicSemaforos,newRecibido->name_pokemon);
 		sem_post(&semDict);
 		printf("sem wait %s\n", newRecibido->name_pokemon);
 		pthread_create(&hilo, NULL, tratar_mensaje_NEW_POKEMON, mensajeRecibido);
