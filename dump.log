@@ -1,0 +1,38 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dump: 21/07/2020 19:23:02
+Particion 0: 0x8053510 - 0x8053513.	[X]	Size: 4b	LRU: 19:20:52	Cola: CAUGHT_POKEMON	ID: 17
+Particion 1: 0x8053514 - 0x8053517.	[X]	Size: 4b	LRU: 19:20:10	Cola: CAUGHT_POKEMON	ID: 2
+Particion 2: 0x8053518 - 0x805351b.	[X]	Size: 4b	LRU: 19:20:14	Cola: CAUGHT_POKEMON	ID: 3
+Particion 3: 0x805351c - 0x805351f.	[X]	Size: 4b	LRU: 19:20:17	Cola: CAUGHT_POKEMON	ID: 4
+Particion 4: 0x8053520 - 0x8053523.	[X]	Size: 4b	LRU: 19:20:20	Cola: CAUGHT_POKEMON	ID: 5
+Particion 5: 0x8053524 - 0x8053527.	[X]	Size: 4b	LRU: 19:20:23	Cola: CAUGHT_POKEMON	ID: 6
+Particion 6: 0x8053528 - 0x805352b.	[X]	Size: 4b	LRU: 19:20:25	Cola: CAUGHT_POKEMON	ID: 7
+Particion 7: 0x805352c - 0x805352f.	[X]	Size: 4b	LRU: 19:20:28	Cola: CAUGHT_POKEMON	ID: 8
+Particion 8: 0x8053530 - 0x8053533.	[X]	Size: 4b	LRU: 19:20:32	Cola: CAUGHT_POKEMON	ID: 9
+Particion 9: 0x8053534 - 0x8053537.	[X]	Size: 4b	LRU: 19:20:35	Cola: CAUGHT_POKEMON	ID: 10
+Particion 10: 0x8053538 - 0x805353b.	[X]	Size: 4b	LRU: 19:20:38	Cola: CAUGHT_POKEMON	ID: 11
+Particion 11: 0x805353c - 0x805353f.	[X]	Size: 4b	LRU: 19:20:40	Cola: CAUGHT_POKEMON	ID: 12
+Particion 12: 0x8053540 - 0x8053543.	[X]	Size: 4b	LRU: 19:20:42	Cola: CAUGHT_POKEMON	ID: 13
+Particion 13: 0x8053544 - 0x8053547.	[X]	Size: 4b	LRU: 19:20:44	Cola: CAUGHT_POKEMON	ID: 14
+Particion 14: 0x8053548 - 0x805354b.	[X]	Size: 4b	LRU: 19:20:46	Cola: CAUGHT_POKEMON	ID: 15
+Particion 15: 0x805354c - 0x805354f.	[X]	Size: 4b	LRU: 19:20:49	Cola: CAUGHT_POKEMON	ID: 16
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dump: 21/07/2020 19:23:24
+Particion 0: 0x8053510 - 0x8053513.	[X]	Size: 4b	LRU: 19:20:52	Cola: CAUGHT_POKEMON	ID: 17
+Particion 1: 0x8053514 - 0x8053517.	[X]	Size: 4b	LRU: 19:20:10	Cola: CAUGHT_POKEMON	ID: 2
+Particion 2: 0x8053518 - 0x805351b.	[X]	Size: 4b	LRU: 19:20:14	Cola: CAUGHT_POKEMON	ID: 3
+Particion 3: 0x805351c - 0x805351f.	[X]	Size: 4b	LRU: 19:20:17	Cola: CAUGHT_POKEMON	ID: 4
+Particion 4: 0x8053520 - 0x8053523.	[X]	Size: 4b	LRU: 19:20:20	Cola: CAUGHT_POKEMON	ID: 5
+Particion 5: 0x8053524 - 0x8053527.	[X]	Size: 4b	LRU: 19:20:23	Cola: CAUGHT_POKEMON	ID: 6
+Particion 6: 0x8053528 - 0x805352b.	[X]	Size: 4b	LRU: 19:20:25	Cola: CAUGHT_POKEMON	ID: 7
+Particion 7: 0x805352c - 0x805352f.	[X]	Size: 4b	LRU: 19:20:28	Cola: CAUGHT_POKEMON	ID: 8
+Particion 8: 0x8053530 - 0x8053533.	[X]	Size: 4b	LRU: 19:20:32	Cola: CAUGHT_POKEMON	ID: 9
+Particion 9: 0x8053534 - 0x8053537.	[X]	Size: 4b	LRU: 19:20:35	Cola: CAUGHT_POKEMON	ID: 10
+Particion 10: 0x8053538 - 0x805353b.	[X]	Size: 4b	LRU: 19:20:38	Cola: CAUGHT_POKEMON	ID: 11
+Particion 11: 0x805353c - 0x805353f.	[X]	Size: 4b	LRU: 19:20:40	Cola: CAUGHT_POKEMON	ID: 12
+Particion 12: 0x8053540 - 0x8053543.	[X]	Size: 4b	LRU: 19:20:42	Cola: CAUGHT_POKEMON	ID: 13
+Particion 13: 0x8053544 - 0x8053547.	[X]	Size: 4b	LRU: 19:20:44	Cola: CAUGHT_POKEMON	ID: 14
+Particion 14: 0x8053548 - 0x805354b.	[X]	Size: 4b	LRU: 19:20:46	Cola: CAUGHT_POKEMON	ID: 15
+Particion 15: 0x805354c - 0x805354f.	[X]	Size: 4b	LRU: 19:20:49	Cola: CAUGHT_POKEMON	ID: 16
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
