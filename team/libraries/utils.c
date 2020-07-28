@@ -198,14 +198,17 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	if(conexion==-1){
 		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; GET-> 'Pokemon %s sin locaciones'", especiePokemon);
+		t_pokemonObjetivo *poke = buscarPokemon(especiePokemon);
+		sem_wait(&mutex_objetivo);
+		poke->diferenciaARecibir = poke->cantidad;
+		sem_post(&mutex_objetivo);
 		crear_hilo_reconexion("./team.config");
-		sem_post(&sem_localized_appeared);
+		//sem_post(&sem_localized_appeared);
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
-	t_pokemonObjetivo *poke = buscarPokemon(especiePokemon);
-	sem_wait(&mutex_objetivo);
-	poke->diferenciaARecibir--;
-	sem_post(&mutex_objetivo);
+	//sem_wait(&mutex_objetivo);
+	//poke->diferenciaARecibir--;
+	//sem_post(&mutex_objetivo);
 	//free(pokemon);
 	mensaje=client_recibir_mensaje(conexion);
 	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje GET enviado es] %s",mensaje);
