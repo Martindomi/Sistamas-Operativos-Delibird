@@ -84,6 +84,7 @@ t_cola_mensaje* selecciono_cola(int cola);
 void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, puntero_mensaje puntero_mensaje_completo, punteroParticion punteroParticion);
 void* distribuir_mensajes(void* puntero_cola);
 bool fue_respondido(t_mensaje* mensaje_completo, t_cola_mensaje* cola_mensaje);
+void esperar_cliente(int socket_servidor);
 
 void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje);
 
@@ -124,7 +125,15 @@ bool ordernar_particiones_memoria(void* puntero1, void* puntero2);
 void manejo_dump_cache(int num);
 void esperar_mensaje_ack(puntero_ack punteroAck);
 uint32_t obtener_milisegundos();
-
+void manejo_end();
+void liberar(int cola, puntero_mensaje mensaje);
+void liberar_mensajes_new(void* men);
+void liberar_mensajes_get(void* men);
+void liberar_mensajes_localized(void* men);
+void liberar_mensajes_appeared(void* men);
+void liberar_mensajes_caught(void* men);
+void liberar_mensajes_catch(void* men);
+void liberar_particion(void* part);
 int cantidad_mensajes;
 
 #endif /* SERVIDOR_H_ */
