@@ -258,6 +258,8 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion = (%d;%d)", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 		mover_entrenador_bloqueado_a_exit(entrenador);
 
+		//free(entrenador->pokemonCapturando);
+
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
 	//	printf("Envio catch pokemon %s\n",especiePokemon);
@@ -265,7 +267,7 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		entrenador->id_catch = atoi(mensaje);
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje CATCH enviado es] %s",mensaje);
 		list_add(ids_mensajes_enviados, mensaje);
-
+		//free(mensaje)
 		liberar_conexion(conexion);
 
 	}
@@ -399,7 +401,7 @@ void liberar_lista_objetivos(){
 void pokemon_destroyer(t_pokemon* pokemon){
 
 	if(pokemon!=NULL){
-	//free(pokemon);
+//		free(pokemon);
 	}
 }
 
@@ -433,7 +435,9 @@ void liberar_entrenadores_de_lista(t_list* unaLista){
 }
 
 void mensaje_destroyer(char* mensaje){
-	free(mensaje);
+	if(mensaje!=NULL){
+		free(mensaje);
+	}
 }
 
 void liberar_ids_mensajes_enviados(){

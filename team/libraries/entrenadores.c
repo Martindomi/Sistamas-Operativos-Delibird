@@ -269,7 +269,7 @@ void cargarObjetivosGlobales(t_list* pokemones){
 
 void agregarPokemonALista(char* pokemon){
 
-	t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(t_pokemonObjetivo));
+
 
 	//strcpy(pokemonObjetivo->pokemon,pokemon);
 
@@ -278,7 +278,7 @@ void agregarPokemonALista(char* pokemon){
 
 
 	if(pokemonBuscado==NULL){
-
+		t_pokemonObjetivo *pokemonObjetivo=malloc(sizeof(t_pokemonObjetivo));
 		pokemonObjetivo->pokemon=malloc(strlen(pokemon)+1);
 		strcpy(pokemonObjetivo->pokemon,pokemon);
 		//pokemonObjetivo->pokemon = pokemon;
