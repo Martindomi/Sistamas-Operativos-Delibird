@@ -754,3 +754,945 @@
 [INFO] 15:29:40:470 GAMECARD/(4774:5109): CATCH_POKEMON: Se ha modificado el contenido del archivo Vaporeon
 [INFO] 15:30:05:492 GAMECARD/(4774:5124): CATCH_POKEMON: Se ha modificado el contenido del archivo Espeon
 [INFO] 15:30:20:482 GAMECARD/(4774:5140): CATCH_POKEMON: Se ha modificado el contenido del archivo Squirtle
+[INFO] 16:23:55:529 GAMECARD/(19891:19891): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:23:55:732 GAMECARD/(19891:19893): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:24:05:740 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:24:15:743 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:24:25:745 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:24:35:746 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:24:45:748 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:24:55:749 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:05:750 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:15:751 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:25:752 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:35:754 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:45:755 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:25:55:758 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:05:759 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:15:760 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:25:762 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:35:764 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:45:766 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:26:55:767 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:27:05:769 GAMECARD/(19891:19893): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:28:39:326 GAMECARD/(21184:21184): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:28:39:530 GAMECARD/(21184:21186): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:28:49:539 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:28:52:221 GAMECARD/(21184:21185): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:28:52:227 GAMECARD/(21184:21185): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:28:59:541 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:07:993 GAMECARD/(21184:21185): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:29:07:998 GAMECARD/(21184:21185): MENSAJE :: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:29:09:542 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:19:543 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:29:545 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:39:546 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:49:548 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:29:59:549 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:30:09:550 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:30:19:552 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:30:29:553 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:30:39:554 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:30:49:556 GAMECARD/(21184:21186): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:31:30:453 GAMECARD/(21290:21290): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:31:30:688 GAMECARD/(21290:21294): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:31:40:701 GAMECARD/(21290:21294): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:31:50:703 GAMECARD/(21290:21294): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:32:00:705 GAMECARD/(21290:21294): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:32:10:709 GAMECARD/(21290:21294): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:34:07:271 GAMECARD/(21644:21644): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:34:07:536 GAMECARD/(21644:21649): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:34:17:552 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:34:21:251 GAMECARD/(21644:21654): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:34:21:258 GAMECARD/(21644:21654): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:34:27:554 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:34:31:174 GAMECARD/(21644:21660): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:34:31:178 GAMECARD/(21644:21660): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:34:37:555 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:34:47:556 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:34:57:558 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:35:07:560 GAMECARD/(21644:21649): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:36:53:207 GAMECARD/(21938:21938): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:36:53:446 GAMECARD/(21938:21942): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:37:03:464 GAMECARD/(21938:21942): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:37:13:467 GAMECARD/(21938:21942): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:37:23:468 GAMECARD/(21938:21942): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:37:30:127 GAMECARD/(21938:22086): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:37:30:135 GAMECARD/(21938:22086): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:37:47:337 GAMECARD/(22094:22094): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:37:47:790 GAMECARD/(22094:22098): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:37:54:772 GAMECARD/(22094:22102): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:37:54:776 GAMECARD/(22094:22102): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:37:57:804 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:05:747 GAMECARD/(22094:22106): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:38:05:755 GAMECARD/(22094:22106): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:07:806 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:10:785 GAMECARD/(22094:22107): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:10:787 GAMECARD/(22094:22107): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:15:821 GAMECARD/(22094:22109): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:15:824 GAMECARD/(22094:22109): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:17:808 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:20:873 GAMECARD/(22094:22111): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:20:876 GAMECARD/(22094:22111): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:25:942 GAMECARD/(22094:22113): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:25:946 GAMECARD/(22094:22113): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:27:809 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:30:962 GAMECARD/(22094:22115): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:30:967 GAMECARD/(22094:22115): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:36:36 GAMECARD/(22094:22122): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:36:39 GAMECARD/(22094:22122): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:37:810 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:41:140 GAMECARD/(22094:22130): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:38:41:143 GAMECARD/(22094:22130): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:38:47:819 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:38:57:822 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:07:824 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:17:828 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:27:829 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:37:833 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:46:768 GAMECARD/(22094:22178): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:39:46:773 GAMECARD/(22094:22178): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:39:47:839 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:39:57:843 GAMECARD/(22094:22098): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:46:16:477 GAMECARD/(22687:22687): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:46:17:58 GAMECARD/(22687:22692): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:46:38:527 GAMECARD/(22705:22705): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:46:38:987 GAMECARD/(22705:22709): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:46:46:758 GAMECARD/(22705:22713): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:46:46:761 GAMECARD/(22705:22713): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:46:49:3 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:46:59:5 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:03:234 GAMECARD/(22705:22723): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:47:03:241 GAMECARD/(22705:22723): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:08:250 GAMECARD/(22705:22728): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:08:251 GAMECARD/(22705:22728): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:09:6 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:13:267 GAMECARD/(22705:22731): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:13:269 GAMECARD/(22705:22731): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:18:290 GAMECARD/(22705:22733): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:18:293 GAMECARD/(22705:22733): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:19:7 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:23:310 GAMECARD/(22705:22735): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:23:313 GAMECARD/(22705:22735): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:28:359 GAMECARD/(22705:22737): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:28:361 GAMECARD/(22705:22737): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:29:9 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:33:413 GAMECARD/(22705:22739): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:33:415 GAMECARD/(22705:22739): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:38:480 GAMECARD/(22705:22743): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:38:482 GAMECARD/(22705:22743): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:39:11 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:49:13 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:47:49:706 GAMECARD/(22705:22746): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:47:49:711 GAMECARD/(22705:22746): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:47:59:15 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:48:09:16 GAMECARD/(22705:22709): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:52:13:91 GAMECARD/(22992:22992): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 16:52:14:326 GAMECARD/(22992:22997): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 16:52:24:338 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:52:34:341 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:52:44:342 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:52:54:344 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:52:58:179 GAMECARD/(22992:23003): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:52:58:185 GAMECARD/(22992:23003): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:53:04:345 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:53:14:347 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:53:24:349 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:53:33:339 GAMECARD/(22992:23012): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 16:53:33:342 GAMECARD/(22992:23012): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:53:34:350 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:53:44:352 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:53:54:353 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:04:355 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:14:356 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:24:358 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:27:365 GAMECARD/(22992:23027): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:54:27:368 GAMECARD/(22992:23027): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:54:34:359 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:44:360 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:54:54:361 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:04:363 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:07:683 GAMECARD/(22992:23039): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 16:55:07:686 GAMECARD/(22992:23039): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 16:55:14:364 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:24:366 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:34:370 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:44:371 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:55:54:372 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:56:04:374 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:56:14:375 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:56:24:377 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:56:34:379 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 16:56:44:380 GAMECARD/(22992:22997): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:01:05:834 GAMECARD/(23439:23439): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 17:01:06:75 GAMECARD/(23439:23444): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 17:01:16:90 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:01:23:523 GAMECARD/(23439:23448): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:01:23:538 GAMECARD/(23439:23448): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:01:26:93 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:01:36:94 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:01:38:172 GAMECARD/(23439:23459): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:01:38:179 GAMECARD/(23439:23459): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:01:46:96 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:01:56:98 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:06:99 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:16:101 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:26:103 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:36:104 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:46:106 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:02:56:107 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:06:108 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:16:110 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:26:111 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:36:113 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:46:115 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:03:56:116 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:06:117 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:16:120 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:26:122 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:36:124 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:46:126 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:04:56:128 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:06:133 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:16:135 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:26:137 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:36:139 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:46:140 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:05:56:142 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:06:143 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:16:145 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:26:147 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:36:149 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:46:151 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:06:56:152 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:07:06:153 GAMECARD/(23439:23444): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:07:29:700 GAMECARD/(23631:23631): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 17:07:30:167 GAMECARD/(23631:23635): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 17:07:40:184 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:07:43:225 GAMECARD/(23631:23642): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 17:07:43:231 GAMECARD/(23631:23642): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:07:50:185 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:07:50:537 GAMECARD/(23631:23646): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 17:07:50:542 GAMECARD/(23631:23646): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:07:55:579 GAMECARD/(23631:23654): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:07:55:580 GAMECARD/(23631:23654): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:00:187 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:08:00:600 GAMECARD/(23631:23664): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:00:603 GAMECARD/(23631:23664): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:05:623 GAMECARD/(23631:23665): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:05:626 GAMECARD/(23631:23665): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:10:190 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:08:10:642 GAMECARD/(23631:23667): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:10:645 GAMECARD/(23631:23667): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:15:662 GAMECARD/(23631:23669): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:15:665 GAMECARD/(23631:23669): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:20:191 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:08:20:709 GAMECARD/(23631:23671): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:20:712 GAMECARD/(23631:23671): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:25:772 GAMECARD/(23631:23673): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:25:776 GAMECARD/(23631:23673): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:30:192 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:08:40:194 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 17:08:48:498 GAMECARD/(23631:23678): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 17:08:48:503 GAMECARD/(23631:23678): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 17:08:50:195 GAMECARD/(23631:23635): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:08:57:296 GAMECARD/(24746:24746): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:08:57:696 GAMECARD/(24746:24752): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:09:07:716 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:09:17:718 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:09:27:720 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:09:37:721 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:09:47:722 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:09:57:724 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:10:07:725 GAMECARD/(24746:24752): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:10:17:612 GAMECARD/(24862:24862): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:10:17:987 GAMECARD/(24862:24865): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:10:25:513 GAMECARD/(24862:24869): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:10:25:516 GAMECARD/(24862:24869): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:10:27:2 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:10:38:4 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:10:48:5 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:10:58:7 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:04:454 GAMECARD/(24862:24892): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:11:04:462 GAMECARD/(24862:24892): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:08:9 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:09:509 GAMECARD/(24862:24894): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:09:510 GAMECARD/(24862:24894): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:14:526 GAMECARD/(24862:24898): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:14:528 GAMECARD/(24862:24898): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:18:10 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:19:544 GAMECARD/(24862:24900): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:19:547 GAMECARD/(24862:24900): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:24:563 GAMECARD/(24862:24902): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:24:570 GAMECARD/(24862:24902): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:28:12 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:29:586 GAMECARD/(24862:24904): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:29:590 GAMECARD/(24862:24904): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:34:608 GAMECARD/(24862:24906): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:34:612 GAMECARD/(24862:24906): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:38:13 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:39:670 GAMECARD/(24862:24908): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:11:39:674 GAMECARD/(24862:24908): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:11:48:14 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:11:58:15 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:08:17 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:18:18 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:23:737 GAMECARD/(24862:24945): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:12:23:742 GAMECARD/(24862:24945): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:12:28:19 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:38:20 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:48:21 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:12:58:23 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:08:24 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:18:26 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:28:27 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:38:28 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:48:29 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:13:58:31 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:08:33 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:18:34 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:28:36 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:38:37 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:48:38 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:14:58:39 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:15:08:46 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:15:18:47 GAMECARD/(24862:24865): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:20:40:548 GAMECARD/(25331:25331): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:20:40:957 GAMECARD/(25331:25335): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:20:49:344 GAMECARD/(25331:25340): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:20:49:346 GAMECARD/(25331:25340): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:20:50:967 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:00:970 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:07:111 GAMECARD/(25331:25350): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:21:07:116 GAMECARD/(25331:25350): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:10:972 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:12:122 GAMECARD/(25331:25351): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:12:124 GAMECARD/(25331:25351): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:17:139 GAMECARD/(25331:25355): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:17:142 GAMECARD/(25331:25355): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:20:974 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:22:204 GAMECARD/(25331:25357): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:22:207 GAMECARD/(25331:25357): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:27:277 GAMECARD/(25331:25359): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:27:281 GAMECARD/(25331:25359): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:30:975 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:32:297 GAMECARD/(25331:25361): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:32:300 GAMECARD/(25331:25361): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:37:319 GAMECARD/(25331:25363): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:37:321 GAMECARD/(25331:25363): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:40:977 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:21:42:407 GAMECARD/(25331:25365): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:21:42:413 GAMECARD/(25331:25365): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:21:50:979 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:22:00:980 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:22:10:982 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:22:20:983 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:22:22:645 GAMECARD/(25331:25380): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:22:22:666 GAMECARD/(25331:25380): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:22:30:984 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:22:40:986 GAMECARD/(25331:25335): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:01:732 GAMECARD/(25431:25431): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:25:01:772 GAMECARD/(25431:25434): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:25:10:757 GAMECARD/(25431:25438): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:25:10:757 GAMECARD/(25431:25438): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:25:11:773 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:21:773 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:31:774 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:38:821 GAMECARD/(25431:25462): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:25:38:821 GAMECARD/(25431:25462): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:25:41:775 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:43:825 GAMECARD/(25431:25464): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:25:43:826 GAMECARD/(25431:25464): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:25:48:887 GAMECARD/(25431:25468): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:25:48:887 GAMECARD/(25431:25468): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:25:51:775 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:25:53:889 GAMECARD/(25431:25472): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:25:53:890 GAMECARD/(25431:25472): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:25:58:893 GAMECARD/(25431:25474): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:25:58:893 GAMECARD/(25431:25474): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:26:01:776 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:26:03:895 GAMECARD/(25431:25476): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:26:03:895 GAMECARD/(25431:25476): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:26:08:987 GAMECARD/(25431:25478): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:26:08:988 GAMECARD/(25431:25478): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:26:11:777 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:26:14:14 GAMECARD/(25431:25481): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:26:14:14 GAMECARD/(25431:25481): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:26:21:777 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:26:31:779 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:26:41:780 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:26:48:24 GAMECARD/(25431:25514): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:26:48:27 GAMECARD/(25431:25514): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:26:51:780 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:01:781 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:11:781 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:21:782 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:31:783 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:41:783 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:27:45:973 GAMECARD/(25431:25549): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:27:45:973 GAMECARD/(25431:25549): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:27:51:784 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:28:01:784 GAMECARD/(25431:25434): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:33:27:649 GAMECARD/(25738:25738): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:33:27:703 GAMECARD/(25738:25741): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:33:37:704 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:33:40:704 GAMECARD/(25738:25745): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:33:40:705 GAMECARD/(25738:25745): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:33:47:704 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:33:57:705 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:03:786 GAMECARD/(25738:25773): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:34:03:787 GAMECARD/(25738:25773): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:03:845 GAMECARD/(25738:25775): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:03:846 GAMECARD/(25738:25775): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:07:705 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:08:846 GAMECARD/(25738:25777): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:08:847 GAMECARD/(25738:25777): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:13:847 GAMECARD/(25738:25779): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:13:847 GAMECARD/(25738:25779): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:17:706 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:18:848 GAMECARD/(25738:25781): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:18:848 GAMECARD/(25738:25781): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:27:706 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:28:850 GAMECARD/(25738:25783): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:28:851 GAMECARD/(25738:25783): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:37:707 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:38:851 GAMECARD/(25738:25787): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:38:852 GAMECARD/(25738:25787): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:47:708 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:34:48:891 GAMECARD/(25738:25785): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:34:48:894 GAMECARD/(25738:25785): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:34:57:708 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:07:709 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:17:709 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:27:710 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:37:710 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:47:710 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:35:51:983 GAMECARD/(25738:25890): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:35:51:983 GAMECARD/(25738:25890): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:35:57:711 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:36:07:711 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:36:17:712 GAMECARD/(25738:25741): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:37:38:145 GAMECARD/(25929:25929): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:37:38:551 GAMECARD/(25929:25933): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:37:48:314 GAMECARD/(25929:25938): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:37:48:317 GAMECARD/(25929:25938): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:37:48:566 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:37:58:568 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:37:59:486 GAMECARD/(25929:25946): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:37:59:493 GAMECARD/(25929:25946): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:37:59:598 GAMECARD/(25929:25943): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 19:37:59:603 GAMECARD/(25929:25943): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:04:513 GAMECARD/(25929:25948): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:04:521 GAMECARD/(25929:25948): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:08:570 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:38:14:553 GAMECARD/(25929:25954): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:14:556 GAMECARD/(25929:25954): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:18:571 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:38:24:555 GAMECARD/(25929:25950): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:24:558 GAMECARD/(25929:25950): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:28:572 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:38:34:574 GAMECARD/(25929:25956): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:34:576 GAMECARD/(25929:25956): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:38:574 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:38:44:580 GAMECARD/(25929:25952): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:44:582 GAMECARD/(25929:25952): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:48:576 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:38:54:665 GAMECARD/(25929:25957): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:38:54:676 GAMECARD/(25929:25957): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:38:58:577 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:08:579 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:16:117 GAMECARD/(25929:25984): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 19:39:16:136 GAMECARD/(25929:25984): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:39:18:580 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:28:582 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:38:583 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:48:585 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:39:55:906 GAMECARD/(25929:26012): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:39:55:909 GAMECARD/(25929:26012): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:39:58:586 GAMECARD/(25929:25933): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:48:35:423 GAMECARD/(26349:26349): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:48:35:703 GAMECARD/(26349:26352): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:48:44:469 GAMECARD/(26349:26356): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:48:44:472 GAMECARD/(26349:26356): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 19:48:45:717 GAMECARD/(26349:26352): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:52:43:180 GAMECARD/(26569:26569): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:52:44:512 GAMECARD/(26569:26580): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:52:45:624 GAMECARD/(26569:26582): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:52:46:665 GAMECARD/(26569:26584): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:53:08:499 GAMECARD/(26569:26612): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:53:08:589 GAMECARD/(26569:26614): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:53:18:596 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:53:28:598 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:53:38:599 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:53:48:601 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:53:58:602 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:54:08:604 GAMECARD/(26569:26614): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:54:29:166 GAMECARD/(26660:26660): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:54:29:395 GAMECARD/(26660:26665): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:54:30:516 GAMECARD/(26660:26667): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:54:31:552 GAMECARD/(26660:26669): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:54:44:776 GAMECARD/(26660:26675): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:54:44:859 GAMECARD/(26660:26677): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:54:54:862 GAMECARD/(26660:26677): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:57:19:202 GAMECARD/(26872:26872): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:57:19:445 GAMECARD/(26872:26877): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:57:20:488 GAMECARD/(26872:26879): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:57:21:530 GAMECARD/(26872:26881): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:57:30:513 GAMECARD/(26872:26887): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:57:33:737 GAMECARD/(26872:26890): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:57:43:744 GAMECARD/(26872:26890): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:57:53:746 GAMECARD/(26872:26890): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:58:03:748 GAMECARD/(26872:26890): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:58:13:751 GAMECARD/(26872:26890): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:59:00:501 GAMECARD/(26986:26986): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 19:59:00:726 GAMECARD/(26986:26991): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:59:01:773 GAMECARD/(26986:26993): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:59:02:816 GAMECARD/(26986:26995): MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: SUSCRIPCION COMPLETADA
+[INFO] 19:59:11:303 GAMECARD/(26986:27001): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 19:59:11:399 GAMECARD/(26986:27003): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 19:59:21:404 GAMECARD/(26986:27003): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:59:31:406 GAMECARD/(26986:27003): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:59:41:407 GAMECARD/(26986:27003): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 19:59:51:409 GAMECARD/(26986:27003): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:00:01:410 GAMECARD/(26986:27003): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:06:35:689 GAMECARD/(27217:27217): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 20:06:36:409 GAMECARD/(27217:27221): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 20:06:46:531 GAMECARD/(27217:27221): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:06:55:841 GAMECARD/(27217:27226): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 20:06:55:843 GAMECARD/(27217:27226): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 20:06:56:533 GAMECARD/(27217:27221): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:12:49:674 GAMECARD/(27451:27451): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 20:12:49:911 GAMECARD/(27451:27454): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 20:12:57:836 GAMECARD/(27451:27460): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 20:12:57:839 GAMECARD/(27451:27460): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 20:12:59:925 GAMECARD/(27451:27454): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:17:51:950 GAMECARD/(27641:27641): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 20:17:52:180 GAMECARD/(27641:27647): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 20:18:00:661 GAMECARD/(27641:27651): GET_POKEMON:se envío el listado de posiciones del pokemon Charmander existente dentro del file system
+[INFO] 20:18:00:666 GAMECARD/(27641:27651): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 20:18:02:198 GAMECARD/(27641:27647): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:18:36:234 GAMECARD/(27666:27666): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 20:18:36:464 GAMECARD/(27666:27670): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 20:18:45:12 GAMECARD/(27666:27674): GET_POKEMON: No existe el pokemon Charma dentro del file system
+[INFO] 20:18:45:16 GAMECARD/(27666:27674): MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 20:18:46:478 GAMECARD/(27666:27670): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:19:46:766 GAMECARD/(27716:27716): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 20:19:46:994 GAMECARD/(27716:27721): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 20:19:57:9 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:20:07:11 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:20:07:985 GAMECARD/(27716:27727): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 20:20:07:990 GAMECARD/(27716:27727): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 20:20:17:14 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:20:27:16 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:20:37:17 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 20:20:47:18 GAMECARD/(27716:27721): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:25:06:857 GAMECARD/(28345:28345): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:25:07:125 GAMECARD/(28345:28350): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:25:17:139 GAMECARD/(28345:28350): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:25:27:141 GAMECARD/(28345:28350): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:25:27:305 GAMECARD/(28345:28356): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:25:27:310 GAMECARD/(28345:28356): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:25:37:143 GAMECARD/(28345:28350): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:38:28:243 GAMECARD/(28781:28781): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:38:28:504 GAMECARD/(28781:28784): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:38:38:516 GAMECARD/(28781:28784): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:38:40:413 GAMECARD/(28781:28788): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:38:40:421 GAMECARD/(28781:28788): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:38:48:518 GAMECARD/(28781:28784): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:38:49:375 GAMECARD/(28781:28791): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 41-1 solicitada
+[INFO] 22:38:49:382 GAMECARD/(28781:28791): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:43:15:276 GAMECARD/(28971:28971): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:43:15:527 GAMECARD/(28971:28978): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:43:25:543 GAMECARD/(28971:28978): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:43:35:544 GAMECARD/(28971:28978): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:43:45:546 GAMECARD/(28971:28978): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:43:55:548 GAMECARD/(28971:28978): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:47:25:707 GAMECARD/(29207:29207): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:47:25:976 GAMECARD/(29207:29210): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:47:35:993 GAMECARD/(29207:29210): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:47:45:996 GAMECARD/(29207:29210): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:47:55:997 GAMECARD/(29207:29210): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:48:31:646 GAMECARD/(29253:29253): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:48:32:83 GAMECARD/(29253:29258): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:48:42:100 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:48:47:813 GAMECARD/(29253:29263): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:48:47:817 GAMECARD/(29253:29263): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:48:52:133 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:48:57:358 GAMECARD/(29253:29269): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:48:57:362 GAMECARD/(29253:29269): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:48:57:505 GAMECARD/(29253:29267): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:48:57:510 GAMECARD/(29253:29267): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:02:358 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:49:02:388 GAMECARD/(29253:29271): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:02:402 GAMECARD/(29253:29271): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:07:412 GAMECARD/(29253:29275): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:07:415 GAMECARD/(29253:29275): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:12:360 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:49:17:436 GAMECARD/(29253:29273): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:17:438 GAMECARD/(29253:29273): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:22:362 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:49:27:431 GAMECARD/(29253:29280): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:27:434 GAMECARD/(29253:29280): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:32:363 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:49:37:468 GAMECARD/(29253:29277): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:37:470 GAMECARD/(29253:29277): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:42:364 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:49:47:519 GAMECARD/(29253:29279): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:49:47:522 GAMECARD/(29253:29279): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:49:52:366 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:50:02:367 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:50:12:368 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:50:22:375 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:50:27:506 GAMECARD/(29253:29325): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:50:27:530 GAMECARD/(29253:29325): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:50:32:376 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:50:33:523 GAMECARD/(29253:29341): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 22:50:33:529 GAMECARD/(29253:29341): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:50:41:648 GAMECARD/(29253:29344): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 22:50:41:650 GAMECARD/(29253:29344): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:50:42:377 GAMECARD/(29253:29258): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:53:08:386 GAMECARD/(29454:29454): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 22:53:08:875 GAMECARD/(29454:29459): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 22:53:18:901 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:53:25:377 GAMECARD/(29454:29470): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:53:25:381 GAMECARD/(29454:29470): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:53:28:903 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:53:38:931 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:53:43:821 GAMECARD/(29454:29477): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:53:43:826 GAMECARD/(29454:29477): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:53:44:171 GAMECARD/(29454:29475): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 22:53:44:176 GAMECARD/(29454:29475): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:53:48:853 GAMECARD/(29454:29479): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:53:48:857 GAMECARD/(29454:29479): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:53:48:933 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:53:53:874 GAMECARD/(29454:29481): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:53:53:881 GAMECARD/(29454:29481): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:53:58:935 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:03:888 GAMECARD/(29454:29490): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:54:03:890 GAMECARD/(29454:29490): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:54:08:936 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:13:896 GAMECARD/(29454:29489): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:54:13:898 GAMECARD/(29454:29489): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:54:18:946 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:23:986 GAMECARD/(29454:29485): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:54:23:996 GAMECARD/(29454:29485): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:54:28:947 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:34:47 GAMECARD/(29454:29487): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:54:34:64 GAMECARD/(29454:29487): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:54:38:951 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:48:952 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:54:58:953 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:01:618 GAMECARD/(29454:29530): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:55:01:642 GAMECARD/(29454:29530): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:55:08:954 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:13:706 GAMECARD/(29454:29543): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 22:55:13:717 GAMECARD/(29454:29543): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:55:18:956 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:27:472 GAMECARD/(29454:29557): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 22:55:27:473 GAMECARD/(29454:29557): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:55:28:957 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:38:959 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:48:960 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 22:55:53:53 GAMECARD/(29454:29560): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 22:55:53:69 GAMECARD/(29454:29560): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 22:55:58:962 GAMECARD/(29454:29459): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:03:58:578 GAMECARD/(29833:29833): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:03:59:43 GAMECARD/(29833:29837): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:04:09:61 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:04:10:351 GAMECARD/(29833:29843): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:04:10:354 GAMECARD/(29833:29843): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:19:63 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:04:25:403 GAMECARD/(29833:29864): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:04:25:410 GAMECARD/(29833:29864): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:25:625 GAMECARD/(29833:29862): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:04:25:649 GAMECARD/(29833:29862): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:29:65 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:04:30:437 GAMECARD/(29833:29869): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:04:30:442 GAMECARD/(29833:29869): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:35:456 GAMECARD/(29833:29873): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:04:35:460 GAMECARD/(29833:29873): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:39:66 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:04:45:517 GAMECARD/(29833:29875): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:04:45:519 GAMECARD/(29833:29875): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:49:68 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:04:55:471 GAMECARD/(29833:29867): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:04:55:475 GAMECARD/(29833:29867): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:04:59:70 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:05:480 GAMECARD/(29833:29876): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:05:05:483 GAMECARD/(29833:29876): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:05:09:72 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:15:505 GAMECARD/(29833:29871): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:05:15:508 GAMECARD/(29833:29871): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:05:19:73 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:29:75 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:39:76 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:49:78 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:05:50:694 GAMECARD/(29833:29899): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:05:50:719 GAMECARD/(29833:29899): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:05:52:801 GAMECARD/(29833:29905): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 23:05:52:840 GAMECARD/(29833:29905): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:05:56:943 GAMECARD/(29833:29908): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 23:05:56:945 GAMECARD/(29833:29908): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:05:59:80 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:06:07:705 GAMECARD/(29833:29911): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:06:07:716 GAMECARD/(29833:29911): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:06:09:82 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:06:19:93 GAMECARD/(29833:29837): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:15:12:67 GAMECARD/(30568:30568): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:15:13:515 GAMECARD/(30568:30574): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:15:23:528 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:15:24:573 GAMECARD/(30568:30581): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:15:24:577 GAMECARD/(30568:30581): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:15:30:751 GAMECARD/(30568:30587): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:15:30:756 GAMECARD/(30568:30587): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:15:30:786 GAMECARD/(30568:30585): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:15:30:796 GAMECARD/(30568:30585): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:15:33:529 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:15:35:786 GAMECARD/(30568:30589): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:15:35:788 GAMECARD/(30568:30589): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:15:43:531 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:15:45:808 GAMECARD/(30568:30597): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:15:45:811 GAMECARD/(30568:30597): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:15:53:533 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:15:55:817 GAMECARD/(30568:30591): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:15:55:820 GAMECARD/(30568:30591): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:16:03:534 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:05:826 GAMECARD/(30568:30595): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:16:05:830 GAMECARD/(30568:30595): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:16:13:537 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:15:862 GAMECARD/(30568:30593): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:16:15:864 GAMECARD/(30568:30593): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:16:23:539 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:25:868 GAMECARD/(30568:30598): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:16:25:871 GAMECARD/(30568:30598): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:16:33:540 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:43:541 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:53:543 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:16:56:84 GAMECARD/(30568:30618): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:16:56:105 GAMECARD/(30568:30618): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:16:59:928 GAMECARD/(30568:30622): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 23:16:59:955 GAMECARD/(30568:30622): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:17:02:853 GAMECARD/(30568:30628): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 23:17:02:855 GAMECARD/(30568:30628): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:17:03:544 GAMECARD/(30568:30574): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:22:26:979 GAMECARD/(30848:30848): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:22:27:535 GAMECARD/(30848:30853): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:22:37:553 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:22:39:251 GAMECARD/(30848:30864): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:22:39:255 GAMECARD/(30848:30864): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:22:46:46 GAMECARD/(30848:30870): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:22:46:58 GAMECARD/(30848:30870): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:22:46:261 GAMECARD/(30848:30868): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:22:46:270 GAMECARD/(30848:30868): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:22:47:554 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:22:51:146 GAMECARD/(30848:30872): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:22:51:150 GAMECARD/(30848:30872): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:22:57:555 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:01:157 GAMECARD/(30848:30876): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:23:01:161 GAMECARD/(30848:30876): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:23:07:557 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:11:162 GAMECARD/(30848:30881): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:23:11:166 GAMECARD/(30848:30881): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:23:17:558 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:21:180 GAMECARD/(30848:30880): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:23:21:182 GAMECARD/(30848:30880): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:23:27:560 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:31:204 GAMECARD/(30848:30874): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:23:31:207 GAMECARD/(30848:30874): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:23:37:562 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:41:283 GAMECARD/(30848:30878): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:23:41:287 GAMECARD/(30848:30878): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:23:47:563 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:23:57:564 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:24:05:938 GAMECARD/(30848:30915): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:24:05:964 GAMECARD/(30848:30915): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:24:07:122 GAMECARD/(30848:30921): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 23:24:07:147 GAMECARD/(30848:30921): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:24:07:565 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:24:11:731 GAMECARD/(30848:30924): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 23:24:11:733 GAMECARD/(30848:30924): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:24:17:567 GAMECARD/(30848:30853): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:27:23:716 GAMECARD/(30988:30988): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:27:24:258 GAMECARD/(30988:30992): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:27:34:119 GAMECARD/(30988:30997): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:27:34:123 GAMECARD/(30988:30997): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:27:34:279 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:27:43:936 GAMECARD/(30988:31012): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:27:43:941 GAMECARD/(30988:31012): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:27:44:218 GAMECARD/(30988:31010): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:27:44:226 GAMECARD/(30988:31010): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:27:44:281 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:27:48:978 GAMECARD/(30988:31014): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:27:48:981 GAMECARD/(30988:31014): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:27:54:282 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:27:58:987 GAMECARD/(30988:31024): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:27:58:989 GAMECARD/(30988:31024): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:04:283 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:28:08:998 GAMECARD/(30988:31016): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:28:08:1 GAMECARD/(30988:31016): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:14:287 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:28:19:5 GAMECARD/(30988:31021): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:28:19:8 GAMECARD/(30988:31021): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:24:289 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:28:29:24 GAMECARD/(30988:31023): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:28:29:28 GAMECARD/(30988:31023): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:34:291 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:28:39:75 GAMECARD/(30988:31019): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:28:39:77 GAMECARD/(30988:31019): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:44:292 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:28:47:477 GAMECARD/(30988:31047): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:28:47:482 GAMECARD/(30988:31047): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:53:411 GAMECARD/(30988:31050): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 23:28:53:440 GAMECARD/(30988:31050): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:28:54:293 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:29:00:209 GAMECARD/(30988:31052): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 23:29:00:211 GAMECARD/(30988:31052): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:29:04:295 GAMECARD/(30988:30992): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:32:22:162 GAMECARD/(31198:31198): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:32:22:612 GAMECARD/(31198:31202): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:32:32:399 GAMECARD/(31198:31207): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:32:32:403 GAMECARD/(31198:31207): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:32:32:675 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:32:38:838 GAMECARD/(31198:31219): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:32:38:857 GAMECARD/(31198:31219): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:32:39:143 GAMECARD/(31198:31217): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:32:39:149 GAMECARD/(31198:31217): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:32:42:677 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:32:43:930 GAMECARD/(31198:31221): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:32:43:932 GAMECARD/(31198:31221): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:32:52:678 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:32:53:928 GAMECARD/(31198:31229): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:32:53:932 GAMECARD/(31198:31229): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:33:02:679 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:33:03:948 GAMECARD/(31198:31225): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:33:03:951 GAMECARD/(31198:31225): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:33:12:683 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:33:13:954 GAMECARD/(31198:31230): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:33:13:957 GAMECARD/(31198:31230): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:33:22:685 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:33:23:957 GAMECARD/(31198:31227): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:33:23:959 GAMECARD/(31198:31227): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:33:32:686 GAMECARD/(31198:31202): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:33:34:17 GAMECARD/(31198:31223): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:33:34:20 GAMECARD/(31198:31223): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:15:550 GAMECARD/(31443:31443): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:40:16:11 GAMECARD/(31443:31447): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:40:23:532 GAMECARD/(31443:31453): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:40:23:535 GAMECARD/(31443:31453): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:26:25 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:40:33:316 GAMECARD/(31443:31468): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:40:33:321 GAMECARD/(31443:31468): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:33:575 GAMECARD/(31443:31466): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:40:33:580 GAMECARD/(31443:31466): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:36:27 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:40:38:357 GAMECARD/(31443:31470): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:40:38:360 GAMECARD/(31443:31470): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:46:28 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:40:48:364 GAMECARD/(31443:31479): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:40:48:366 GAMECARD/(31443:31479): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:40:56:29 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:40:58:376 GAMECARD/(31443:31474): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:40:58:379 GAMECARD/(31443:31474): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:41:06:31 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:41:08:385 GAMECARD/(31443:31476): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:41:08:388 GAMECARD/(31443:31476): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:41:16:35 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:41:18:396 GAMECARD/(31443:31480): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:41:18:400 GAMECARD/(31443:31480): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:41:26:36 GAMECARD/(31443:31447): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:41:28:494 GAMECARD/(31443:31472): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:41:28:498 GAMECARD/(31443:31472): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:42:58:974 GAMECARD/(31614:31614): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:42:59:431 GAMECARD/(31614:31623): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:43:09:491 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:43:11:710 GAMECARD/(31614:31629): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:43:11:718 GAMECARD/(31614:31629): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:14:486 GAMECARD/(31614:31636): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:14:491 GAMECARD/(31614:31636): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:16:847 GAMECARD/(31614:31634): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:43:16:855 GAMECARD/(31614:31634): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:19:535 GAMECARD/(31614:31638): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:19:541 GAMECARD/(31614:31638): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:19:632 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:43:29:552 GAMECARD/(31614:31647): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:29:555 GAMECARD/(31614:31647): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:29:633 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:43:39:558 GAMECARD/(31614:31643): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:39:563 GAMECARD/(31614:31643): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:39:635 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:43:49:573 GAMECARD/(31614:31640): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:49:575 GAMECARD/(31614:31640): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:49:679 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:43:59:577 GAMECARD/(31614:31645): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:43:59:580 GAMECARD/(31614:31645): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:43:59:680 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:44:09:633 GAMECARD/(31614:31648): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:44:09:637 GAMECARD/(31614:31648): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:44:09:681 GAMECARD/(31614:31623): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:46:31:490 GAMECARD/(31871:31871): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:46:31:978 GAMECARD/(31871:31875): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:46:41:473 GAMECARD/(31871:31880): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:46:41:476 GAMECARD/(31871:31880): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:46:41:1 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:46:51:579 GAMECARD/(31871:31889): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:46:51:586 GAMECARD/(31871:31889): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:46:51:2 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:46:52:61 GAMECARD/(31871:31887): NEW_POKEMON: Se ha modificado el contenido del archivo Pikachu
+[INFO] 23:46:52:76 GAMECARD/(31871:31887): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:46:56:633 GAMECARD/(31871:31891): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:46:56:637 GAMECARD/(31871:31891): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:01:4 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:06:641 GAMECARD/(31871:31901): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:06:645 GAMECARD/(31871:31901): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:12:9 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:16:661 GAMECARD/(31871:31898): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:16:665 GAMECARD/(31871:31898): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:22:11 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:26:672 GAMECARD/(31871:31896): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:26:674 GAMECARD/(31871:31896): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:32:13 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:36:677 GAMECARD/(31871:31900): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:36:680 GAMECARD/(31871:31900): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:42:15 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:46:729 GAMECARD/(31871:31893): NEW_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:46:733 GAMECARD/(31871:31893): MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:47:52:17 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:47:56:265 GAMECARD/(31871:31920): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:47:56:271 GAMECARD/(31871:31920): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:48:02:20 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:48:12:21 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:48:12:816 GAMECARD/(31871:31924): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:48:12:819 GAMECARD/(31871:31924): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:48:20:653 GAMECARD/(31871:31930): CATCH_POKEMON: No hay ningun pokemon Charmander en la posicion 4-10 solicitada
+[INFO] 23:48:20:680 GAMECARD/(31871:31930): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:48:22:23 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:48:29:786 GAMECARD/(31871:31932): CATCH_POKEMON; No existe el pokemon Charm dentro del sistema de archivos
+[INFO] 23:48:29:787 GAMECARD/(31871:31932): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:48:32:24 GAMECARD/(31871:31875): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:57:04:950 GAMECARD/(32229:32229): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:57:05:282 GAMECARD/(32229:32233): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:57:15:299 GAMECARD/(32229:32233): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:57:19:247 GAMECARD/(32229:32237): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:57:19:263 GAMECARD/(32229:32237): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 23:58:29:193 GAMECARD/(32346:32346): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 23:58:29:465 GAMECARD/(32346:32349): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 23:58:39:481 GAMECARD/(32346:32349): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 23:58:40:114 GAMECARD/(32346:32353): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 23:58:40:121 GAMECARD/(32346:32353): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 00:02:14:709 GAMECARD/(32576:32576): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 00:02:14:952 GAMECARD/(32576:32579): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 00:02:24:971 GAMECARD/(32576:32579): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 00:02:26:992 GAMECARD/(32576:32590): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 00:02:26:999 GAMECARD/(32576:32590): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 00:02:34:972 GAMECARD/(32576:32579): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 00:08:59:897 GAMECARD/(400:400): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 00:09:00:272 GAMECARD/(400:405): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 00:09:08:265 GAMECARD/(400:409): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 00:09:08:272 GAMECARD/(400:409): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 00:09:10:289 GAMECARD/(400:405): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 00:09:49:934 GAMECARD/(505:505): INICIO FILE SYSTEM: La configuracion fue levantada correctamente
+[INFO] 00:09:50:218 GAMECARD/(505:509): RECONEXION; Inicio de proceso de reintento de comunicacion con el Broker
+[INFO] 00:10:00:239 GAMECARD/(505:509): RECONEXION; FALLIDA, se realiza un nuevo intento
+[INFO] 00:10:08:899 GAMECARD/(505:514): CATCH_POKEMON: Se ha modificado el contenido del archivo Charmander
+[INFO] 00:10:08:906 GAMECARD/(505:514): MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker
+[INFO] 00:10:10:241 GAMECARD/(505:509): RECONEXION; FALLIDA, se realiza un nuevo intento

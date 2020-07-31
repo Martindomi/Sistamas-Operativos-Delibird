@@ -1188,6 +1188,7 @@ puntero_mensaje obtener_mensaje_localized(void* buffer) {
 		memcpy(&coord, buffer + desplazamiento, sizeof(uint32_t));
 		desplazamiento += sizeof(uint32_t);
 
+		//printf("coordenada: %d\n",coord);
 		list_add(coords,coord);
 
 	}
