@@ -24,7 +24,7 @@ void main_planificacion_recibidos(){
 	while(1){
 		//printf("esperando localized\n");
 		sem_wait(&sem_recibidos);
-		pokemon = list_get(listaPokemonsRecibidos,i);
+		pokemon = list_remove(listaPokemonsRecibidos,i);
 		//pokemonsObjetivo =list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonsObjetivo = buscarPokemon(pokemon->especie);
 		if(pokemonsObjetivo->cantidad==NULL){
@@ -66,8 +66,10 @@ void main_planificacion_recibidos(){
 			free(distancia_bloqued);
 		}
 
+		//free(pokemon->especie);
+		//free(pokemon);
+		//list_remove(listaPokemonsRecibidos,i);
 
-		list_remove(listaPokemonsRecibidos,i);
 	}
 return;
 }
@@ -107,9 +109,8 @@ void main_planificacion_caught(){
 				//printf("cantidad de pokemones capturados %d\n",list_size(entrenador->pokemonesCapturados));
 				log_info(loggerTEAM,"CAPTURA; Entrenador %d:  Captura pokemon: %s en la posicion = (%d;%d)", entrenador->id, entrenador->pokemonCapturando->especie, entrenador->x, entrenador->y);
 
-
+				//free(entrenador->pokemonCapturando->especie);
 				free(entrenador->pokemonCapturando); // SI ROMPE VER ACA
-
 
 				bloquedVacio = buscar_entrenadores_bloqueados_NOdisponibles();
 				if(list_is_empty(bloquedVacio)){
@@ -123,6 +124,9 @@ void main_planificacion_caught(){
 				sem_wait(&mutex_objetivo);
 				pokemonCaputrado->diferenciaARecibir++;
 				sem_post(&mutex_objetivo);
+
+				free(entrenador->pokemonCapturando->especie);
+				free(entrenador->pokemonCapturando); // SI ROMPE VER ACA
 				//printf("no lo pudo capturar :( :( :( \n");
 			}
 
@@ -131,6 +135,7 @@ void main_planificacion_caught(){
 			}
 
 		}
+
 		caught_destroyer(caught);
 		list_destroy(entrenadores_esperando_caught);
 
