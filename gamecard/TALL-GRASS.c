@@ -447,14 +447,14 @@ void quitar_bloque_de_metadata(char*path, char* bloque) {
 		string_append(&bloques, listaDeBloques[0]);
 		bloques[strlen(bloques) - 1] = '\0';
 		string_append(&bloques, listaDeBloques[1]);
+		free(listaDeBloques[0]);
+		free(listaDeBloques[1]);
 	}
 
 	config_set_value(cfg, "BLOCKS", bloques);
 	config_save(cfg);
 	config_destroy(cfg);
 
-	free(listaDeBloques[0]);
-	free(listaDeBloques[1]);
 	free(listaDeBloques);
 	free(bloques1);
 	free(bloques);
@@ -718,9 +718,9 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 						if ((string_length(mensaje)
 								+ cantidad_digitos(cantActual) + 1)
 								== string_length(contenidoBloques)) {
-							string_append(&contenidoFinal,
-									string_repeat('\0',
-											string_length(contenidoBloques)));
+							char * charRepetido = string_repeat('\0', string_length(contenidoBloques));
+							string_append(&contenidoFinal, charRepetido);
+							free(charRepetido);
 						} else {
 							string_append(&contenidoFinal,
 									string_substring_from(contenidoBloques,
