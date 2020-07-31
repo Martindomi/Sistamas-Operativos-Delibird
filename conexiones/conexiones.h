@@ -32,8 +32,8 @@ typedef enum
 	CAUGHT_POKEMON = 5,
 	GET_POKEMON = 6,
 	LOCALIZED_POKEMON = 7,
-	SUSCRIBE = 8
-
+	SUSCRIBE = 8,
+	NO_ASIGNADA = 0
 }op_code;
 
 typedef struct
@@ -114,6 +114,7 @@ typedef struct {
 	op_code cola;
 	char* cliente;
 	int tiempo;
+	uint32_t tamanoCliente;
 } t_suscripcion_cola;
 typedef t_suscripcion_cola* puntero_suscripcion_cola;
 
@@ -152,7 +153,7 @@ void* serializar_paquete(t_package* paquete, int* bytes);
 // HILO ESCUCHA
 int crear_hilo_escucha(char* ip, char* puerto);
 void* hilo_escucha(int socket);
-
+int guard(int n, char * err);
 
 // obtener mensajes
 puntero_mensaje obtener_mensaje_new(void* buffer);

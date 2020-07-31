@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
 
 void iniciar_servidor()
 {
-	int socket_servidor;
+	int socket_servidor = -1;
 
     struct addrinfo hints, *servinfo, *p;
 
@@ -32,7 +32,7 @@ void iniciar_servidor()
 
     for (p=servinfo; p != NULL; p = p->ai_next)
     {
-        guard((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)), "Failed to create socket");
+        guard(socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol), "Failed to create socket");
 
         guard(bind(socket_servidor, p->ai_addr, p->ai_addrlen), "Bind failed");
 
@@ -43,27 +43,27 @@ void iniciar_servidor()
 
     freeaddrinfo(servinfo);
 
-    while(1)
-    	esperar_cliente(socket_servidor);
+	esperar_cliente(socket_servidor);
 }
 
-void esperar_cliente(int socket_servidor)
-{
+void esperar_cliente(int socket_servidor) {
 	struct sockaddr_in dir_cliente;
 
 	socklen_t tam_direccion = sizeof(struct sockaddr_in);
 
-	int socket_cliente = guard(accept(socket_servidor, (void*) &dir_cliente, &tam_direccion), "Accept failed");
+    while(1){
+		int socket_cliente = guard(accept(socket_servidor, (void*) &dir_cliente, &tam_direccion), "Accept failed");
 
-	pthread_create(&thread,NULL,(void*)serve_client,&socket_cliente);
-	pthread_detach(thread);
-
+		pthread_create(&thread,NULL,(void*)serve_client,&socket_cliente);
+		pthread_detach(thread);
+    }
 }
 
 void serve_client(int* socket)
 {
-	op_code cod_op;
-	if(recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL) == -1)
+	op_code cod_op = NO_ASIGNADA;
+	int sad = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+	if( sad == -1)
 		cod_op = -1;
 	process_request(cod_op, *socket);
 }
@@ -202,8 +202,8 @@ void process_request(int cod_op, int socket) {
 			}
 			break;
 		}
-		case 0:
-			pthread_exit(NULL);
+		case NO_ASIGNADA:
+			return;
 		case -1:
 			pthread_exit(NULL);
 		}
@@ -222,6 +222,7 @@ void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion, int s
 	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje_suscripcion->cola);
 
 	puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
+	suscriptor->cliente = malloc(mensaje_suscripcion->tamanoCliente);
 	suscriptor->cliente = mensaje_suscripcion->cliente;
 	suscriptor->socket = socket;
 
@@ -239,14 +240,16 @@ void desuscribir_cliente(puntero_suscripcion_cola mensaje) {
 	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje->cola);
 	bool encontrar_suscriptor(void* elemento) {
 		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
+		printf("%s y %s\n", suscriptor->cliente, mensaje->cliente);
 		return strcmp(suscriptor->cliente, mensaje->cliente) == 0;
 	}
 	void free_suscriptor(void* elemento) {
 		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
-		//free(suscriptor->cliente);
+		free(suscriptor->cliente);
 		free(suscriptor);
 	}
 	list_remove_and_destroy_by_condition(cola_mensaje->suscriptores, encontrar_suscriptor, free_suscriptor);
+	free(mensaje);
 	printf("Remueve cliente\n");
 }
 
@@ -435,6 +438,7 @@ void inicializar_datos() {
 	printf("Process id %d\n", getpid());
 
 	signal(SIGUSR1, manejo_dump_cache);
+	signal(SIGINT, manejo_end);
 
 	new_pokemon = malloc(sizeof(t_cola_mensaje));
 	(*new_pokemon).suscriptores = list_create();
@@ -538,7 +542,7 @@ void asignar_y_devolver_id(t_mensaje* mensaje_completo, int socket) {
 	mensaje_completo->id = cantidad_mensajes;
 	char* id_mensaje = string_itoa(cantidad_mensajes);
 	devolver_mensaje(id_mensaje, strlen(id_mensaje) + 1, socket);
-
+	free(id_mensaje);
 	aumentar_cantidad_mensajes();
 
 	sem_post(&mutexIds);
@@ -664,6 +668,7 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				nuevaParticion->suscriptores_ack = list_create();
 				nuevaParticion->suscriptores_enviados = list_create();
 				nuevaParticion->lruHora = obtener_milisegundos();
+				nuevaParticion->historicoBuddy = list_create();
 				list_add(particiones, nuevaParticion);
 				printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
 				printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -725,6 +730,7 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			nuevaParticion->suscriptores_ack = list_create();
 			nuevaParticion->suscriptores_enviados = list_create();
 			nuevaParticion->lruHora = obtener_milisegundos();
+			nuevaParticion->historicoBuddy = list_create();
 			list_add(particiones, nuevaParticion);
 			printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
 			printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
@@ -859,18 +865,45 @@ void eliminar_particion_seleccionada(int index) {
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
 			sem_post(&mutexDistribucion);
 
-			free(list_get(cola->mensajes, j));
+			liberar(punteroParticionEliminar->colaMensaje, punteroMensaje);
 			list_remove(cola->mensajes, j);
 			break;
 		}
 	}
 }
 
+void liberar(int cola, puntero_mensaje mensaje) {
+	switch(cola){
+		case NEW_POKEMON:
+			liberar_mensajes_new(mensaje);
+			break;
+		case APPEARED_POKEMON:
+			liberar_mensajes_appeared(mensaje);
+			break;
+		case GET_POKEMON:
+			liberar_mensajes_get(mensaje);
+			break;
+		case LOCALIZED_POKEMON:
+			liberar_mensajes_localized(mensaje);
+			break;
+		case CAUGHT_POKEMON:
+			liberar_mensajes_caught(mensaje);
+			break;
+		case CATCH_POKEMON:
+			liberar_mensajes_catch(mensaje);
+			break;
+		default: return;
+	}
+}
+
 void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 		punteroParticion punteroParticionOcupada) {
 
-	puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionOcupada);
+	/*puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionOcupada);
 	guardar_mensaje_memoria(punteroMensaje, punteroParticionDesocupada->punteroMemoria, punteroParticionOcupada->colaMensaje);
+	free(punteroMensaje->mensaje_cuerpo);
+	free(punteroMensaje);*/
+	memcpy(punteroParticionDesocupada->punteroMemoria, punteroParticionOcupada->punteroMemoria, punteroParticionOcupada->tamanoMensaje);
 
 	punteroParticionOcupada->punteroMemoria = punteroParticionDesocupada->punteroMemoria;
 
@@ -901,7 +934,8 @@ void consolidar(int indexEliminado) {
 			printf("Encontro una particion libre a izquierda\n");
 
 			particionAnterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
-			list_remove(particiones, indexEliminado);
+			punteroParticion punteroEliminado = (punteroParticion) list_remove(particiones, indexEliminado);
+			liberar_particion(punteroEliminado);
 			consolidar(guard(obtener_index_particion(particionAnterior->punteroMemoria), "No se encontro memoria anterior\n"));
 	} else {
 		// SI NO TIENE A IZQUIERDA, BUSCO A DERECHA
@@ -917,7 +951,8 @@ void consolidar(int indexEliminado) {
 
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
-				list_remove(particiones, indexEliminado);
+				punteroParticion punteroEliminado = (punteroParticion) list_remove(particiones, indexEliminado);
+				liberar_particion(punteroEliminado);
 				consolidar(guard(obtener_index_particion(particionPosterior->punteroMemoria), "No se encontro memoria posterior\n"));
 		}
 	}
@@ -945,8 +980,6 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 			printf("SUSCRIPTOR MENSAJE AHORA %s\n", mensajeSuscripcion->cliente);
 			printf("ENCONTRO O NO %d\n", encontre);
 			if (!encontre) {
-				printf("Distribucion MEMORIA a %s\n", mensajeSuscripcion->cliente);
-				printf("Posicion de particion %p\n", punteroParticionMensaje->punteroMemoria);
 				puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
 				puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
 				suscriptor->cliente = mensajeSuscripcion->cliente;
@@ -963,9 +996,11 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 					list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
 				}
 				free(suscriptor);
+				liberar(punteroParticionMensaje->colaMensaje, punteroMensaje);
 			}
 		}
 	}
+	list_destroy(particionesCola);
 }
 
 void actualizar_lru_mensaje(uint32_t idMensaje) {
@@ -1329,7 +1364,8 @@ void bs_consolidar(){
 						}
 
 						list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
-						list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
+						punteroParticion puntero = (punteroParticion) list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
+						liberar_particion(puntero);
 						printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
 						cambios++;
 						//ver_estado_memoria();
@@ -1386,7 +1422,7 @@ void bs_eliminar_particion_fifo(){
 				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
 				sem_post(&mutexDistribucion);
 
-				free(list_get(cola->mensajes, j));
+				liberar(punteroParticionMenorId->colaMensaje, punteroMensaje);
 				list_remove(cola->mensajes, j);
 			}
 		}
@@ -1445,7 +1481,7 @@ void bs_eliminar_particion_lru(){
 				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
 				sem_post(&mutexDistribucion);
 
-				free(list_get(cola->mensajes, j));
+				liberar(punteroParticionLru->colaMensaje, punteroMensaje);
 				list_remove(cola->mensajes, j);
 			}
 		}
@@ -1590,4 +1626,100 @@ void manejo_dump_cache(int num) {
 	fprintf(dump, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
 	fclose(dump);
+}
+void liberar_mensajes_new(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_new_pokemon newPokemon = (puntero_mensaje_new_pokemon) mensaje->mensaje_cuerpo;
+	free(newPokemon->name_pokemon);
+	free(newPokemon);
+	free(mensaje);
+}
+void liberar_mensajes_get(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_get_pokemon getPokemon = (puntero_mensaje_get_pokemon) mensaje->mensaje_cuerpo;
+	free(getPokemon->name_pokemon);
+	free(getPokemon);
+	free(mensaje);
+}
+void liberar_mensajes_localized(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_localized_pokemon localizedPokemon = (puntero_mensaje_localized_pokemon) mensaje->mensaje_cuerpo;
+	free(localizedPokemon->name_pokemon);
+	free(localizedPokemon);
+	free(mensaje);
+}
+void liberar_mensajes_appeared(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_appeared_pokemon appearedPokemon = (puntero_mensaje_appeared_pokemon) mensaje->mensaje_cuerpo;
+	free(appearedPokemon->name_pokemon);
+	free(appearedPokemon);
+	free(mensaje);
+}
+void liberar_mensajes_catch(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_catch_pokemon catchPokemon = (puntero_mensaje_catch_pokemon) mensaje->mensaje_cuerpo;
+	free(catchPokemon->name_pokemon);
+	free(catchPokemon);
+	free(mensaje);
+}
+void liberar_mensajes_caught(void* men) {
+	t_mensaje* mensaje = (t_mensaje*) men;
+	puntero_mensaje_caught_pokemon caughtPokemon = (puntero_mensaje_caught_pokemon) mensaje->mensaje_cuerpo;
+	free(caughtPokemon);
+	free(mensaje);
+}
+void liberar_particion(void* part) {
+	punteroParticion particion = (punteroParticion) part;
+	list_destroy(particion->suscriptores_enviados);
+	list_destroy(particion->suscriptores_ack);
+	list_destroy(particion->historicoBuddy);
+	free(particion);
+}
+void manejo_end() {
+	void liberar_suscriptores(void* sus) {
+		puntero_suscriptor suscriptor = (puntero_suscriptor) sus;
+		free(suscriptor->cliente);
+		free(suscriptor);
+	}
+	//----------------NEW POKEMON ------------------------------
+
+	list_destroy_and_destroy_elements(new_pokemon->suscriptores, liberar_suscriptores);
+	list_destroy_and_destroy_elements(new_pokemon->mensajes, liberar_mensajes_new);
+	free(new_pokemon);
+	//----------------------------------------------------------
+	//-------------GET POKEMON ----------------------------------
+
+	list_destroy_and_destroy_elements(get_pokemon->suscriptores, liberar_suscriptores);
+	list_destroy_and_destroy_elements(get_pokemon->mensajes, liberar_mensajes_get);
+	free(get_pokemon);
+	//-------------------------------------------------------------
+	//---------------- LOCALIZED POKEMON ---------------------------
+
+	list_destroy_and_destroy_elements(localized_pokemon->suscriptores, liberar_suscriptores);
+	list_destroy_and_destroy_elements(localized_pokemon->mensajes, liberar_mensajes_localized);
+	free(localized_pokemon);
+	//-------------------------------------------------------------
+	//----------------- APPEARED POKEMON --------------------------
+
+	list_destroy_and_destroy_elements(appeared_pokemon->suscriptores, liberar_suscriptores);
+	list_destroy_and_destroy_elements(appeared_pokemon->mensajes, liberar_mensajes_appeared);
+	free(appeared_pokemon);
+	//---------------------------------------------------------------
+	//----------------- CATCH POKEMON -------------------------------
+
+	list_destroy_and_destroy_elements(catch_pokemon->suscriptores, liberar_suscriptores);
+	list_destroy_and_destroy_elements(catch_pokemon->mensajes, liberar_mensajes_catch);
+	free(catch_pokemon);
+	//----------------------------------------------------------------
+	//--------------------CAUGHT POKEMON -----------------------------
+
+	list_destroy_and_destroy_elements(caught_pokemon->suscriptores,liberar_suscriptores);
+	list_destroy_and_destroy_elements(caught_pokemon->mensajes, liberar_mensajes_caught);
+	free(caught_pokemon);
+	//---------------------------------------------------------------------
+
+
+	list_destroy_and_destroy_elements(particiones, liberar_particion);
+	free(punteroMemoriaPrincipal);
+	exit(0);
 }

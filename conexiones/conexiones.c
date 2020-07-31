@@ -1323,16 +1323,11 @@ void enviar_mensaje_suscribir_con_id(op_code codigo_operacion, char* id, int soc
 
 puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size, t_log* logger_broker){
 	void * buffer = server_recibir_mensaje(socket, &paquete_size);
-	log_info(logger_broker, "buffer suscripcion pasa");
-	puntero_suscripcion_cola mensaje_recibido = malloc(sizeof(puntero_suscripcion_cola));
+	puntero_suscripcion_cola mensaje_recibido = malloc(sizeof(t_suscripcion_cola));
 	int puerto_size;
 	char* puerto;
 	op_code codigo_cola;
 	int tiempo;
-
-	log_info(logger_broker, "PASA MALLOC");
-	log_info(logger_broker, &buffer);
-	log_info(logger_broker, "muestra buffer");
 
 	int desplazamiento = 0;
 	memcpy(&codigo_cola, buffer + desplazamiento, sizeof(op_code));
@@ -1350,6 +1345,7 @@ puntero_suscripcion_cola recibir_suscripcion( int socket, uint32_t* paquete_size
 	mensaje_recibido->cola = codigo_cola;
 	mensaje_recibido->cliente = puerto;
 	mensaje_recibido->tiempo = tiempo;
+	mensaje_recibido->tamanoCliente = puerto_size;
 
 	free(buffer);
 	return mensaje_recibido;
