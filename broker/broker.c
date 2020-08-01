@@ -62,6 +62,8 @@ void esperar_cliente(int socket_servidor) {
 void serve_client(int* socket)
 {
 	op_code cod_op = NO_ASIGNADA;
+	log_info(loggerBroker,"Se conecto un proceso al broker");
+
 	int sad = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
 	if( sad == -1)
 		cod_op = -1;
@@ -78,8 +80,8 @@ void process_request(int cod_op, int socket) {
 			msg = "1";
 			size = sizeof(4);
 			devolver_mensaje(msg, size, socket);
-			log_info(loggerBroker, "MESSAGE");
-			log_info(loggerBroker, msg);
+			//log_info(loggerBroker, "MESSAGE");
+			//log_info(loggerBroker, msg);
 			free(msg);
 			break;
 		}
@@ -88,6 +90,8 @@ void process_request(int cod_op, int socket) {
 			mensaje_completo = recibir_new_pokemon(socket, &size);
 
 			asignar_y_devolver_id(mensaje_completo, socket);
+
+			log_info(loggerBroker, "Llega un mensaje a la cola de NEW_POKEMON, con nombre %s (ID: %d)", ((puntero_mensaje_new_pokemon)mensaje_completo->mensaje_cuerpo)->name_pokemon, mensaje_completo->id);
 
 			asignar_memoria(mensaje_completo, cod_op);
 
@@ -103,6 +107,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, appeared_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				log_info(loggerBroker,"Llega un mensaje a la cola de APPEARED_POKEMON, con nombre %s (ID: %d)", ((puntero_mensaje_appeared_pokemon)mensaje_completo->mensaje_cuerpo)->name_pokemon, mensaje_completo->id);
 
 				asignar_memoria(mensaje_completo, cod_op);
 
@@ -121,6 +127,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			log_info(loggerBroker,"Llega un mensaje a la cola de CATCH_POKEMON, con nombre %s (ID: %d)", ((puntero_mensaje_catch_pokemon)mensaje_completo->mensaje_cuerpo)->name_pokemon, mensaje_completo->id);
+
 			asignar_memoria(mensaje_completo, cod_op);
 
 			list_add(catch_pokemon->mensajes, mensaje_completo);
@@ -135,6 +143,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, caught_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				log_info(loggerBroker,"Llega un mensaje a la cola de CAUGHT_POKEMON, con resultado %d (ID: %d)", ((puntero_mensaje_caught_pokemon)mensaje_completo->mensaje_cuerpo)->caughtResult, mensaje_completo->id);
 
 				asignar_memoria(mensaje_completo, cod_op);
 
@@ -153,6 +163,8 @@ void process_request(int cod_op, int socket) {
 
 			asignar_y_devolver_id(mensaje_completo, socket);
 
+			log_info(loggerBroker,"Llega un mensaje a la cola de GET_POKEMON, con nombre %s (ID: %d)", ((puntero_mensaje_get_pokemon)mensaje_completo->mensaje_cuerpo)->name_pokemon, mensaje_completo->id);
+
 			asignar_memoria(mensaje_completo, cod_op);
 
 			list_add(get_pokemon->mensajes, mensaje_completo);
@@ -167,6 +179,8 @@ void process_request(int cod_op, int socket) {
 			// SI NO ENCUENTRO EL ID CORRELATIVO EN LA COLA DE MENSAJES LO GUARDO, SINO LO IGNORO
 			if(mensaje_completo->id_correlativo == 0 || !fue_respondido(mensaje_completo, localized_pokemon)) {
 				asignar_y_devolver_id(mensaje_completo, socket);
+
+				log_info(loggerBroker,"Llega un mensaje a la cola de LOCALIZED_POKEMON, con nombre %s (ID: %d)", ((puntero_mensaje_localized_pokemon)mensaje_completo->mensaje_cuerpo)->name_pokemon, mensaje_completo->id);
 
 				asignar_memoria(mensaje_completo, cod_op);
 
@@ -184,7 +198,8 @@ void process_request(int cod_op, int socket) {
 
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
-			printf("Recibe una suscripcion\n");
+			//printf("Recibe una suscripcion\n");
+			log_info(loggerBroker, "Proceso suscripto: %s", mensaje_suscripcion->cliente);
 
 			agregar_suscriptor_cola(mensaje_suscripcion, socket);
 
@@ -235,12 +250,12 @@ void agregar_suscriptor_cola(puntero_suscripcion_cola mensaje_suscripcion, int s
 }
 
 void desuscribir_cliente(puntero_suscripcion_cola mensaje) {
-	printf("Entro al hilo\n");
+	//printf("Entro al hilo\n");
 	sleep(mensaje->tiempo);
 	t_cola_mensaje* cola_mensaje = selecciono_cola(mensaje->cola);
 	bool encontrar_suscriptor(void* elemento) {
 		puntero_suscriptor suscriptor = (puntero_suscriptor) elemento;
-		printf("%s y %s\n", suscriptor->cliente, mensaje->cliente);
+		//printf("%s y %s\n", suscriptor->cliente, mensaje->cliente);
 		return strcmp(suscriptor->cliente, mensaje->cliente) == 0;
 	}
 	void free_suscriptor(void* elemento) {
@@ -250,13 +265,14 @@ void desuscribir_cliente(puntero_suscripcion_cola mensaje) {
 	}
 	list_remove_and_destroy_by_condition(cola_mensaje->suscriptores, encontrar_suscriptor, free_suscriptor);
 	free(mensaje);
-	printf("Remueve cliente\n");
+	//printf("Remueve cliente\n");
 }
 
 void* distribuir_mensajes(void* puntero_cola) {
 	while(1) {
 		// ENVIA MENSAJES A SUSCRIPTORES
 		int cola = *((int*) puntero_cola);
+		sleep(15);
 
 		sem_wait(&mutexLista[cola]);
 		sem_wait(&mutexDistribucion);
@@ -264,7 +280,6 @@ void* distribuir_mensajes(void* puntero_cola) {
 		distribuir_mensajes_cola(cola);
 
 		sem_post(&mutexDistribucion);
-		sleep(15);
 	}
 }
 
@@ -275,7 +290,7 @@ void distribuir_mensajes_cola(int cola) {
 	if (cola_mensajes == -1) {
 		pthread_exit(NULL);
 	}
-
+	//printf("COLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 	// RECORRO TODOS LOS MENSAJES DE LA COLA
 	for(int i = 0; i < list_size(cola_mensajes->mensajes); i++) {
 		puntero_mensaje = list_get(cola_mensajes->mensajes, i);
@@ -301,7 +316,7 @@ void envio_mensaje(puntero_mensaje puntero_mensaje, int cola, t_cola_mensaje* co
 		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 		if (!encontre) {
-			printf("Distribucion a %s\n", suscriptor->cliente);
+			//printf("Distribucion a %s\n", suscriptor->cliente);
 			distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
 			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
@@ -335,6 +350,8 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		id = punteroParticion->id;
 		id_correlativo = punteroParticion->idCorrelativo;
 	}
+	log_info(loggerBroker,"Envio de mensaje con ID: %d", id);
+
 	switch(cola) {
 		case NEW_POKEMON: {
 			puntero_mensaje_new_pokemon puntero_mensaje = ((puntero_mensaje_new_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
@@ -359,11 +376,11 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		}
 		case GET_POKEMON: {
 			puntero_mensaje_get_pokemon puntero_mensaje = ((puntero_mensaje_get_pokemon*)puntero_mensaje_completo->mensaje_cuerpo);
-			printf("pokemon------------> %s\n", puntero_mensaje->name_pokemon);
+			//printf("pokemon------------> %s\n", puntero_mensaje->name_pokemon);
 			char* nombre = puntero_mensaje->name_pokemon;
-			printf("No envia mensaje\n");
+			//printf("No envia mensaje\n");
 			send_message_get_pokemon(nombre, id, id_correlativo, conexion);
-			printf("Envia mensaje\n");
+			//printf("Envia mensaje\n");
 			break;
 		}
 		case APPEARED_POKEMON: {
@@ -372,12 +389,12 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 			char* nombre = puntero_mensaje->name_pokemon;
 			uint32_t posx = puntero_mensaje->pos_x;
 			uint32_t posy = puntero_mensaje->pos_y;
-			printf("APPEARED conex %d\n", conexion);
+			/*printf("APPEARED conex %d\n", conexion);
 			printf("APPEARED id %d\n", id);
 			printf("APPEARED idCorre %d\n", id_correlativo);
 			printf("APPEARED posx %d\n", posx);
 			printf("APPEARED posy %d\n", posy);
-			printf("APPEARED nombre %s\n", nombre);
+			printf("APPEARED nombre %s\n", nombre);*/
 			send_message_appeared_pokemon(nombre, posx, posy, id, id_correlativo, conexion);
 
 			break;
@@ -422,7 +439,8 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 	char* mensaje_recibido;
 
 	mensaje_recibido = client_recibir_mensaje(punteroAck->conexion);
-	printf("RECIBE %s\n", mensaje_recibido);
+	//printf("RECIBE %s\n", mensaje_recibido);
+	log_info(loggerBroker, "ACK Recibido");
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
 		if(punteroParticionEncontrado != NULL) {
@@ -435,7 +453,7 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 }
 
 void inicializar_datos() {
-	printf("Process id %d\n", getpid());
+	//printf("Process id %d\n", getpid());
 
 	signal(SIGUSR1, manejo_dump_cache);
 	signal(SIGINT, manejo_end);
@@ -481,7 +499,7 @@ void inicializar_datos() {
 	cantidad_mensajes = 1;
 
 	punteroMemoriaPrincipal = malloc(tamanoMemoria);
-	printf("Direccion de memoria inicial: %p\n", punteroMemoriaPrincipal);
+	//printf("Direccion de memoria inicial: %p\n", punteroMemoriaPrincipal);
 	particiones = list_create();
 	punteroParticion particionInicial = malloc(sizeof(t_particion));
 	particionInicial->colaMensaje = NULL;
@@ -499,7 +517,7 @@ void inicializar_datos() {
 	particionInicial->lruHora = obtener_milisegundos();
 	list_add(particiones, particionInicial);
 	punteroMemoriaFinal = (char*)punteroMemoriaPrincipal + calcular_tamano(tamanoMemoria, 0);
-	printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
+	//printf("Direccion de memoria final: %p\n", punteroMemoriaFinal);
 }
 
 t_cola_mensaje* selecciono_cola(int cola) {
@@ -576,17 +594,17 @@ void leer_archivo_config() {
 	algoritmoParticionLibre = validar_string_binario(obtener_string_config(configBroker, "ALGORITMO_PARTICION_LIBRE"), "FF", "BF");
 	frecuenciaCompactacion = obtener_int_config(configBroker, "FRECUENCIA_COMPACTACION");
 
-	loggerBroker =log_create(logFile, "BROKER", false, LOG_LEVEL_INFO);
+	loggerBroker =log_create(logFile, "BROKER", true, LOG_LEVEL_INFO);
 
 }
 
 void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 	sem_wait(&mutexAsignarMemoria);
 	if(strcmp(algoritmoMemoria, "PARTICIONES") == 0) {
-		printf("Particiones\n");
+		//printf("Particiones\n");
 		asignar_memoria_pd(mensajeCompleto, colaMensaje);
 	} else if(strcmp(algoritmoMemoria, "BS") == 0) {
-		printf("Buddy System\n");
+		//printf("Buddy System\n");
 		asignar_memoria_bs(mensajeCompleto, colaMensaje);
 	}
 	sem_post(&mutexAsignarMemoria);
@@ -594,14 +612,14 @@ void asignar_memoria(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 
 void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
 	if(mensajeCompleto->size_mensaje_cuerpo <= tamanoMemoria) {
-		printf("Asignar Memoria\n");
+		//printf("Asignar Memoria\n");
 
 		void* posMemoria = pd_memoria_libre(mensajeCompleto, (uint32_t) colaMensaje);
 
 		// SI NO ENCUENTRA UNA QUE CUMPLA CON LO ANTERIOR
 		while(posMemoria == NULL) {
 			cantidadBusquedasFallidas ++;
-			printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
+			//printf("Cantidad de busquedas fallidas %d de %d\n", cantidadBusquedasFallidas, frecuenciaCompactacion);
 			if(frecuenciaCompactacion == 0) {
 				compactar_memoria();
 				posMemoria = pd_memoria_libre(mensajeCompleto, colaMensaje);
@@ -623,18 +641,18 @@ void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
 			}
 		}
 
-		printf("Encontro memoria\n");
+		//printf("Encontro memoria\n");
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
 
-		printf("Asigno memoria!!!!!\n");
+		//printf("Asigno memoria!!!!!\n");
 	} else {
 		guard(-1, "Mensaje excede el limite permitido.");
 	}
 }
 
 void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
-	printf("la lista esta llena %d\n", lista_llena(particiones));
+	//printf("la lista esta llena %d\n", lista_llena(particiones));
 
 	if(!lista_llena(particiones)){
 		if(strcmp(algoritmoParticionLibre, "FF") == 0) {
@@ -648,7 +666,7 @@ void* pd_memoria_libre(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 }
 
 void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
-	printf("First fit\n");
+	//printf("First fit\n");
 	// RECORRE LAS PARTICIONES EN BUSCA DE UNA LIBRE Y DONDE ENTRE EL MENSAJE
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticionObtenido = list_get(particiones, i);
@@ -670,9 +688,9 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				nuevaParticion->lruHora = obtener_milisegundos();
 				nuevaParticion->historicoBuddy = list_create();
 				list_add(particiones, nuevaParticion);
-				printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
-				printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
-				printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
+				//printf("Puntero particion nueva: %p\n", nuevaParticion->punteroMemoria);
+				//printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+				//printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
 			}
 			if(punteroParticionObtenido->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
 				punteroParticionObtenido->colaMensaje = colaMensaje;
@@ -684,20 +702,20 @@ void* buscar_memoria_libre_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMe
 				list_clean(punteroParticionObtenido->suscriptores_ack);
 				list_clean(punteroParticionObtenido->suscriptores_enviados);
 
-				printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
-				printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
-				printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
-				ver_estado_memoria();
+				//printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
+				//printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
+				//printf("Tamanio Mensaje: %d\n", punteroParticionObtenido->tamanoMensaje);
+				//ver_estado_memoria();
 				return punteroParticionObtenido->punteroMemoria;
 			}
 		}
 	}
-	printf("No encontro memoria libre\n");
+	//printf("No encontro memoria libre\n");
 	return NULL;
 }
 
 void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
-	printf("Best fit\n");
+	//printf("Best fit\n");
 
 	punteroParticion punteroMejorParticion = list_find(particiones, primer_puntero_desocupado);
 	// SI ENCUENTRO NINGUNO DESOCUPADO
@@ -732,9 +750,9 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			nuevaParticion->lruHora = obtener_milisegundos();
 			nuevaParticion->historicoBuddy = list_create();
 			list_add(particiones, nuevaParticion);
-			printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
-			printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
-			printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
+			//printf("Puntero Mensaje: %p\n", nuevaParticion->punteroMemoria);
+			//printf("Posicion particion nueva: %d\n", (char*)nuevaParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+			//printf("Memoria libre restante: %d\n", nuevaParticion->tamanoMensaje);
 		}
 		if(punteroMejorParticion->tamanoMensaje >= mensajeCompleto->size_mensaje_cuerpo) {
 			punteroMejorParticion->colaMensaje = colaMensaje;
@@ -746,36 +764,36 @@ void* buscar_memoria_libre_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMen
 			list_clean(punteroMejorParticion->suscriptores_ack);
 			list_clean(punteroMejorParticion->suscriptores_enviados);
 
-			printf("Puntero Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
-			printf("Posicion Mensaje: %d\n", (char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
-			printf("Tamanio Mensaje: %d\n", punteroMejorParticion->tamanoMensaje);
+			//printf("Puntero Mensaje: %p\n", punteroMejorParticion->punteroMemoria);
+			//printf("Posicion Mensaje: %d\n", (char*)punteroMejorParticion->punteroMemoria - (char*)punteroMemoriaPrincipal);
+			//printf("Tamanio Mensaje: %d\n", punteroMejorParticion->tamanoMensaje);
 			return punteroMejorParticion->punteroMemoria;
 		}
 	}
 
-	printf("No encontro memoria libre\n");
+	//printf("No encontro memoria libre\n");
 	return NULL;
 }
 
 void compactar_memoria() {
-	printf("Compacta memoria\n");
+	//printf("Compacta memoria\n");
 	punteroParticion punteroParticionDesocupada = NULL;
 	punteroParticion punteroParticionOcupada = NULL;
 
 	list_sort(particiones, ordernar_particiones_memoria);
 
-	ver_estado_memoria();
+	//ver_estado_memoria();
 
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticionRecorrer = list_get(particiones, i);
 		if(punteroParticionDesocupada == NULL){
 			if(!punteroParticionRecorrer->ocupada) {
-				printf("Encuentra particion desocupada\n");
+				//printf("Encuentra particion desocupada\n");
 				punteroParticionDesocupada = list_get(particiones, i);
 			}
 		} else {
 			if(punteroParticionRecorrer->ocupada) {
-				printf("Encuentra particion ocupada\n");
+				//printf("Encuentra particion ocupada\n");
 				punteroParticionOcupada = list_get(particiones, i);
 				break;
 			}
@@ -783,11 +801,12 @@ void compactar_memoria() {
 	}
 
 	if(punteroParticionDesocupada != NULL && punteroParticionOcupada != NULL) {
-		printf("Encontro ambas particiones para intercambiar\n");
+		//printf("Encontro ambas particiones para intercambiar\n");
 		intercambio_particiones(punteroParticionDesocupada, punteroParticionOcupada);
+		log_info(loggerBroker,"Compactación de particiones ...");
 		compactar_memoria();
 	} else {
-		printf("No encontro particiones para compactar\n");
+		//printf("No encontro particiones para compactar\n");
 		consolidar(NULL);
 		return;
 	}
@@ -795,14 +814,14 @@ void compactar_memoria() {
 }
 
 void eliminar_particion() {
-	printf("Eliminar particion\n");
+	//printf("Eliminar particion\n");
 	int indexEliminar;
 	if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
 		indexEliminar = eliminar_particion_fifo();
 	} else if (strcmp(algoritmoReemplazo, "LRU") == 0) {
 		indexEliminar = eliminar_particion_lru();
 	}
-	printf("Indice a eliminar %d\n", indexEliminar);
+	//printf("Indice a eliminar %d\n", indexEliminar);
 
 	if(indexEliminar != -1) {
 		eliminar_particion_seleccionada(indexEliminar);
@@ -850,9 +869,9 @@ int eliminar_particion_lru() {
 }
 
 void eliminar_particion_seleccionada(int index) {
-	printf("Encuentra una particion para eliminar\n");
+	//printf("Encuentra una particion para eliminar\n");
 	punteroParticion punteroParticionEliminar = list_get(particiones, index);
-	printf("Particion eliminada %p con mensaje con id %d\n", punteroParticionEliminar->punteroMemoria, punteroParticionEliminar->id);
+	//printf("Particion eliminada %p con mensaje con id %d\n", punteroParticionEliminar->punteroMemoria, punteroParticionEliminar->id);
 	punteroParticionEliminar->ocupada = false;
 
 	t_cola_mensaje* cola = selecciono_cola(punteroParticionEliminar->colaMensaje);
@@ -865,11 +884,14 @@ void eliminar_particion_seleccionada(int index) {
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
 			sem_post(&mutexDistribucion);
 
+			log_info(loggerBroker,"Elimino particion con mensaje con ID: %d", punteroMensaje->id);
+
 			liberar(punteroParticionEliminar->colaMensaje, punteroMensaje);
 			list_remove(cola->mensajes, j);
 			break;
 		}
 	}
+
 }
 
 void liberar(int cola, puntero_mensaje mensaje) {
@@ -910,12 +932,12 @@ void intercambio_particiones(punteroParticion punteroParticionDesocupada,
 	punteroParticionDesocupada->punteroMemoria = (char*)punteroParticionDesocupada->punteroMemoria
 			+ punteroParticionOcupada->tamanoMensaje;
 
-	printf("Realiza el intercambio de las particiones\n");
+	//printf("Realiza el intercambio de las particiones\n");
 
 }
 
 void consolidar(int indexEliminado) {
-	printf("Entra consolidar\n");
+	//printf("Entra consolidar\n");
 	punteroParticion punteroParticionEliminada;
 	if(indexEliminado == NULL) {
 		punteroParticionEliminada = list_find(particiones, primer_puntero_desocupado);
@@ -931,7 +953,7 @@ void consolidar(int indexEliminado) {
 	// COMPRUEBO SI TIENE ALGUNA PARTICION A IZQUIERA DESOCUPADA PARA UNIRLA
 	punteroParticion particionAnterior = list_find(particiones, (void*)encuentro_particion_anterior);
 	if(particionAnterior != NULL && !particionAnterior->ocupada) {
-			printf("Encontro una particion libre a izquierda\n");
+			//printf("Encontro una particion libre a izquierda\n");
 
 			particionAnterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 			punteroParticion punteroEliminado = (punteroParticion) list_remove(particiones, indexEliminado);
@@ -944,10 +966,10 @@ void consolidar(int indexEliminado) {
 			return particion->punteroMemoria
 					== (char*)punteroParticionEliminada->punteroMemoria + punteroParticionEliminada->tamanoMensaje;
 		}
-		printf("Entro a derecha\n");
+		//printf("Entro a derecha\n");
 		punteroParticion particionPosterior = list_find(particiones, (void*)encuentro_particion_posterior);
 		if(particionPosterior != NULL && !particionPosterior->ocupada) {
-				printf("Encontro una particion libre a derecha\n");
+				//printf("Encontro una particion libre a derecha\n");
 
 				particionPosterior->tamanoMensaje += punteroParticionEliminada->tamanoMensaje;
 				particionPosterior->punteroMemoria = punteroParticionEliminada->punteroMemoria;
@@ -956,7 +978,7 @@ void consolidar(int indexEliminado) {
 				consolidar(guard(obtener_index_particion(particionPosterior->punteroMemoria), "No se encontro memoria posterior\n"));
 		}
 	}
-	printf("No hay mas particiones libres ni a izq ni a der\n");
+	//printf("No hay mas particiones libres ni a izq ni a der\n");
 }
 
 void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int socket) {
@@ -966,7 +988,7 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 		return particion->colaMensaje == mensajeSuscripcion->cola;
 	}
 	t_list* particionesCola = list_filter(particiones, misma_cola);
-
+	//printf("MEMORIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 	for(int i = 0; i < list_size(particionesCola); i++ ) {
 		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
 		if(punteroParticionMensaje->ocupada) {
@@ -977,18 +999,18 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
 			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
-			printf("SUSCRIPTOR MENSAJE AHORA %s\n", mensajeSuscripcion->cliente);
-			printf("ENCONTRO O NO %d\n", encontre);
+			//printf("SUSCRIPTOR MENSAJE AHORA %s\n", mensajeSuscripcion->cliente);
+			//printf("ENCONTRO O NO %d\n", encontre);
 			if (!encontre) {
 				puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
 				puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
 				suscriptor->cliente = mensajeSuscripcion->cliente;
 				suscriptor->socket = socket;
-				printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
+				//printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
 				distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje, punteroParticionMensaje);
-				printf("Pasa distribucion\n");
+				//printf("Pasa distribucion\n");
 				actualizar_lru_mensaje(punteroParticionMensaje->id);
-				printf("Pasa actualizar\n");
+				//printf("Pasa actualizar\n");
 				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
 				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
 				// SI NO ESTA, LO AGREGO
@@ -1092,7 +1114,7 @@ int obtener_index_particion(int* punteroMemoria) {
 
 void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 	if(mensajeCompleto->size_mensaje_cuerpo <= tamanoMemoria) {
-		printf("Asignar Memoria\n");
+		//printf("Asignar Memoria\n");
 
 		void* posMemoria = bs_segun_algoritmo(mensajeCompleto, (uint32_t) colaMensaje);
 
@@ -1103,11 +1125,13 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 			posMemoria = bs_segun_algoritmo(mensajeCompleto, colaMensaje); // intento asignar nuevamente
 		}
 
-		printf("Encontro memoria\n");
+		//printf("Encontro memoria\n");
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
 
-		printf("Asigno memoria!!!!!\n");
+		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %p", posMemoria);
+
+		//printf("Asigno memoria!!!!!\n");
 	} else {
 		guard(-1, "Mensaje excede el limite permitido.");
 	}
@@ -1122,14 +1146,14 @@ void* bs_segun_algoritmo(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 }
 
 void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
-	printf("First fit\n");
+	//printf("First fit\n");
 	int tamanioNecesario = potencia_de_dos_cercana(mensajeCompleto->size_mensaje_cuerpo); // tengo que obtener la potencia de 2 mas cercana al tamaño del mensaje
 
 	if(tamanioNecesario < tamanoMinimoParticion){
 		tamanioNecesario = tamanoMinimoParticion;
 	}
 
-	printf("potencia %d\n", tamanioNecesario);
+	//printf("potencia %d\n", tamanioNecesario);
 	for(int i = 0; i < list_size(particiones); i++) {
 		punteroParticion punteroParticionObtenido = list_get(particiones, i);
 		if(!punteroParticionObtenido->ocupada){
@@ -1150,21 +1174,21 @@ void* bs_first_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 					list_clean(punteroParticionObtenido->suscriptores_ack);
 					list_clean(punteroParticionObtenido->suscriptores_enviados);
 
-					printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
-					printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
-					printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
-					ver_estado_memoria();
+					//printf("Puntero Mensaje: %p\n", punteroParticionObtenido->punteroMemoria);
+					//printf("Posicion Mensaje: %d\n", (char*)punteroParticionObtenido->punteroMemoria - (char*)punteroMemoriaPrincipal);
+					//printf("Encontro memoria libre: %d\n", punteroParticionObtenido->tamanoMensaje);
+					//ver_estado_memoria();
 					return punteroParticionObtenido->punteroMemoria;
 				}
 			}
 		}
 	}
-	printf("No encontro memoria libre\n");
+	//printf("No encontro memoria libre\n");
 	return NULL;
 }
 
 void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
-	printf("Best fit\n");
+	//printf("Best fit\n");
 	// tengo que obtener la potencia de 2 mas cercana al tamaño del mensaje
 	int tamanioNecesario = potencia_de_dos_cercana(mensajeCompleto->size_mensaje_cuerpo);
 
@@ -1173,7 +1197,7 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 	}
 
 	int nuevoTamanioNecesario = tamanioNecesario;
-	printf("El tamaño necesario para el mensaje es: %d\n",tamanioNecesario);
+	//printf("El tamaño necesario para el mensaje es: %d\n",tamanioNecesario);
 
 	// Analizo toda la lista para buscar la particion
 	// mas conveniente para guardar el mensaje
@@ -1196,20 +1220,20 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 						particionMasChica = particionObtenida;
 						indexParticionMasChica = i;
 						entraMensaje = true;
-						printf("La particion mas conveniente es la de: %dB\n", particionMasChica->tamanoMensaje);
-						printf("Su posicion en la lista es: %d\n", indexParticionMasChica);
+						//printf("La particion mas conveniente es la de: %dB\n", particionMasChica->tamanoMensaje);
+						//printf("Su posicion en la lista es: %d\n", indexParticionMasChica);
 						break;
 					}
 				}
 			}
-			printf("entra mensaje %d\n", entraMensaje);
-			printf("nuevo tamanio %d\n", nuevoTamanioNecesario);
-			printf("tamano memoria %d\n", tamanoMemoria);
+			//printf("entra mensaje %d\n", entraMensaje);
+			//printf("nuevo tamanio %d\n", nuevoTamanioNecesario);
+			//printf("tamano memoria %d\n", tamanoMemoria);
 			if(!entraMensaje){
 				if(nuevoTamanioNecesario < tamanoMemoria) {
 					//busco el tamaño inmediatamente superior
 					nuevoTamanioNecesario *= 2;
-					printf("Como no encontré un mensaje de %d, pruebo con uno de %d\n",tamanioNecesario, nuevoTamanioNecesario);
+					//printf("Como no encontré un mensaje de %d, pruebo con uno de %d\n",tamanioNecesario, nuevoTamanioNecesario);
 				} else {
 					entraMensaje = true;
 				}
@@ -1236,10 +1260,10 @@ void* bs_best_fit(t_mensaje* mensajeCompleto, uint32_t colaMensaje){
 				list_clean(particionMasChica->suscriptores_ack);
 				list_clean(particionMasChica->suscriptores_enviados);
 
-				printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
-				printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
-				printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
-				ver_estado_memoria();
+				//printf("Puntero Mensaje: %p\n", particionMasChica->punteroMemoria);
+				//printf("Posicion Mensaje: %d\n", (char*)particionMasChica->punteroMemoria - (char*)punteroMemoriaPrincipal);
+				//printf("Encontro memoria libre: %d\n", particionMasChica->tamanoMensaje);
+				//ver_estado_memoria();
 				return particionMasChica->punteroMemoria;
 			}
 		}
@@ -1257,9 +1281,9 @@ int potencia_de_dos_cercana(uint32_t tamanioMensaje){
 }
 
 void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t tamanioNecesario){
-	printf("Dividir particiones\n");
+	//printf("Dividir particiones\n");
 	if(particionInicial->tamanoMensaje == tamanioNecesario){
-		printf("Deja de dividir\n");
+		//printf("Deja de dividir\n");
 		return;
 		// no hace falta realizar más divisiones
 	}else{
@@ -1267,14 +1291,14 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		/* "Creo dos particiones nuevas", ambas con el tamaño de la original
 		 * dividido 2.
 		*/
-		printf("Entra a dividir\n");
-		printf("La particion izquierda está en el indice %d\n", index);
+		//printf("Entra a dividir\n");
+		//printf("La particion izquierda está en el indice %d\n", index);
 		// particion izquierda (Es la original pero con tamaño a la mitad)
 		particionInicial->tamanoMensaje = particionInicial->tamanoMensaje / 2;
 		particionInicial->izq = true;
 		particionInicial->der = false;
 		particionInicial->lruHora = obtener_milisegundos();
-		printf("Crea particion izquierda\n");
+		//printf("Crea particion izquierda\n");
 
 		// particion derecha
 		punteroParticion nuevaParticion = malloc(sizeof(t_particion));
@@ -1290,7 +1314,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 
 		list_add(particionInicial->historicoBuddy, "I");
 
-		printf("Crea particion derecha\n");
+		//printf("Crea particion derecha\n");
 
 
 		nuevaParticion->punteroMemoria = (char*)particionInicial->punteroMemoria
@@ -1299,8 +1323,8 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 		nuevaParticion->suscriptores_ack = list_create();
 		nuevaParticion->suscriptores_enviados = list_create();
 		list_add_in_index(particiones,index + 1, nuevaParticion);
-		printf("La particion derecha está en el indice %d\n", index + 1);
-		printf("Divide\n");
+		//printf("La particion derecha está en el indice %d\n", index + 1);
+		//printf("Divide\n");
 		//ver_estado_memoria();
 		// vuelvo a dividir la particion izquierda
 		dividir_particiones(particionInicial, index ,tamanioNecesario);
@@ -1308,7 +1332,7 @@ void dividir_particiones(punteroParticion particionInicial,int index ,uint32_t t
 }
 
 void bs_consolidar(){
-	printf("Consolidar\n");
+	//printf("Consolidar\n");
 	// voy a repetir la consolidacion hasta que
 	// no haya mas cambios
 	int cambios;
@@ -1331,7 +1355,8 @@ void bs_consolidar(){
 				if(buddyDer != NULL){
 					if((buddyIzq->izq == true) && (buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada) && (tamanioBuddyIzq == tamanioBuddyDer)){
 
-						printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
+						//printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
+						log_info(loggerBroker,"Consolida Buddys");
 
 						// "UNIFICO" los buddys
 						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
@@ -1366,7 +1391,7 @@ void bs_consolidar(){
 						list_remove(buddyIzq->historicoBuddy, tamHistoricoBI -1); // elimino el estado actual y vuelvo a uno anterior
 						punteroParticion puntero = (punteroParticion) list_remove(particiones, indexBuddyDer); // elimino el buddy derecho de la lista
 						liberar_particion(puntero);
-						printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
+						//printf("Ahora hay un buddy de tamaño: %d\n", buddyIzq->tamanoMensaje);
 						cambios++;
 						//ver_estado_memoria();
 						break; // detiene el for para que no se buguee la lista
@@ -1378,7 +1403,7 @@ void bs_consolidar(){
 }
 
 void bs_eliminar_particion(){
-	printf("Eliminar particion\n");
+	//printf("Eliminar particion\n");
 		//int indexEliminado;
 		if(strcmp(algoritmoReemplazo, "FIFO") == 0) {
 			// que es guard?
@@ -1407,7 +1432,7 @@ void bs_eliminar_particion_fifo(){
 		}
 	}
 	if(index != -1) {
-		printf("Encuentra una particion para eliminar\n");
+		//printf("Encuentra una particion para eliminar\n");
 		punteroParticionMenorId->ocupada = false;
 
 		t_cola_mensaje* cola = selecciono_cola(punteroParticionMenorId->colaMensaje);
@@ -1420,13 +1445,17 @@ void bs_eliminar_particion_fifo(){
 			if(punteroMensaje != NULL) {
 				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
+
+				puntero_mensaje mens = list_remove(cola->mensajes, j);
+				liberar(punteroParticionMenorId->colaMensaje, mens);
 				sem_post(&mutexDistribucion);
 
-				liberar(punteroParticionMenorId->colaMensaje, punteroMensaje);
-				list_remove(cola->mensajes, j);
 			}
 		}
-		printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
+
+		log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionMenorId->id);
+
+		//printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
 		punteroParticionMenorId->id = NULL;
 		punteroParticionMenorId->colaMensaje = NULL;
 	}
@@ -1448,7 +1477,7 @@ int bs_primer_puntero_desocupado(){
 }
 
 void bs_eliminar_particion_lru(){
-	printf("Entra a LRU\n");
+	//printf("Entra a LRU\n");
 	int index = -1;
 	punteroParticion punteroParticionLru = list_find(particiones, (void*)primer_puntero_ocupado);
 	// BUSCO EL PUNTERO CON EL TIEMPO DE USO MAS LEJANO
@@ -1466,7 +1495,7 @@ void bs_eliminar_particion_lru(){
 	//printf("Puntero seleccionado en la posición: %d\n",index);
 
 	if(index != -1){
-		printf("Encuentra una particion para eliminar\n");
+		//printf("Encuentra una particion para eliminar\n");
 		punteroParticionLru->ocupada = false;
 
 		t_cola_mensaje* cola = selecciono_cola(punteroParticionLru->colaMensaje);
@@ -1479,16 +1508,20 @@ void bs_eliminar_particion_lru(){
 			if(punteroMensaje != NULL) {
 				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
+
+				puntero_mensaje mens = list_remove(cola->mensajes, j);
+				liberar(punteroParticionLru->colaMensaje, mens);
 				sem_post(&mutexDistribucion);
 
-				liberar(punteroParticionLru->colaMensaje, punteroMensaje);
-				list_remove(cola->mensajes, j);
 			}
 		}
+
+		log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionLru->id);
+
 		punteroParticionLru->id = NULL;
 		punteroParticionLru->colaMensaje = NULL;
 	}
-	printf("Sale de LRU\n");
+	//printf("Sale de LRU\n");
 }
 
 bool lista_llena(t_list* particiones){
@@ -1599,12 +1632,17 @@ void guardar_estado_memoria(FILE* file) {
 			case CAUGHT_POKEMON: cola = "CAUGHT_POKEMON"; break;
 			default: cola = "NO_ASIGNADA"; break;
 		}
-		fprintf(file, string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %d	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
-				(char*)particion->punteroMemoria + particion->tamanoMensaje - 1, ocupada, particion->tamanoMensaje, particion->lruHora, cola, particion->id));
+		char* linea = string_from_format("Particion %d: %p - %p.	[%s]	Size: %db	LRU: %d	Cola: %s	ID: %d\n", j, particion->punteroMemoria,
+				(char*)particion->punteroMemoria + particion->tamanoMensaje - 1, ocupada, particion->tamanoMensaje, particion->lruHora, cola, particion->id);
+		fprintf(file, linea);
+		free(linea);
 	}
+	list_destroy(listaParticiones);
 }
 
 void manejo_dump_cache(int num) {
+	log_info(loggerBroker, "Se solicito la ejecucion del dump de la cache");
+
 	FILE* dump = fopen("../dump.log", "a");
 	char fecha[50];
 	time_t hoy;

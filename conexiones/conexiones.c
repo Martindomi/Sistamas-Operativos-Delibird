@@ -342,8 +342,8 @@ void guardar_mensaje_new(void* stream, char* nombre, uint32_t posx, uint32_t pos
 	memcpy(stream + tamanio, &name_size, sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
 
-	memcpy(stream + tamanio, nombre, strlen(nombre) + 1);
-	tamanio += strlen(nombre) + 1;
+	memcpy(stream + tamanio, nombre, name_size);
+	tamanio += name_size;
 
 	memcpy(stream + tamanio, &(posx), sizeof(uint32_t));
 	tamanio += sizeof(uint32_t);
@@ -422,6 +422,7 @@ puntero_mensaje obtener_mensaje_new(void* buffer) {
 	desplazamiento += sizeof(uint32_t);
 
 	name_pokemon = malloc(name_size);
+
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
 	desplazamiento += name_size;
 
@@ -452,8 +453,8 @@ puntero_mensaje obtener_mensaje_new_memoria(void* buffer) {
 	uint32_t id;
 	uint32_t id_correlacional;
 	puntero_mensaje_new_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_new_pokemon));
-	uint32_t name_size;
-	char* name_pokemon;
+	uint32_t name_size = 0;
+	//char* aux;
 	uint32_t pos_x;
 	uint32_t pos_y;
 	uint32_t quant_pokemon;
@@ -463,8 +464,11 @@ puntero_mensaje obtener_mensaje_new_memoria(void* buffer) {
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	name_pokemon = malloc(name_size);
+	char* name_pokemon = calloc(1, name_size+1);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
+	//string_append(&name_pokemon, aux);
+	string_append(&name_pokemon, "\0");
+	//free(aux);
 	desplazamiento += name_size;
 
 	memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
@@ -620,7 +624,6 @@ puntero_mensaje obtener_mensaje_appeared_memoria(void* buffer) {
 	uint32_t id_correlacional;
 	puntero_mensaje_appeared_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_appeared_pokemon));
 	uint32_t name_size;
-	char* name_pokemon;
 	uint32_t pos_x;
 	uint32_t pos_y;
 
@@ -629,9 +632,10 @@ puntero_mensaje obtener_mensaje_appeared_memoria(void* buffer) {
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	name_pokemon = malloc(name_size);
+	char* name_pokemon = calloc(1, name_size+1);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
-	desplazamiento += name_size;
+	string_append(&name_pokemon, "\0");
+	desplazamiento += name_size+1;
 
 	memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -782,7 +786,6 @@ puntero_mensaje obtener_mensaje_catch_memoria(void* buffer) {
 	uint32_t id_correlacional;
 	puntero_mensaje_catch_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_catch_pokemon));
 	uint32_t name_size;
-	char* name_pokemon;
 	uint32_t pos_x;
 	uint32_t pos_y;
 
@@ -791,9 +794,10 @@ puntero_mensaje obtener_mensaje_catch_memoria(void* buffer) {
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	name_pokemon = malloc(name_size);
+	char* name_pokemon = calloc(1, name_size+1);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
-	desplazamiento += name_size;
+	string_append(&name_pokemon, "\0");
+	desplazamiento += name_size+1;
 
 	memcpy(&pos_x, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -1041,16 +1045,16 @@ puntero_mensaje obtener_mensaje_get_memoria(void* buffer) {
 	uint32_t id_correlacional;
 	puntero_mensaje_get_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_get_pokemon));
 	uint32_t name_size;
-	char* name_pokemon;
 
 	uint32_t desplazamiento = 0;
 
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	name_pokemon = malloc(name_size);
+	char* name_pokemon = calloc(1, name_size+1);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
-	desplazamiento += name_size;
+	string_append(&name_pokemon, "\0");
+	desplazamiento += name_size+1;
 
 	mensaje_recibido->name_size = name_size;
 	mensaje_recibido->name_pokemon = name_pokemon;
@@ -1213,7 +1217,6 @@ puntero_mensaje obtener_mensaje_localized_memoria(void* buffer) {
 	uint32_t id_correlacional;
 	puntero_mensaje_localized_pokemon mensaje_recibido = malloc(sizeof(t_mensaje_localized_pokemon));
 	uint32_t name_size;
-	char* name_pokemon;
 	uint32_t quant_pokemon;
 	t_list* coords = list_create();
 
@@ -1222,9 +1225,10 @@ puntero_mensaje obtener_mensaje_localized_memoria(void* buffer) {
 	memcpy(&name_size, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	name_pokemon = malloc(name_size);
+	char* name_pokemon = calloc(1, name_size+1);
 	memcpy(name_pokemon, buffer + desplazamiento, name_size);
-	desplazamiento += name_size;
+	string_append(&name_pokemon, "\0");
+	desplazamiento += name_size+1;
 
 	memcpy(&quant_pokemon, buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
