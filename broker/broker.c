@@ -324,7 +324,6 @@ void envio_mensaje(puntero_mensaje puntero_mensaje, int cola, t_cola_mensaje* co
 
 				list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
 			} else if (!encontre && enviado){
-				printf("NO ENCONTRO ACKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK\n");
 				sem_post(&mutexLista[cola]);
 			}
 		}
@@ -1025,7 +1024,6 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 					free(suscriptor);
 					liberar(punteroParticionMensaje->colaMensaje, punteroMensaje);
 				} else if (!encontre && enviado){
-					printf("NO ENCONTRO ACKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK\n");
 					enviar_mensajes_memoria(mensajeSuscripcion, socket);
 				}
 			}

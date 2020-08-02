@@ -204,10 +204,6 @@ void funcion_NEW_POKEMON(puntero_mensaje mensajeRecibido){
 		char*mensaje;
 		//printf("Conexion %i\n",conexion);
 		if(conexion != -1){
-			printf("AAAAAAAAAAAAAAAAAAAAAAAA %s\n", newRecibido->name_pokemon);
-			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", newRecibido->pos_x);
-			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", newRecibido->pos_y);
-			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", mensajeRecibido->id);
 			send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
 			mensaje = client_recibir_mensaje(conexion);
 			free(mensaje);
