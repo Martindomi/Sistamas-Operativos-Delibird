@@ -25,6 +25,7 @@
 #define MODIFICAR 1
 
 sem_t mutexBitmap;
+sem_t mutexEnvio;
 
 /*
 #define BLOCK_SIZE "BLOCK_SIZE"

@@ -197,13 +197,16 @@ int aplica_funcion_escucha(int * socket){
 		//printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
-			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
-			if(encontre) {
-				//printf("id:%d\n", mensajeRecibido->id_correlativo);
-				procesar_caught(caughtRecibido, mensajeRecibido ->id_correlativo);
+		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
+		if(encontre) {
+			//printf("id:%d\n", mensajeRecibido->id_correlativo);
+			procesar_caught(caughtRecibido, mensajeRecibido ->id_correlativo);
 
-			}
-			free(mensajeRecibido);
+		} else {
+			free(caughtRecibido);
+		}
+		free(mensajeRecibido);
+
 		break;
 
 	case LOCALIZED_POKEMON:
@@ -213,12 +216,16 @@ int aplica_funcion_escucha(int * socket){
 
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 
-			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
-			if(encontre) {
-				//printf("id:%d\n", mensajeRecibido->id_correlativo);
-				procesar_localized(localizedRecibido, mensajeRecibido->id_correlativo);
+		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
+		if(encontre) {
+			//printf("id:%d\n", mensajeRecibido->id_correlativo);
+			procesar_localized(localizedRecibido, mensajeRecibido->id_correlativo);
 
-			}
+		} else {
+			list_destroy(localizedRecibido->coords);
+			free(localizedRecibido->name_pokemon);
+			free(localizedRecibido);
+		}
 
 		free(mensajeRecibido);
 		break;

@@ -609,6 +609,8 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 				actualizar_tamanio_archivo(pathPokemon);
 				free(stringCant);
 				free(contenidoFinal);
+				free(listaDeContenidosTotal[0]);
+				free(listaDeContenidosTotal[1]);
 				free(listaDeContenidosTotal);
 			} else {
 				agregar_nuevo_mensaje(mensaje, pathPokemon);

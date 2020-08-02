@@ -272,7 +272,7 @@ void* distribuir_mensajes(void* puntero_cola) {
 	while(1) {
 		// ENVIA MENSAJES A SUSCRIPTORES
 		int cola = *((int*) puntero_cola);
-		sleep(15);
+		//sleep(15);
 
 		sem_wait(&mutexLista[cola]);
 		sem_wait(&mutexDistribucion);
@@ -306,23 +306,26 @@ void envio_mensaje(puntero_mensaje puntero_mensaje, int cola, t_cola_mensaje* co
 	// OBTENGO CADA SUSCRIPTOR DE UN MENSAJE
 	for(int j = 0; j < list_size(cola_mensajes->suscriptores) ;j++) {
 		suscriptor = list_get(cola_mensajes->suscriptores, j);
-
+		//ver_estado_memoria();
 		punteroParticion punteroParticionMensaje = buscar_particion_mensaje(puntero_mensaje->id);
-
+		//printf("Puntero buscado %d\n", punteroParticionMensaje->id);
 		bool encuentra_suscriptor(void* elemento) {
 			return strcmp((char*)elemento, suscriptor->cliente) == 0;
 		}
-		// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
-		bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
-		// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
-		if (!encontre) {
-			//printf("Distribucion a %s\n", suscriptor->cliente);
-			distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
-			// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+		if(punteroParticionMensaje != NULL) {
+			//printf("Entro al distinto de null\n");
+			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
-			// SI NO ESTA, LO AGREGO
-			if(!enviado) {
+
+			if(!encontre && !enviado) {
+				distribuir_mensaje_sin_enviar_a(suscriptor, cola, puntero_mensaje, NULL);
+
 				list_add(punteroParticionMensaje->suscriptores_enviados, suscriptor->cliente);
+			} else if (!encontre && enviado){
+				printf("NO ENCONTRO ACKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK\n");
+				sem_post(&mutexLista[cola]);
 			}
 		}
 	}
@@ -440,7 +443,7 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 
 	mensaje_recibido = client_recibir_mensaje(punteroAck->conexion);
 	//printf("RECIBE %s\n", mensaje_recibido);
-	log_info(loggerBroker, "ACK Recibido");
+	log_info(loggerBroker, "ACK Recibido con ID: %d", punteroAck->idMensaje);
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
 		if(punteroParticionEncontrado != NULL) {
@@ -880,14 +883,16 @@ void eliminar_particion_seleccionada(int index) {
 
 		if(punteroParticionEliminar->id == punteroMensaje->id) {
 
-			sem_wait(&mutexDistribucion);
+			/*sem_wait(&mutexDistribucion);
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
-			sem_post(&mutexDistribucion);
-
+*/
 			log_info(loggerBroker,"Elimino particion con mensaje con ID: %d", punteroMensaje->id);
 
-			liberar(punteroParticionEliminar->colaMensaje, punteroMensaje);
-			list_remove(cola->mensajes, j);
+			puntero_mensaje mens = list_remove(cola->mensajes, j);
+			liberar(punteroParticionEliminar->colaMensaje, mens);
+
+			//sem_post(&mutexDistribucion);
+
 			break;
 		}
 	}
@@ -991,34 +996,38 @@ void enviar_mensajes_memoria(puntero_suscripcion_cola mensajeSuscripcion, int so
 	//printf("MEMORIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 	for(int i = 0; i < list_size(particionesCola); i++ ) {
 		punteroParticion punteroParticionMensaje = list_get(particionesCola, i);
-		if(punteroParticionMensaje->ocupada) {
+		if(punteroParticionMensaje != NULL) {
+
 			bool encuentra_suscriptor(void* elemento) {
 				char* sus = (char*) elemento;
 				return strcmp(sus, mensajeSuscripcion->cliente) == 0;
 			}
 			// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
-			bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
 			// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 			//printf("SUSCRIPTOR MENSAJE AHORA %s\n", mensajeSuscripcion->cliente);
 			//printf("ENCONTRO O NO %d\n", encontre);
-			if (!encontre) {
-				puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
-				puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
-				suscriptor->cliente = mensajeSuscripcion->cliente;
-				suscriptor->socket = socket;
-				//printf("Distribucion MEMORIA socket %d\n", suscriptor->socket);
-				distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje, punteroParticionMensaje);
-				//printf("Pasa distribucion\n");
-				actualizar_lru_mensaje(punteroParticionMensaje->id);
-				//printf("Pasa actualizar\n");
-				// MIRO SI ESTA EN LA LISTA DE LOS ENVIADOS,
+			if(punteroParticionMensaje->ocupada) {
+				//printf("Entro al distinto de null\n");
+				// ME FIJO SI EL SUSCRIPTOR ESTA EN LA LISTA DE SUSCRIPTORES ACK DEL MENSAJE
+				bool encontre = list_any_satisfy(punteroParticionMensaje->suscriptores_ack, (void*)encuentra_suscriptor);
+				// SI NO ESTA EN LA LISTA DE LOS ACK, LE ENVIO EL MENSAJE
 				bool enviado = list_any_satisfy(punteroParticionMensaje->suscriptores_enviados, (void*)encuentra_suscriptor);
-				// SI NO ESTA, LO AGREGO
-				if(!enviado) {
+
+				if(!encontre && !enviado) {
+					puntero_mensaje punteroMensaje = obtener_mensaje_memoria(punteroParticionMensaje);
+					puntero_suscriptor suscriptor = malloc(sizeof(t_suscriptor));
+					suscriptor->cliente = mensajeSuscripcion->cliente;
+					suscriptor->socket = socket;
+					distribuir_mensaje_sin_enviar_a(suscriptor, mensajeSuscripcion->cola, punteroMensaje, punteroParticionMensaje);
+					actualizar_lru_mensaje(punteroParticionMensaje->id);
+
 					list_add(punteroParticionMensaje->suscriptores_enviados, mensajeSuscripcion->cliente);
+					free(suscriptor);
+					liberar(punteroParticionMensaje->colaMensaje, punteroMensaje);
+				} else if (!encontre && enviado){
+					printf("NO ENCONTRO ACKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK\n");
+					enviar_mensajes_memoria(mensajeSuscripcion, socket);
 				}
-				free(suscriptor);
-				liberar(punteroParticionMensaje->colaMensaje, punteroMensaje);
 			}
 		}
 	}
@@ -1129,7 +1138,7 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
 
-		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %p", posMemoria);
+		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %p con ID: %d", posMemoria, mensajeCompleto->id);
 
 		//printf("Asigno memoria!!!!!\n");
 	} else {
@@ -1443,21 +1452,24 @@ void bs_eliminar_particion_fifo(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
-				sem_wait(&mutexDistribucion);
+				/*sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
+*/
+				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionMenorId->id);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
 				liberar(punteroParticionMenorId->colaMensaje, mens);
-				sem_post(&mutexDistribucion);
+
+				punteroParticionMenorId->id = NULL;
+				punteroParticionMenorId->colaMensaje = NULL;
+				//sem_post(&mutexDistribucion);
 
 			}
 		}
 
-		log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionMenorId->id);
 
 		//printf("Elimina una particion de: %d de id: %d\n",punteroParticionMenorId->tamanoMensaje, punteroParticionMenorId->id);
-		punteroParticionMenorId->id = NULL;
-		punteroParticionMenorId->colaMensaje = NULL;
+
 	}
 }
 
@@ -1506,20 +1518,21 @@ void bs_eliminar_particion_lru(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
-				sem_wait(&mutexDistribucion);
+				/*sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
+*/
+				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionLru->id);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
 				liberar(punteroParticionLru->colaMensaje, mens);
-				sem_post(&mutexDistribucion);
+
+				punteroParticionLru->id = NULL;
+				punteroParticionLru->colaMensaje = NULL;
+				//sem_post(&mutexDistribucion);
 
 			}
 		}
 
-		log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionLru->id);
-
-		punteroParticionLru->id = NULL;
-		punteroParticionLru->colaMensaje = NULL;
 	}
 	//printf("Sale de LRU\n");
 }
@@ -1683,6 +1696,7 @@ void liberar_mensajes_localized(void* men) {
 	t_mensaje* mensaje = (t_mensaje*) men;
 	puntero_mensaje_localized_pokemon localizedPokemon = (puntero_mensaje_localized_pokemon) mensaje->mensaje_cuerpo;
 	free(localizedPokemon->name_pokemon);
+	list_destroy(localizedPokemon->coords);
 	free(localizedPokemon);
 	free(mensaje);
 }

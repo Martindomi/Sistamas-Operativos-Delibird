@@ -952,9 +952,9 @@ void send_message_get_pokemon(char* nombre, uint32_t id, uint32_t id_correlativo
 	int bytes = paquete->buffer->size + sizeof(uint32_t) + sizeof(op_code);
 	void* a_enviar = serializar_paquete(paquete, &bytes);
 
-	puntero_mensaje puntero= obtener_mensaje_get(stream);
+	/*puntero_mensaje puntero= obtener_mensaje_get(stream);
 	puntero_mensaje_get_pokemon puntero_get = (puntero_mensaje_get_pokemon) (puntero->mensaje_cuerpo);
-
+*/
 	//printf("envio get de pokemon: %s \n", puntero_get->name_pokemon);
 
 	//printf("%d\n", socket_cliente);

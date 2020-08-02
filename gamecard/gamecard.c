@@ -77,6 +77,7 @@ int main (int argc, char *argv[]) {
 		sem_init((&mutex_conSwitch),0,1);
 		sem_init((&esperaSuscripcion),0,1);*/
 	sem_init(&mutex_suscripcion,0,0);
+	sem_init(&mutexEnvio, 0, 1);
 		//sem_init(&sem_entrenador_disponible,0,0);
 
 	sem_wait(&mutex_boolReconexion);
@@ -197,20 +198,30 @@ void funcion_NEW_POKEMON(puntero_mensaje mensajeRecibido){
 		tratar_mensaje_NEW_POKEMON(newRecibido->pos_x,newRecibido->pos_y,newRecibido->quant_pokemon,newRecibido->name_pokemon);
 		//sem_post(semaforoNewPokemon);
 		//printf("paso sem_post %s\n", newRecibido->name_pokemon);
+		sem_wait(&mutexEnvio);
+
 		int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
 		char*mensaje;
 		//printf("Conexion %i\n",conexion);
 		if(conexion != -1){
+			printf("AAAAAAAAAAAAAAAAAAAAAAAA %s\n", newRecibido->name_pokemon);
+			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", newRecibido->pos_x);
+			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", newRecibido->pos_y);
+			printf("AAAAAAAAAAAAAAAAAAAAAAAA %d\n", mensajeRecibido->id);
 			send_message_appeared_pokemon(newRecibido->name_pokemon,newRecibido->pos_x,newRecibido->pos_y,0,mensajeRecibido->id,conexion);
 			mensaje = client_recibir_mensaje(conexion);
 			free(mensaje);
+
 		}else{
 			//printf("entro en el else\n");
 			log_info(logger,"MENSAJE NEW_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 		}
+
 		//printf("salioc del else\n");
 
 		liberar_conexion(conexion);
+		sem_post(&mutexEnvio);
+
 	/*}else{
 		sem_post(&semDict);
 	}
@@ -238,19 +249,25 @@ void funcion_CATCH_POKEMON(puntero_mensaje mensajeRecibido){
 	printf("sem wait\n");
 	char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
 	//sem_post(semaforoCatchPokemon);
+	sem_wait(&mutexEnvio);
+
 	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
 	char* mensaje;
 	if(conexion != -1){
+
 		send_message_caught_pokemon(respuesta,0,mensajeRecibido->id,conexion);
 		mensaje = client_recibir_mensaje(conexion);
 		free(mensaje);
+
 	}else{
 		log_info(logger,"MENSAJE CATCH_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 	}
+
+	liberar_conexion(conexion);
+	sem_post(&mutexEnvio);
 	free(catchRecibido->name_pokemon);
 	free(catchRecibido);
 	free(mensajeRecibido);
-	liberar_conexion(conexion);
 }
 
 void funcion_GET_POKEMON(puntero_mensaje mensajeRecibido){
@@ -271,22 +288,28 @@ void funcion_GET_POKEMON(puntero_mensaje mensajeRecibido){
 	t_list* listadoPosiciones = tratar_mensaje_GET_POKEMON(getRecibido->name_pokemon);
 	//sem_post(semaforoGetPokemon);
 	uint32_t cantidadPos = (list_size(listadoPosiciones)/2);
+	sem_wait(&mutexEnvio);
+
 	int conexion = crear_conexion(informacion->ipBroker, informacion->puertoBroker);
 	char* mensaje;
 	if(conexion != -1){
+
 		send_message_localized_pokemon(getRecibido->name_pokemon,cantidadPos,listadoPosiciones,0,mensajeRecibido->id,conexion);
 		mensaje = client_recibir_mensaje(conexion);
 		free(mensaje);
+
 	}else{
 		log_info(logger,"MENSAJE GET_POKEMON:: CONEXION:No se encontro conexion con proceso broker");
 	}
+	liberar_conexion(conexion);
+
+	sem_post(&mutexEnvio);
 
 	free(getRecibido->name_pokemon);
 	free(getRecibido);
 
 	free(mensajeRecibido);
 	list_destroy(listadoPosiciones);
-	liberar_conexion(conexion);
 }
 void liberar_memoria() {
 	sem_wait(&mutex_end);
