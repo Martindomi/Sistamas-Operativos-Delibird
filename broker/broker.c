@@ -882,15 +882,15 @@ void eliminar_particion_seleccionada(int index) {
 
 		if(punteroParticionEliminar->id == punteroMensaje->id) {
 
-			/*sem_wait(&mutexDistribucion);
+			sem_wait(&mutexDistribucion);
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
-*/
+
 			log_info(loggerBroker,"Elimino particion con mensaje con ID: %d", punteroMensaje->id);
 
 			puntero_mensaje mens = list_remove(cola->mensajes, j);
 			liberar(punteroParticionEliminar->colaMensaje, mens);
 
-			//sem_post(&mutexDistribucion);
+			sem_post(&mutexDistribucion);
 
 			break;
 		}
@@ -1450,9 +1450,9 @@ void bs_eliminar_particion_fifo(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
-				/*sem_wait(&mutexDistribucion);
+				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
-*/
+
 				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionMenorId->id);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
@@ -1460,7 +1460,7 @@ void bs_eliminar_particion_fifo(){
 
 				punteroParticionMenorId->id = NULL;
 				punteroParticionMenorId->colaMensaje = NULL;
-				//sem_post(&mutexDistribucion);
+				sem_post(&mutexDistribucion);
 
 			}
 		}
@@ -1516,9 +1516,9 @@ void bs_eliminar_particion_lru(){
 			}
 			puntero_mensaje punteroMensaje = list_find(cola->mensajes, (void*)mensaje_con_id);
 			if(punteroMensaje != NULL) {
-				/*sem_wait(&mutexDistribucion);
+				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
-*/
+
 				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionLru->id);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
@@ -1526,7 +1526,7 @@ void bs_eliminar_particion_lru(){
 
 				punteroParticionLru->id = NULL;
 				punteroParticionLru->colaMensaje = NULL;
-				//sem_post(&mutexDistribucion);
+				sem_post(&mutexDistribucion);
 
 			}
 		}

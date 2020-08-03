@@ -51,7 +51,8 @@ int main(int argc, char *argv[]){
 	sem_init((&esperaSuscripcion),0,1);
 	sem_init(&mutex_suscripcion,0,0);
 	sem_init(&sem_entrenador_disponible,0,0);
-	sem_init(&sem_localized_appeared,0,0);
+	//sem_init(&sem_localized_appeared,0,0);
+	sem_init(&mutex_lista_ids,0,1);
 
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
@@ -195,8 +196,9 @@ int aplica_funcion_escucha(int * socket){
 		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
 
 		//printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
+		sem_wait(&mutex_lista_ids);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
-
+		sem_post(&mutex_lista_ids);
 		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 		if(encontre) {
 			//printf("id:%d\n", mensajeRecibido->id_correlativo);

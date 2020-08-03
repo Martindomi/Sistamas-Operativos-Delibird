@@ -24,7 +24,9 @@ void main_planificacion_recibidos(){
 	while(1){
 		//printf("esperando localized\n");
 		sem_wait(&sem_recibidos);
+		sem_wait(&mutex_recibidos);
 		pokemon = list_remove(listaPokemonsRecibidos,i);
+		sem_post(&mutex_recibidos);
 		//pokemonsObjetivo =list_find(lista_objetivo,(void*)_filterPokemon);
 		pokemonsObjetivo = buscarPokemon(pokemon->especie);
 		if(pokemonsObjetivo->cantidad==NULL){
@@ -47,9 +49,9 @@ void main_planificacion_recibidos(){
 				moverColas(cola_NEW,cola_READY,distancia_new->entrenador);
 				log_info(loggerTEAM,"CAMBIO DE COLA; Entrenador %d: NEW -> READY. Motivo: Entrenador se prepara para moverse a la posicion del pokemon a capturar", distancia_new->entrenador->id);
 				//printf("voy a buscar un pokemon\n");
-				sem_wait(&mutex_objetivo);
-				t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
-				sem_post(&mutex_objetivo);
+				//sem_wait(&mutex_objetivo);
+				//t_pokemonObjetivo *pokemonsito= lista_objetivo->head->data;
+				//sem_post(&mutex_objetivo);
 				//pokemonsito->cantidad=pokemonsito->cantidad -1; // debe hacerse cuando lo atrapa
 				distancia_new->entrenador->pokemonCapturando = pokemon;
 			}else{
@@ -89,8 +91,9 @@ void main_planificacion_caught(){
 	while(1){
 		sem_wait(&sem_caught);
 		entrenadores_esperando_caught = buscar_entrenadores_bloqueados_NOdisponibles();
-		caught = list_get(listaPokemonesCaught,0);
-		list_remove(listaPokemonesCaught,0);
+		sem_wait(&mutex_caught);
+		caught = list_remove(listaPokemonesCaught,0);
+		sem_post(&mutex_caught);
 		entrenador = list_find(entrenadores_esperando_caught,(void*)_filterEntrenadorCaught);
 		//printf("se encontro entrenador %d esperando caught\n", entrenador->id);
 		if(entrenador!=NULL){
