@@ -213,9 +213,11 @@ void crear_directorio(char*path) {
 void crear_metadata_directorio(char* dir) {
 	char* path = (string_from_format("%s/Metadata.bin", dir));
 	FILE* directorio = fopen(path, "a");
-	fputs(("DIRECTORY=%s\n", "Y"), directorio);
+	char* directory = string_from_format("DIRECTORY=%s\n", "Y");
+	fputs(directory, directorio);
 	//fputs((string_from_format("DIRECTORY=%s\n", "Y")), directorio);
 	fclose(directorio);
+	free(directory);
 	free(path);
 }
 
@@ -534,8 +536,9 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 	if (validar_existencia_archivo(pathPokemon)) {
 
 		if (!archivo_abierto(pathPokemon)) {
-
+			//printf("Entra a abrir arhcivo\n");
 			abrir_archivo(pathPokemon);
+			//printf("sale de abrir el archivo\n");
 			sem_post(semaforoNewPokemon);
 
 			//char* mensaje = generar_linea_de_entrada_mensaje(posX, posY, cant);
@@ -605,25 +608,40 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 						cantidad_digitos(cantActual));
 				string_append(&contenidoFinal, stringPirulito);
 				free(stringPirulito);
+
+				sem_wait(semaforoNewPokemon);
 				tratar_contenido_en_bloques(contenidoFinal, pathPokemon);
 				actualizar_tamanio_archivo(pathPokemon);
+				sem_post(semaforoNewPokemon);
+
 				free(stringCant);
 				free(contenidoFinal);
 				free(listaDeContenidosTotal[0]);
 				free(listaDeContenidosTotal[1]);
 				free(listaDeContenidosTotal);
 			} else {
+				sem_wait(semaforoNewPokemon);
 				agregar_nuevo_mensaje(mensaje, pathPokemon);
+				sem_post(semaforoNewPokemon);
+
 			}
 			sleep(tiempo_retardo_operacion);
 			log_info(logger,
 					"NEW_POKEMON: Se ha modificado el contenido del archivo %s",
 					pokemon);
+			sem_wait(semaforoNewPokemon);
+			//printf("Comienzo cerrar archivo\n");
 			cerrar_archivo(pathPokemon);
+			//printf("Cierro archivo\n");
+			sem_post(semaforoNewPokemon);
 			free(mensajeCorto);
 			free(contenidoBloques);
+			free(pathPokemon);
+			free(mensaje);
 
 		} else {
+			free(pathPokemon);
+			free(mensaje);
 			sem_post(semaforoNewPokemon);
 			sleep(tiempo_de_reintento_operacion);
 			tratar_mensaje_NEW_POKEMON(posX, posY, cant, pokemon);
@@ -632,14 +650,14 @@ void tratar_mensaje_NEW_POKEMON(int posX, int posY, int cant, char* pokemon) {
 	} else {
 		crear_archivo_pokemon_metadata(pokemon, mensaje);
 		sleep(tiempo_retardo_operacion);
+		free(pathPokemon);
+		free(mensaje);
 		sem_post(semaforoNewPokemon);
 		log_info(logger,
 				"NEW_POKEMON: Se ha modificado el contenido del archivo %s",
 				pokemon);
-
 	}
-	free(pathPokemon);
-	free(mensaje);
+
 }
 char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 	char* pathPokemon = generar_path_archivo_pokemon_metadata(pokemon);
@@ -797,7 +815,11 @@ char* tratar_mensaje_CATCH_POKEMON(int posX, int posY, char*pokemon) {
 			log_info(logger,
 					"CATCH_POKEMON: No hay ningun pokemon %s en la posicion %i-%i solicitada",
 					pokemon, posX, posY);
+
+			sem_wait(semaforoCatchPokemon);
 			cerrar_archivo(pathPokemon);
+			sem_post(semaforoCatchPokemon);
+
 			free(contenidoBloques);
 			free(pathPokemon);
 			free(mensaje);
@@ -895,7 +917,11 @@ t_list* tratar_mensaje_GET_POKEMON(char*pokemon) {
 
 			}
 			sleep(tiempo_retardo_operacion);
+
+			sem_wait(semaforoGetPokemon);
 			cerrar_archivo(pathPokemon);
+			sem_post(semaforoGetPokemon);
+
 			log_info(logger,
 					"GET_POKEMON:se envío el listado de posiciones del pokemon %s existente dentro del file system",
 					pokemon);
@@ -1048,23 +1074,28 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 	int tamMensaje = string_length(mensaje);
 	char** bloques = obtener_array_de_bloques(pathPokemon);
 	int tamArray = tam_array_bloques(bloques);
-
+	//printf("ENTRA A AGREGAR");
 	if (tamArray == 0) {
 		sem_wait(&mutexBitmap);
 		int bloqueNuevo = buscar_block_disponible();
 		actualizar_bitmap(1, bloqueNuevo);
 		sem_post(&mutexBitmap);
 		escribir_mensaje_en_block(bloqueNuevo, mensaje, AGREGAR);
+		//printf("Modifica METADATA AGREGAR BLOCK\n");
 		agregar_block_al_metadata(bloqueNuevo, pathPokemon);
+		//printf("Modifica ACTUALIZA TAMANO\n");
 		actualizar_tamanio_archivo(pathPokemon);
-
+		//printf("SALE DE ACTUALIZAR\n");
 	} else {
 		char*path = generar_path_bloque(bloques[tamArray - 1]);
 		int tamDisponible = tam_disponible_en_bloque(path);
 		if (tamMensaje <= tamDisponible) {
+			//printf("tamano mensaje menor disponible\n");
 			escribir_mensaje_en_block(atoi(bloques[tamArray - 1]), mensaje,
 			AGREGAR);
+			//printf("actualiza el tamano archivo\n");
 			actualizar_tamanio_archivo(pathPokemon);
+			//printf("no tengo mas ideas\n");
 
 		} else {
 			char* mensajeBloqueFinal = string_substring_until(mensaje,
@@ -1080,9 +1111,11 @@ void agregar_nuevo_mensaje(char* mensaje, char*pathPokemon) {
 			escribir_mensaje_en_block(bloqueNuevo, mensajeBloqueNuevo,
 			AGREGAR);
 
+			//printf("Entra al block metadata no se que cosa\n");
 			agregar_block_al_metadata(bloqueNuevo, pathPokemon);
+			//printf("Y sale por aqui\n");
 			actualizar_tamanio_archivo(pathPokemon);
-
+			//printf("un gusto caballero\n");
 			free(mensajeBloqueFinal);
 			free(mensajeBloqueNuevo);
 
