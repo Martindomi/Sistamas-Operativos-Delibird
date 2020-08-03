@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
 	sem_init((&esperaSuscripcion),0,1);
 	sem_init(&mutex_suscripcion,0,0);
 	sem_init(&sem_entrenador_disponible,0,0);
-	sem_init(&sem_localized_appeared,0,0);
+	sem_init(&mutex_lista_ids,0,1);
 
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
@@ -192,8 +192,9 @@ int aplica_funcion_escucha(int * socket){
 		puntero_mensaje_caught_pokemon caughtRecibido = mensajeRecibido->mensaje_cuerpo;
 
 		//printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
+		sem_wait(&mutex_lista_ids);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
-
+		sem_post(mutex_lista_ids);
 			// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 			if(encontre) {
 				//printf("id:%d\n", mensajeRecibido->id_correlativo);
@@ -300,7 +301,7 @@ void procesar_caught(puntero_mensaje_caught_pokemon caughtRecibido, uint32_t idC
 
 void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 
-	sem_wait(&sem_localized_appeared);
+
 	t_pokemon *pokemon = malloc(sizeof(t_pokemon));
 	pokemon->especie=malloc(appearedRecibido->name_size);
 	memcpy(pokemon->especie,appearedRecibido->name_pokemon,appearedRecibido->name_size);
@@ -314,7 +315,7 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 	if(poke ==NULL || poke->cantidad <= 0 || poke->diferenciaARecibir <= 0){
 		//log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: APPEARED. No necesita atrapar pokemon: %s.", pokemon->especie);
 		sem_post(&mutex_objetivo);
-		sem_post(&sem_localized_appeared);
+		//sem_post(&sem_localized_appeared);
 		return;
 	}
 	poke->diferenciaARecibir--;
@@ -324,10 +325,8 @@ void procesar_appeared(puntero_mensaje_appeared_pokemon appearedRecibido){
 
 	sem_wait(&mutex_recibidos);
 	list_add(listaPokemonsRecibidos,pokemon);
-	printf("eniva a lista el pokemon aparecido\n");
 	sem_post(&mutex_recibidos);
 	sem_post(&sem_recibidos);
 
-	sem_post(&sem_localized_appeared);
 }
 

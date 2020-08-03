@@ -29,6 +29,7 @@ sem_t sem_fin;
 sem_t sem_entrenador_disponible;
 sem_t sem_localized_appeared;
 sem_t mutex_objetivo;
+sem_t mutex_lista_ids;
 
 int movimientoTime;
 

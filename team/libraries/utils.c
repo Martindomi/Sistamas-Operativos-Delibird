@@ -177,14 +177,15 @@ void enviar_get_objetivos(){
 
 		sem_wait(&mutex_objetivo);
 		especieObjetivo = list_get(lista_objetivo,i);
-		sem_post(&mutex_objetivo);
+
 
 		if(especieObjetivo->cantidad > 0){
 			enviar_mensaje_get_pokemon(especieObjetivo->pokemon);
 		}
+		sem_post(&mutex_objetivo);
 	}
 
-	sem_post(&sem_localized_appeared);
+	//sem_post(&sem_localized_appeared);
 
 
 }
@@ -199,7 +200,7 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; GET-> 'Pokemon %s sin locaciones'", especiePokemon);
 		crear_hilo_reconexion("./team.config");
-		sem_post(&sem_localized_appeared);
+		//sem_post(&sem_localized_appeared);
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	t_pokemonObjetivo *poke = buscarPokemon(especiePokemon);
@@ -209,7 +210,9 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	//free(pokemon);
 	mensaje=client_recibir_mensaje(conexion);
 	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje GET enviado es] %s",mensaje);
+	sem_wait(&mutex_lista_ids);
 	list_add(ids_mensajes_enviados, mensaje);
+	sem_post(&mutex_lista_ids);
 	}
 	liberar_conexion(conexion);
 }
@@ -261,8 +264,9 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 		mensaje=client_recibir_mensaje(conexion);
 		entrenador->id_catch = atoi(mensaje);
 		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje CATCH enviado es] %s",mensaje);
+		sem_wait(&mutex_lista_ids);
 		list_add(ids_mensajes_enviados, mensaje);
-
+		sem_post(&mutex_lista_ids);
 		liberar_conexion(conexion);
 
 	}

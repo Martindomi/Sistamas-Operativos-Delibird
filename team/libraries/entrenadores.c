@@ -243,14 +243,15 @@ void imprimirListaObjetivo(){
 
 void crearListaObjetivo(){
 
+	sem_wait(&mutex_objetivo);
 	if(lista_objetivo==NULL){
 //		printf("creando lista de todos los objetivos\n");
-		sem_wait(&mutex_objetivo);
+
 		lista_objetivo=list_create();
-		sem_post(&mutex_objetivo);
+
 	}
 //	printf("lista de objetivos creada\n");
-
+	sem_post(&mutex_objetivo);
 
 
 }
