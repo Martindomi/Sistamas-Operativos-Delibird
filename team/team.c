@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
 	sem_init(&sem_entrenador_disponible,0,0);
 	//sem_init(&sem_localized_appeared,0,0);
 	sem_init(&mutex_lista_ids,0,1);
-
+	sem_init(&mutex_colas, 0, 1);
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
 	sem_post(&mutex_boolReconexion);

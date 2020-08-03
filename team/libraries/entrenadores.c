@@ -342,6 +342,7 @@ t_pokemonObjetivo *buscarPokemon(char* pokemon)
 }
 
 void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
+
 	int cantidadAMoverseX = xDestino - entrenador->x;
 	int cantidadAMoverseY = yDestino - entrenador->y;
 	int xInicial = entrenador->x;

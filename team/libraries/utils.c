@@ -197,14 +197,16 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	tarda(1);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
+		sem_post(&mutex_objetivo);
 		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; GET-> 'Pokemon %s sin locaciones'", especiePokemon);
 		t_pokemonObjetivo *poke = buscarPokemon(especiePokemon);
-		sem_wait(&mutex_objetivo);
+		//sem_wait(&mutex_objetivo);
 		poke->diferenciaARecibir = poke->cantidad;
-		sem_post(&mutex_objetivo);
-		crear_hilo_reconexion("./team.config");
+		//sem_post(&mutex_objetivo);
+		crear_hilo_reconexion("../team.config");
 		//sem_post(&sem_localized_appeared);
+		sem_post(&mutex_objetivo);
 	}else{
 	send_message_get_pokemon(especiePokemon,0,0,conexion);
 	//sem_wait(&mutex_objetivo);
@@ -235,7 +237,7 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
-			crear_hilo_reconexion("./team.config");
+			crear_hilo_reconexion("../team.config");
 		sem_post(&mutex_boolReconexion);
 		log_info(loggerTEAM,"OPERACION POR DEFAULT; CATCH-> 'Entrenador %d captura pokemon %s con exito'",entrenador->id,especiePokemon);
 		list_add(entrenador->pokemonesCapturados,entrenador->pokemonCapturando->especie);

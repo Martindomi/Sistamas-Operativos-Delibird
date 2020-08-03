@@ -205,6 +205,7 @@ t_list *buscar_entrenadores_bloqueados_NOdisponibles(){
 }
 
 void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
+	sem_wait(&mutex_colas);
 	int tamanio = list_size(origen);
 	for(int i = 0; i<tamanio;i++){
 		t_entrenador* comp =  list_get(origen,i);
@@ -218,7 +219,7 @@ void moverColas(t_list* origen, t_list* destino, t_entrenador* entrenador) {
  *	entrenador->seMovioEnTime = movimientoTime;
  *	sem_post(&mutex_mov_colas_time);
 */	list_add(destino, entrenador);
-
+	sem_post(&mutex_colas);
 }
 
 void agregarAColas(t_list* lista, t_entrenador* entrenador) {
