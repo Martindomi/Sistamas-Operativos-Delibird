@@ -25,7 +25,7 @@ bool suscribirse_a_colas_gameboy(char* path){
 			cola = vectorDeColas[i];
 			enviar_mensaje_suscribir_con_id(cola, informacion->idGamecard, socketSuscripcion, -1);
 			sleep(1);
-			printf("envio suscipcion\n");
+			//printf("envio suscipcion\n");
 			conexiones[i]=socketSuscripcion;
 			i++;
 

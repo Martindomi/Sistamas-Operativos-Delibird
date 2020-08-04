@@ -647,6 +647,8 @@ void asignar_memoria_pd(t_mensaje* mensajeCompleto, int colaMensaje) {
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
 
+		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %d con ID: %d", (char*)posMemoria - (char*)punteroMemoriaPrincipal , mensajeCompleto->id);
+
 		//printf("Asigno memoria!!!!!\n");
 	} else {
 		guard(-1, "Mensaje excede el limite permitido.");
@@ -1136,7 +1138,7 @@ void asignar_memoria_bs(t_mensaje* mensajeCompleto, uint32_t colaMensaje) {
 
 		guardar_mensaje_memoria(mensajeCompleto, posMemoria, (uint32_t) colaMensaje);
 
-		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %p con ID: %d", posMemoria, mensajeCompleto->id);
+		log_info(loggerBroker,"Se guarda un mensaje en memoria en posicion %d con ID: %d", (char*)posMemoria - (char*)punteroMemoriaPrincipal, mensajeCompleto->id);
 
 		//printf("Asigno memoria!!!!!\n");
 	} else {

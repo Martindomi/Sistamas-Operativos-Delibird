@@ -224,7 +224,7 @@ void aplica_funcion_escucha(int *socket) {
 char* cola;
 	while(1){
 
-		printf("recibe mensaje del broker\n");
+		//printf("recibe mensaje del broker\n");
 
 		op_code cod_op=0;
 		puntero_mensaje mensajeRecibido;
@@ -299,7 +299,7 @@ char* cola;
 		if(cod_op>=1 && cod_op <=8){
 
 			devolver_mensaje(ACK, strlen(ACK) + 1, *socket);
-			printf("PASE ACK %s\n", ACK);
+			//printf("PASE ACK %s\n", ACK);
 		}else{
 			log_info(logger_gameboy,"CONEXION: Se perdio la conexion con el Broker");
 			break;
@@ -331,7 +331,7 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 		//while(vectorDeColas[i]!=NULL){
 
 			cola = vectorDeColas[i];
-			printf("Conexion %d\n", conexion);
+			//printf("Conexion %d\n", conexion);
 			enviar_mensaje_suscribir_con_id(cola, id_proceso, conexion, tiempo);
 			//mensaje = client_recibir_mensaje(conexion);
 			pthread_create(&hiloEscucha,NULL,(void*)aplica_funcion_escucha, &conexion);

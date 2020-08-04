@@ -16,7 +16,7 @@ int main (int argc, char *argv[]) {
 	int idGamecardSize = strlen(config_get_string_value(config, "ID_GAMECARD"))+1;
 	informacion->idGamecard = malloc(idGamecardSize);
 	memcpy(informacion->idGamecard, config_get_string_value(config, "ID_GAMECARD"), idGamecardSize);
-	printf("%s",config_get_string_value(config, "ID_GAMECARD"));
+	//printf("%s",config_get_string_value(config, "ID_GAMECARD"));
 
 	int ipBrokerSize = strlen(config_get_string_value(config, "IP_BROKER"))+1;
 	informacion->ipBroker = malloc(ipBrokerSize);
@@ -242,7 +242,7 @@ void funcion_CATCH_POKEMON(puntero_mensaje mensajeRecibido){
 	//sem_t* semaforoCatchPokemon =(sem_t*) dictionary_get(dicSemaforos,catchRecibido->name_pokemon);
 	sem_post(&semDict);
 	//sem_wait(semaforoCatchPokemon);
-	printf("sem wait\n");
+	//printf("sem wait\n");
 	char* respuesta =tratar_mensaje_CATCH_POKEMON(catchRecibido->pos_x,catchRecibido->pos_y,catchRecibido->name_pokemon);
 	//sem_post(semaforoCatchPokemon);
 	sem_wait(&mutexEnvio);
@@ -334,7 +334,7 @@ void liberar_memoria() {
 	free(bitmap->bitarray);
 	bitarray_destroy(bitmap);
 
-	printf("\n------------ FIN ------------\n");
+	//printf("\n------------ FIN ------------\n");
 	exit(0);
 }
 
