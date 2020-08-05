@@ -1,0 +1,95 @@
+==27209== Memcheck, a memory error detector
+==27209== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==27209== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==27209== Command: ./team ../team2.config
+==27209== Parent PID: 24906
+==27209== 
+==27209== 
+==27209== Process terminating with default action of signal 2 (SIGINT)
+==27209==    at 0x40603FB: pthread_join (pthread_join.c:90)
+==27209==    by 0x8049503: main (team.c:97)
+==27209== 
+==27209== HEAP SUMMARY:
+==27209==     in use at exit: 4,149 bytes in 144 blocks
+==27209==   total heap usage: 1,202 allocs, 1,058 frees, 67,424 bytes allocated
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 37 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x8049429: main (team.c:70)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 38 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x804943E: main (team.c:71)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 39 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x8049450: main (team.c:72)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 40 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x8049465: main (team.c:73)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 41 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x8049477: main (team.c:75)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 42 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x403D6AE: crear_hilo_escucha (conexiones.c:1398)
+==27209==    by 0x80494A3: main (team.c:82)
+==27209== 
+==27209== 136 bytes in 1 blocks are possibly lost in loss record 43 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x804B40D: crear_hilo_reconexion (utils.c:79)
+==27209==    by 0x804B468: crear_hilo_escucha_suscripcion (utils.c:64)
+==27209==    by 0x405F294: start_thread (pthread_create.c:333)
+==27209==    by 0x41680AD: clone (clone.S:114)
+==27209== 
+==27209== 680 bytes in 5 blocks are possibly lost in loss record 50 of 50
+==27209==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==27209==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==27209==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==27209==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==27209==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==27209==    by 0x804C417: crear_hilo_entrenadores (team.c:112)
+==27209==    by 0x8049491: main (team.c:80)
+==27209== 
+==27209== LEAK SUMMARY:
+==27209==    definitely lost: 0 bytes in 0 blocks
+==27209==    indirectly lost: 0 bytes in 0 blocks
+==27209==      possibly lost: 1,632 bytes in 12 blocks
+==27209==    still reachable: 2,517 bytes in 132 blocks
+==27209==         suppressed: 0 bytes in 0 blocks
+==27209== Reachable blocks (those to which a pointer was found) are not shown.
+==27209== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==27209== 
+==27209== For counts of detected and suppressed errors, rerun with: -v
+==27209== ERROR SUMMARY: 8 errors from 8 contexts (suppressed: 0 from 0)

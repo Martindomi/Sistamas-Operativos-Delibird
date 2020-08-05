@@ -1,0 +1,244 @@
+==6499== Memcheck, a memory error detector
+==6499== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==6499== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==6499== Command: ./team ../team.config
+==6499== Parent PID: 3024
+==6499== 
+==6499== Thread 8:
+==6499== Invalid read of size 4
+==6499==    at 0x804A046: main_entrenador (entrenadores.c:18)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f4 is 4 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x804A049: main_entrenador (entrenadores.c:18)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f0 is 0 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x8049F5B: analizarCaptura (entrenadores.c:422)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f0 is 0 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x8049FD0: analizarCaptura (entrenadores.c:422)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f4 is 4 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x804A012: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f8 is 8 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x804BA42: enviar_mensaje_catch_pokemon (utils.c:238)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f8 is 8 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid read of size 4
+==6499==    at 0x804BAB3: enviar_mensaje_catch_pokemon (utils.c:258)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f8 is 8 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== Invalid free() / delete / delete[] / realloc()
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Address 0x42500f0 is 0 bytes inside a block of size 12 free'd
+==6499==    at 0x402D358: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804A01A: analizarCaptura (entrenadores.c:426)
+==6499==    by 0x804A058: main_entrenador (entrenadores.c:19)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499==  Block was alloc'd at
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== 
+==6499== HEAP SUMMARY:
+==6499==     in use at exit: 2,358 bytes in 63 blocks
+==6499==   total heap usage: 1,926 allocs, 1,865 frees, 109,261 bytes allocated
+==6499== 
+==6499== Thread 1:
+==6499== 24 bytes in 2 blocks are definitely lost in loss record 6 of 18
+==6499==    at 0x402C17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x804C670: procesar_appeared (team.c:324)
+==6499==    by 0x804C882: aplica_funcion_escucha (team.c:188)
+==6499==    by 0x403D6E9: hilo_escucha (conexiones.c:1421)
+==6499==    by 0x405F294: start_thread (pthread_create.c:333)
+==6499==    by 0x41680AD: clone (clone.S:114)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 8 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x80493E8: main (team.c:67)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 9 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x80493FD: main (team.c:68)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 10 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x804940F: main (team.c:69)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 11 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x8049424: main (team.c:70)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 12 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x403D654: crear_hilo_escucha (conexiones.c:1397)
+==6499==    by 0x8049462: main (team.c:79)
+==6499== 
+==6499== 136 bytes in 1 blocks are possibly lost in loss record 13 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x804B39D: crear_hilo_reconexion (utils.c:79)
+==6499==    by 0x8049488: main (team.c:82)
+==6499== 
+==6499== 408 bytes in 3 blocks are possibly lost in loss record 18 of 18
+==6499==    at 0x402E0B8: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==6499==    by 0x4011726: allocate_dtv (dl-tls.c:322)
+==6499==    by 0x401214B: _dl_allocate_tls (dl-tls.c:539)
+==6499==    by 0x405FCC3: allocate_stack (allocatestack.c:588)
+==6499==    by 0x405FCC3: pthread_create@@GLIBC_2.1 (pthread_create.c:539)
+==6499==    by 0x804C377: crear_hilo_entrenadores (team.c:109)
+==6499==    by 0x8049450: main (team.c:77)
+==6499== 
+==6499== LEAK SUMMARY:
+==6499==    definitely lost: 24 bytes in 2 blocks
+==6499==    indirectly lost: 0 bytes in 0 blocks
+==6499==      possibly lost: 1,224 bytes in 9 blocks
+==6499==    still reachable: 1,110 bytes in 52 blocks
+==6499==         suppressed: 0 bytes in 0 blocks
+==6499== Reachable blocks (those to which a pointer was found) are not shown.
+==6499== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==6499== 
+==6499== For counts of detected and suppressed errors, rerun with: -v
+==6499== ERROR SUMMARY: 24 errors from 16 contexts (suppressed: 0 from 0)
