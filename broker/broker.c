@@ -584,7 +584,7 @@ void aplica_funcion_escucha(int * socket){
 }
 
 void leer_archivo_config() {
-	configBroker = guard_lectura_string_config(config_create("/home/utnso/tp-2020-1c-Elite-Four/broker/broker.config"));
+	configBroker = guard_lectura_string_config(config_create("../broker.config"));
 
 	ipBroker = obtener_string_config(configBroker, "IP_BROKER");
 	puertoBroker = obtener_string_config(configBroker, "PUERTO_BROKER");

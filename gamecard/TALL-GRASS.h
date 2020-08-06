@@ -20,7 +20,7 @@
 #define PTO_MONTAJE "PTO_MONTAJE"
 #define NO_MORE_BLOCKS -1
 #define CONFIG_FIELDS_N_ 3
-#define configuracionFS "/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config"
+#define configuracionFS "../gamecard.config"
 #define AGREGAR 0
 #define MODIFICAR 1
 

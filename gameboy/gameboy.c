@@ -185,8 +185,8 @@ void manejar_error_mensaje() {
 }
 
 void inicializar_datos(t_config* config) {
-	logger_gameboy = log_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.log", "GAMEBOY", 1, LOG_LEVEL_INFO);
-	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gameboy/gameboy.config");
+	logger_gameboy = log_create("../gameboy.log", "GAMEBOY", 1, LOG_LEVEL_INFO);
+	config = config_create("../gameboy.config");
 	ip_broker = config_get_string_value(config, "IP_BROKER");
 	puerto_broker = config_get_string_value(config, "PUERTO_BROKER");
 	ip_team = config_get_string_value(config, "IP_TEAM");

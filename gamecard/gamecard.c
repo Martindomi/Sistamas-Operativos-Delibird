@@ -12,7 +12,7 @@ int main (int argc, char *argv[]) {
 	signal(SIGINT, post_semaforo);
 
 	informacion = malloc(sizeof(t_info));
-	config = config_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
+	config = config_create("../gamecard.config");
 	int idGamecardSize = strlen(config_get_string_value(config, "ID_GAMECARD"))+1;
 	informacion->idGamecard = malloc(idGamecardSize);
 	memcpy(informacion->idGamecard, config_get_string_value(config, "ID_GAMECARD"), idGamecardSize);
@@ -35,7 +35,7 @@ int main (int argc, char *argv[]) {
 	memcpy(informacion->puertoGamecard, config_get_string_value(config, "PUERTO_GAMECARD"), puertoGamecardSize);
 
 
-	if((logger= log_create("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.log", informacion->idGamecard, true, LOG_LEVEL_INFO))==NULL){
+	if((logger= log_create("../gamecard.log", informacion->idGamecard, true, LOG_LEVEL_INFO))==NULL){
 		printf("No se pudo crear log\n");
 		exit(3);
 	}
@@ -87,9 +87,9 @@ int main (int argc, char *argv[]) {
 	ACK="ACK";
 
 	socketEscucha = crear_hilo_escucha(informacion->ipGamecard,informacion->puertoGamecard);
-	bool conexionOk = suscribirse_a_colas_gameboy("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
+	bool conexionOk = suscribirse_a_colas_gameboy("../gamecard.config");
 	if(!conexionOk){
-		crear_hilo_reconexion("/home/utnso/tp-2020-1c-Elite-Four/gamecard/gamecard.config");
+		crear_hilo_reconexion("../gamecard.config");
 	}
 
 	pthread_t threadExit;
