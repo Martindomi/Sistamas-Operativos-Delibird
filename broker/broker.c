@@ -199,7 +199,7 @@ void process_request(int cod_op, int socket) {
 			mensaje_suscripcion = recibir_suscripcion(socket, &size, loggerBroker);
 
 			//printf("Recibe una suscripcion\n");
-			log_info(loggerBroker, "Proceso suscripto: %s", mensaje_suscripcion->cliente);
+			log_info(loggerBroker, "Proceso suscripto: %s a la cola %s", mensaje_suscripcion->cliente, obtener_nombre_cola(mensaje_suscripcion->cola));
 
 			agregar_suscriptor_cola(mensaje_suscripcion, socket);
 
@@ -352,7 +352,7 @@ void distribuir_mensaje_sin_enviar_a(puntero_suscriptor suscriptor, int cola, pu
 		id = punteroParticion->id;
 		id_correlativo = punteroParticion->idCorrelativo;
 	}
-	log_info(loggerBroker,"Envio de mensaje con ID: %d", id);
+	log_info(loggerBroker,"Envio de mensaje con ID: %d a %s", id, suscriptor->cliente);
 
 	switch(cola) {
 		case NEW_POKEMON: {
@@ -442,7 +442,7 @@ void esperar_mensaje_ack(puntero_ack punteroAck) {
 
 	mensaje_recibido = client_recibir_mensaje(punteroAck->conexion);
 	//printf("RECIBE %s\n", mensaje_recibido);
-	log_info(loggerBroker, "ACK Recibido con ID: %d", punteroAck->idMensaje);
+	log_info(loggerBroker, "ACK Recibido con ID: %d del proceso %s", punteroAck->idMensaje, punteroAck->suscriptor);
 	if(strcmp(mensaje_recibido, "ACK") == 0) {
 		punteroParticion punteroParticionEncontrado = buscar_particion_mensaje(punteroAck->idMensaje);
 		if(punteroParticionEncontrado != NULL) {
@@ -807,7 +807,7 @@ void compactar_memoria() {
 	if(punteroParticionDesocupada != NULL && punteroParticionOcupada != NULL) {
 		//printf("Encontro ambas particiones para intercambiar\n");
 		intercambio_particiones(punteroParticionDesocupada, punteroParticionOcupada);
-		log_info(loggerBroker,"Compactación de particiones ...");
+		log_info(loggerBroker,"Compactacion de particiones ...");
 		compactar_memoria();
 	} else {
 		//printf("No encontro particiones para compactar\n");
@@ -887,7 +887,7 @@ void eliminar_particion_seleccionada(int index) {
 			sem_wait(&mutexDistribucion);
 			envio_mensaje(punteroMensaje, punteroParticionEliminar->colaMensaje, cola);
 
-			log_info(loggerBroker,"Elimino particion con mensaje con ID: %d", punteroMensaje->id);
+			log_info(loggerBroker,"Elimina mensaje con ID: %d en posicion %d", punteroMensaje->id, (char*)punteroParticionEliminar->punteroMemoria - (char*)punteroMemoriaPrincipal);
 
 			puntero_mensaje mens = list_remove(cola->mensajes, j);
 			liberar(punteroParticionEliminar->colaMensaje, mens);
@@ -1365,7 +1365,7 @@ void bs_consolidar(){
 					if((buddyIzq->izq == true) && (buddyIzq->izq == buddyDer->der) && (!buddyDer->ocupada) && (tamanioBuddyIzq == tamanioBuddyDer)){
 
 						//printf("Hay dos buddys de tamaño: %d\n", buddyIzq->tamanoMensaje);
-						log_info(loggerBroker,"Consolida Buddys");
+						log_info(loggerBroker,"Consolida Buddys, Izquierdo en posicion %d y Derecho en posicion %d", (char*)buddyIzq->punteroMemoria - (char*)punteroMemoriaPrincipal, (char*)buddyDer->punteroMemoria - (char*)punteroMemoriaPrincipal);
 
 						// "UNIFICO" los buddys
 						buddyIzq->tamanoMensaje += buddyDer->tamanoMensaje;
@@ -1455,7 +1455,7 @@ void bs_eliminar_particion_fifo(){
 				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionMenorId->colaMensaje, cola);
 
-				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionMenorId->id);
+				log_info(loggerBroker,"Elimina mensaje con ID: %d en posicion %d", punteroParticionMenorId->id, (char*)punteroParticionMenorId->punteroMemoria - (char*)punteroMemoriaPrincipal);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
 				liberar(punteroParticionMenorId->colaMensaje, mens);
@@ -1521,7 +1521,7 @@ void bs_eliminar_particion_lru(){
 				sem_wait(&mutexDistribucion);
 				envio_mensaje(punteroMensaje, punteroParticionLru->colaMensaje, cola);
 
-				log_info(loggerBroker,"Elimina mensaje con ID: %d", punteroParticionLru->id);
+				log_info(loggerBroker,"Elimina mensaje con ID: %d en posicion %d", punteroParticionLru->id, (char*)punteroParticionLru->punteroMemoria - (char*)punteroMemoriaPrincipal);
 
 				puntero_mensaje mens = list_remove(cola->mensajes, j);
 				liberar(punteroParticionLru->colaMensaje, mens);
@@ -1774,4 +1774,16 @@ void manejo_end() {
 	list_destroy_and_destroy_elements(particiones, liberar_particion);
 	free(punteroMemoriaPrincipal);
 	exit(0);
+}
+
+char* obtener_nombre_cola(int cola) {
+	switch(cola) {
+		case NEW_POKEMON: return "NEW_POKEMON";
+		case GET_POKEMON: return "GET_POKEMON";
+		case APPEARED_POKEMON: return "APPEARED_POKEMON";
+		case LOCALIZED_POKEMON: return "LOCALIZED_POKEMON";
+		case CAUGHT_POKEMON: return "CAUGHT_POKEMON";
+		case CATCH_POKEMON: return "CATCH_POKEMON";
+	}
+	return "";
 }

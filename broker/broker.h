@@ -134,6 +134,8 @@ void liberar_mensajes_appeared(void* men);
 void liberar_mensajes_caught(void* men);
 void liberar_mensajes_catch(void* men);
 void liberar_particion(void* part);
+char* obtener_nombre_cola(int cola);
+
 int cantidad_mensajes;
 
 #endif /* SERVIDOR_H_ */

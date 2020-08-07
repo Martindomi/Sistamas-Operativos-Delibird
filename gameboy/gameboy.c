@@ -336,7 +336,7 @@ bool suscribirse_a_cola_gameboy(op_code cola_elegida ,int tiempo){
 			//mensaje = client_recibir_mensaje(conexion);
 			pthread_create(&hiloEscucha,NULL,(void*)aplica_funcion_escucha, &conexion);
 			pthread_detach(&hiloEscucha);
-			log_info(logger_gameboy,"SUSCRIPCION; Suscripcion a cola: %s\n", mensaje );
+			log_info(logger_gameboy,"SUSCRIPCION; Suscripcion a cola: %s", mensaje );
 			//free(mensaje);
 			i++;
 
