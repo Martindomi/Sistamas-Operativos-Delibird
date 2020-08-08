@@ -215,9 +215,9 @@ int aplica_funcion_escucha(int * socket){
 
 		mensajeRecibido = recibir_localized_pokemon(*socket, size);
 		puntero_mensaje_localized_pokemon localizedRecibido = mensajeRecibido->mensaje_cuerpo;
-
+		sem_wait(&mutex_lista_ids);
 		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
-
+		sem_post(&mutex_lista_ids);
 		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 		if(encontre) {
 			//printf("id:%d\n", mensajeRecibido->id_correlativo);
