@@ -261,12 +261,12 @@ char* client_recibir_mensaje(int socket_cliente)
 	int buffer_size;
 
 
-	recv(socket_cliente, &operacion, sizeof(operacion), 0);
+	recv(socket_cliente, &operacion, sizeof(operacion), MSG_WAITALL);
 
-	recv(socket_cliente, &buffer_size, sizeof(buffer_size), 0);
+	recv(socket_cliente, &buffer_size, sizeof(buffer_size), MSG_WAITALL);
 
 	char * buffer = malloc(buffer_size);
-	recv(socket_cliente, buffer, buffer_size, 0);
+	recv(socket_cliente, buffer, buffer_size, MSG_WAITALL);
 
 	//puts(buffer);
 	return buffer;

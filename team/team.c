@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
 	//sem_init(&sem_localized_appeared,0,0);
 	sem_init(&mutex_lista_ids,0,1);
 	sem_init(&mutex_colas, 0, 1);
+	sem_init(&mutex_mensajes, 0, 1);
 	sem_wait(&mutex_boolReconexion);
 	seCreoHiloReconexion=false;
 	sem_post(&mutex_boolReconexion);
@@ -149,13 +150,13 @@ void mover_entrenador_new_sin_espacio(t_entrenador* enternador){
 int aplica_funcion_escucha(int * socket){
 
 
-
 	//printf("recibe mensaje del broker\n");
 	op_code cod_op;
 	char *msj;
 	int recv_data;
 
 	recv_data = recv(*socket, &cod_op, sizeof(op_code), MSG_WAITALL);
+
 	if(recv_data==-1){
 		return -1;
 	}
@@ -178,8 +179,11 @@ int aplica_funcion_escucha(int * socket){
 	case MESSAGE:
 
 		msj = client_recibir_mensaje_SIN_CODEOP(*socket);
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido del mensaje: %s", msj);
-		free(msj);
+		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido del mensaje/id recibido: %s", msj);
+		sem_wait(&mutex_lista_ids);
+		list_add(ids_mensajes_enviados, msj);
+		sem_post(&mutex_lista_ids);
+		//free(msj);
 		break;
 
 	case APPEARED_POKEMON:
@@ -197,7 +201,8 @@ int aplica_funcion_escucha(int * socket){
 
 		//printf("RECIBO CAUGHT CON VALOR: %d\n", caughtRecibido->caughtResult);
 		sem_wait(&mutex_lista_ids);
-		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
+		if(!list_is_empty(ids_mensajes_enviados))
+			encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 		sem_post(&mutex_lista_ids);
 		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 		if(encontre) {
@@ -216,7 +221,8 @@ int aplica_funcion_escucha(int * socket){
 		mensajeRecibido = recibir_localized_pokemon(*socket, size);
 		puntero_mensaje_localized_pokemon localizedRecibido = mensajeRecibido->mensaje_cuerpo;
 		sem_wait(&mutex_lista_ids);
-		encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
+		if(!list_is_empty(ids_mensajes_enviados))
+			encontre = list_any_satisfy(ids_mensajes_enviados, (void*)encuentra_mensaje_propio);
 		sem_post(&mutex_lista_ids);
 		// TODO aca me fijo si es un mensaje que me interesa y acciono en consecuencia
 		if(encontre) {

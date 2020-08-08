@@ -213,11 +213,9 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 	//poke->diferenciaARecibir--;
 	//sem_post(&mutex_objetivo);
 	//free(pokemon);
-	mensaje=client_recibir_mensaje(conexion);
-	log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje GET enviado es] %s",mensaje);
-	sem_wait(&mutex_lista_ids);
-	list_add(ids_mensajes_enviados, mensaje);
-	sem_post(&mutex_lista_ids);
+	//mensaje=client_recibir_mensaje(conexion);
+	log_info(loggerTEAM,"MENSAJE ENVIADO; Tipo: GET. Contenido: [pokemon del mensaje GET enviado es] %s",especiePokemon);
+
 	}
 	liberar_conexion(conexion);
 }
@@ -268,12 +266,10 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	}else{
 		send_message_catch_pokemon(especiePokemon,posX,posY,0,0,conexion);
 	//	printf("Envio catch pokemon %s\n",especiePokemon);
-		mensaje=client_recibir_mensaje(conexion);
+		//mensaje=client_recibir_mensaje(conexion);
 		entrenador->id_catch = atoi(mensaje);
-		log_info(loggerTEAM,"MENSAJE RECIBIDO; Tipo: MENSAJE. Contenido: [id del mensaje CATCH enviado es] %s",mensaje);
-		sem_wait(&mutex_lista_ids);
-		list_add(ids_mensajes_enviados, mensaje);
-		sem_post(&mutex_lista_ids);
+		log_info(loggerTEAM,"MENSAJE ENVIADO; Tipo: CATCH. Contenido: [pokemon del mensaje CATCH enviado es] %s", especiePokemon);
+
 		//free(mensaje)
 		liberar_conexion(conexion);
 

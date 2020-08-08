@@ -31,6 +31,7 @@ sem_t sem_localized_appeared;
 sem_t mutex_objetivo;
 sem_t mutex_lista_ids;
 sem_t mutex_colas;
+sem_t mutex_mensajes;
 
 int movimientoTime;
 
