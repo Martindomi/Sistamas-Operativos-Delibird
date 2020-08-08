@@ -807,11 +807,12 @@ void compactar_memoria() {
 	if(punteroParticionDesocupada != NULL && punteroParticionOcupada != NULL) {
 		//printf("Encontro ambas particiones para intercambiar\n");
 		intercambio_particiones(punteroParticionDesocupada, punteroParticionOcupada);
-		log_info(loggerBroker,"Compactacion de particiones ...");
 		compactar_memoria();
 	} else {
 		//printf("No encontro particiones para compactar\n");
 		consolidar(NULL);
+		log_info(loggerBroker,"Compactacion de particiones ...");
+
 		return;
 	}
 
