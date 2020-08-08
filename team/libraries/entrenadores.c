@@ -65,7 +65,7 @@ void realizarIntercambio(t_entrenador* entrenador, t_entrenador* entrenadorDeadl
 
 	char* pokemonACambiar1 = sacar_pokemon_de_mas(entrenador);
 	char* pokemonACambiar2 = sacar_pokemon_de_mas(entrenadorDeadlock);
-	tarda(5);
+	tarda(5, false);
 	list_add(entrenador->pokemonesCapturados,pokemonACambiar2);
 	list_add(entrenadorDeadlock->pokemonesCapturados,pokemonACambiar1);
 	log_info(loggerTEAM,"INTERCAMBIO; Entrenador: %d recibe pokemon %s y Entrenador: %d recibe pokemon %s",entrenador->id, pokemonACambiar2,entrenadorDeadlock->id, pokemonACambiar1);
@@ -375,7 +375,7 @@ void moverEntrenador(t_entrenador* entrenador, int xDestino, int yDestino) {
 			entrenador->rafagaReal++;
 			entrenador->estimacionRestante--;
 	//		printf("Se mueve entrenador %d a X:%d Y:%d\n",entrenador->id,entrenador->x, entrenador->y);
-			tarda(1);
+			tarda(1, false);
 			contar_ciclos_entrenador(entrenador, 1);
 
 			if(entrenador_tiene_menor_rafaga(entrenador,&sizeAntes)){

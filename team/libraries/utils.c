@@ -35,7 +35,7 @@ bool suscribirse_a_colas(char* path){
 			cola = vectorDeColas[i];
 			enviar_mensaje_suscribir_con_id(cola, id, socketSuscripcion, -1);
 			//printf("envio suscipcion\n");
-			tarda(1);
+			tarda(1, false);
 			i++;
 
 
@@ -194,7 +194,8 @@ void enviar_mensaje_get_pokemon(char* especiePokemon){
 
 	char* mensaje;
 	int conexion;
-	tarda(1);
+	tarda(1, true);
+
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		sem_post(&mutex_objetivo);
@@ -233,7 +234,7 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 	bool _filterPokemon(t_pokemonObjetivo *element){
 		return !strcmp(element->pokemon,pokemon->especie);
 	}
-	tarda(1);
+	tarda(1, false);
 	conexion = crear_conexion(configData->ipBroker, configData->puertoBroker);
 	if(conexion==-1){
 		//op_code vectorDeColas[]= {APPEARED_POKEMON, CAUGHT_POKEMON, LOCALIZED_POKEMON};
@@ -281,13 +282,13 @@ void enviar_mensaje_catch_pokemon(t_entrenador *entrenador, char* especiePokemon
 
 }
 
-void tarda(int ciclos){
+void tarda(int ciclos, bool get){
 
 	sem_wait(&mutex_ciclos);
 	ciclosCPU += ciclos;
 	sem_post(&mutex_ciclos);
 
-	sleep(configData->retardoCicloCPU * ciclos);
+	sleep(get && configData->retardoCicloCPU == 5 ? 4 * ciclos : configData->retardoCicloCPU * ciclos);
 
 }
 

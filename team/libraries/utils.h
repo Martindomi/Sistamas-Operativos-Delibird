@@ -43,7 +43,7 @@ void _reintentar_conexion(char* path);
 void hilo_reconexion();
 //void reintentar_conexion(char* path);
 void funcionGenerica(int *socket);
-void tarda(int ciclos);
+void tarda(int ciclos, bool get);
 void contar_deadlock_producido();
 void contar_deadlock_resuelto();
 void contar_context_switch();
