@@ -1,0 +1,31 @@
+pikachu 1
+squirtle 1
+pidgey 1
+charmander 1
+bulbasur 0
+
+/*
+	t_distancia* resultado = entrenadorMasCerca(pika1,cola_NEW);
+	moverColas(cola_NEW, cola_READY, resultado->entrenador);
+	resultado = entrenadorMasCerca(pika2,cola_NEW);
+	moverColas(cola_NEW, cola_READY, resultado->entrenador);
+	printf("Imprimo NEW\n");
+	imprimirListaEntrenadores(cola_NEW);
+	printf("Imprimo Ready\n");
+	imprimirListaEntrenadores(cola_READY);
+
+	*/
+
+/*
+	while(list_size(cola_EXIT)!=cant_entrenadores){
+		printf("antes sleep: %d \n",list_size(cola_READY));
+		sleep(2);
+		printf("Esperando que terminen los entrenadores \n");
+		t_entrenador *unEntrenador = list_get(cola_READY,0);
+		sem_post(&(unEntrenador->sem_entrenador));
+		sleep(2);
+		printf("despues sleep: %d \n",list_size(cola_READY));
+
+	}*/
+
+	//imprimirLista(cola_EXIT);

@@ -1,0 +1,7 @@
+#!/bin/sh
+./gameboy BROKER APPEARED_POKEMON Pikachu 9 9 20
+./gameboy BROKER APPEARED_POKEMON Squirtle 5 2 21
+./gameboy BROKER APPEARED_POKEMON Onix 2 8 22
+./gameboy BROKER APPEARED_POKEMON Gengar 6 6 23
+./gameboy BROKER APPEARED_POKEMON Squirtle 5 5 24
+ 
